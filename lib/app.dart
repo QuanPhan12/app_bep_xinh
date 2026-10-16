@@ -6,9 +6,7 @@ class AppBepXinh extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        color: Colors.white,
-      ),
+      body: Container(color: Colors.white, child: Text('hello')),
     );
   }
 }
