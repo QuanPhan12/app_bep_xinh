@@ -1,4 +1,4 @@
-import 'package:app_bep_xinh/core/constants/app_const.dart';
+import 'package:app_bep_xinh/core/constants/app_constants.dart';
 import 'package:app_bep_xinh/core/dimensions/app_size.dart';
 import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
 import 'package:app_bep_xinh/features/auth/widgets/login_logo.dart';
@@ -45,7 +45,7 @@ class LoginTabletView extends StatelessWidget {
                   ),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(
-                      maxWidth: AppConst.maxContentWidth,
+                      maxWidth: AppConstants.maxContentWidth,
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,

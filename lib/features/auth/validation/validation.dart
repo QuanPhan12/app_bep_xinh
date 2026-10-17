@@ -27,6 +27,10 @@ class Validation {
           'Vui lòng đồng ý với Điều khoản dịch vụ và Chính sách bảo mật',
       ].nonNulls.firstOrNull;
 
+  /// Validate lỗi quên mật khẩu
+  static String? getForgotPasswordValidationErrors({String? email}) =>
+      validateEmail(email);
+
   static String? validateName(String? value) => switch (value) {
     null => null,
     '' => 'Vui lòng nhập tên hiển thị',

@@ -74,6 +74,12 @@ class AppTapHandler {
     _interceptors.add(interceptor);
   }
 
+  /// Kiểm tra xem ứng dụng có đang bận xử lý một hành động tap bất đồng bộ hay không
+  static bool get isBusy => instance._throttleInterceptor.isExecuting;
+
+  /// Đặt lại trạng thái khóa thực thi toàn cục
+  static void resetLock() => instance._throttleInterceptor.reset();
+
   /// Hàm cốt lõi xử lý mọi hành động onTap
   static Future<void> handle(
     BuildContext context, {
@@ -86,6 +92,9 @@ class AppTapHandler {
     bool enableHaptic = true,
     Map<String, dynamic>? params,
     FutureOr<bool> Function(BuildContext context)? customGuard,
+    bool allowConcurrent = false,
+    bool allowMultiTap = false,
+    Duration? globalThrottleDuration,
   }) async {
     if (onTap == null) return;
 
@@ -98,40 +107,69 @@ class AppTapHandler {
           enableHaptic: enableHaptic,
           params: params,
           customGuard: customGuard,
+          allowConcurrent: allowConcurrent,
+          allowMultiTap: allowMultiTap,
+          globalThrottleDuration: globalThrottleDuration,
         );
 
     final interceptors = instance._interceptors;
 
     // 1. Chạy qua chuỗi beforeExecute của từng Interceptor
     for (final interceptor in interceptors) {
-      if (!context.mounted) return;
-      final canContinue = await interceptor.beforeExecute(context, resolvedConfig);
+      if (!context.mounted) {
+        _notifyComplete(interceptors, resolvedConfig);
+        return;
+      }
+      final canContinue =
+          await interceptor.beforeExecute(context, resolvedConfig);
       if (!canContinue) {
-        // Bị chặn bởi một Interceptor (vd: mất mạng, chưa đăng nhập, spam click)
+        // Bị chặn bởi một Interceptor (vd: mất mạng, chưa đăng nhập, spam, ấn 2 nút cùng lúc)
+        _notifyComplete(interceptors, resolvedConfig);
         return;
       }
     }
 
-    // 2. Thực thi hàm onTap chính một cách an toàn (try-catch)
+    // 2. Thực thi hàm onTap chính một cách an toàn (try-catch-finally)
     try {
       final result = onTap();
       if (result is Future) {
+        // Nếu sau khi gọi onTap mà màn hình hiện tại không còn active
+        // (ví dụ: đã điều hướng sang màn hình mới qua context.push/pushNamed),
+        // thì không được giữ khóa làm chặn các tương tác trên màn hình mới!
+        final route = context.mounted ? ModalRoute.of(context) : null;
+        if (route != null && !route.isCurrent) {
+          _notifyComplete(interceptors, resolvedConfig);
+          return;
+        }
+
         await result;
       }
 
-      if (!context.mounted) return;
-
-      // 3. Gọi afterExecute khi thành công
-      for (final interceptor in interceptors) {
-        interceptor.afterExecute(context, resolvedConfig);
+      if (context.mounted) {
+        // 3. Gọi afterExecute khi thành công
+        for (final interceptor in interceptors) {
+          interceptor.afterExecute(context, resolvedConfig);
+        }
       }
     } catch (error, stackTrace) {
-      if (!context.mounted) return;
-
-      // 4. Báo lỗi cho các interceptor khi có Exception
-      for (final interceptor in interceptors) {
-        interceptor.onError(context, resolvedConfig, error, stackTrace);
+      if (context.mounted) {
+        // 4. Báo lỗi cho các interceptor khi có Exception
+        for (final interceptor in interceptors) {
+          interceptor.onError(context, resolvedConfig, error, stackTrace);
+        }
       }
+    } finally {
+      // 5. Luôn gọi onComplete để giải phóng cờ đang thực thi (Concurrency Lock)
+      _notifyComplete(interceptors, resolvedConfig);
+    }
+  }
+
+  static void _notifyComplete(
+    List<TapInterceptor> interceptors,
+    TapConfig config,
+  ) {
+    for (final interceptor in interceptors) {
+      interceptor.onComplete(config);
     }
   }
 
@@ -149,6 +187,9 @@ class AppTapHandler {
     bool enableHaptic = true,
     Map<String, dynamic>? params,
     FutureOr<bool> Function(BuildContext context)? customGuard,
+    bool allowConcurrent = false,
+    bool allowMultiTap = false,
+    Duration? globalThrottleDuration,
   }) {
     if (onTap == null) return null;
 
@@ -164,6 +205,9 @@ class AppTapHandler {
         enableHaptic: enableHaptic,
         params: params,
         customGuard: customGuard,
+        allowConcurrent: allowConcurrent,
+        allowMultiTap: allowMultiTap,
+        globalThrottleDuration: globalThrottleDuration,
       );
     };
   }

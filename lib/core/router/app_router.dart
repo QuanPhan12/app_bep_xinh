@@ -1,3 +1,4 @@
+import 'package:app_bep_xinh/features/auth/screens/forgot_password/forgot_password_screen.dart';
 import 'package:app_bep_xinh/features/auth/screens/login/login_screen.dart';
 import 'package:app_bep_xinh/features/auth/screens/register/register_screen.dart';
 import 'package:go_router/go_router.dart';
@@ -6,12 +7,14 @@ class PathRouter {
   const PathRouter._();
   static const loginScreen = "/login";
   static const registerScreen = "/register";
+  static const forgotPasswordScreen = "/forgot-password";
 }
 
 class NameRouter {
   const NameRouter._();
   static const loginScreen = "login_screen";
   static const registerScreen = "register_screen";
+  static const forgotPasswordScreen = "forgot_password_screen";
 }
 
 final appRouter = GoRouter(
@@ -26,6 +29,11 @@ final appRouter = GoRouter(
       path: PathRouter.registerScreen,
       name: NameRouter.registerScreen,
       builder: (context, state) => const RegisterScreen(),
+    ),
+    GoRoute(
+      path: PathRouter.forgotPasswordScreen,
+      name: NameRouter.forgotPasswordScreen,
+      builder: (context, state) => const ForgotPasswordScreen(),
     ),
   ],
 );

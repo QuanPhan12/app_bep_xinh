@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+
 import '../tap/app_tap_handler.dart';
 import '../tap/tap_config.dart';
 
@@ -25,6 +27,9 @@ class AppTap extends StatefulWidget {
   final Map<String, dynamic>? params;
   final FutureOr<bool> Function(BuildContext context)? customGuard;
   final TapConfig? config;
+  final bool allowConcurrent;
+  final bool allowMultiTap;
+  final Duration? globalThrottleDuration;
 
   /// Hiệu ứng co nhẹ khi nhấn (micro-interaction scale)
   final bool scaleOnTap;
@@ -46,11 +51,14 @@ class AppTap extends StatefulWidget {
     this.actionName,
     this.requiresAuth = false,
     this.requiresNetwork = false,
-    this.throttleDuration = const Duration(milliseconds: 500),
+    this.throttleDuration = const Duration(milliseconds: 100),
     this.enableHaptic = true,
     this.params,
     this.customGuard,
     this.config,
+    this.allowConcurrent = false,
+    this.allowMultiTap = false,
+    this.globalThrottleDuration,
     this.scaleOnTap = true,
     this.fadeOnTap = true,
     this.useRipple = false,
@@ -75,13 +83,15 @@ class _AppTapState extends State<AppTap> with SingleTickerProviderStateMixin {
       reverseDuration: const Duration(milliseconds: 120),
     );
 
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.97,
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
 
-    _fadeAnimation = Tween<double>(begin: 1.0, end: 0.85).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.85,
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
   }
 
   @override
@@ -120,6 +130,9 @@ class _AppTapState extends State<AppTap> with SingleTickerProviderStateMixin {
       enableHaptic: widget.enableHaptic,
       params: widget.params,
       customGuard: widget.customGuard,
+      allowConcurrent: widget.allowConcurrent,
+      allowMultiTap: widget.allowMultiTap,
+      globalThrottleDuration: widget.globalThrottleDuration,
     );
   }
 
@@ -136,11 +149,11 @@ class _AppTapState extends State<AppTap> with SingleTickerProviderStateMixin {
           onTap: _handleTap,
           onLongPress: widget.onLongPress != null
               ? () => AppTapHandler.handle(
-                    context,
-                    onTap: widget.onLongPress,
-                    actionName: '${widget.actionName ?? 'item'}_long_press',
-                    enableHaptic: widget.enableHaptic,
-                  )
+                  context,
+                  onTap: widget.onLongPress,
+                  actionName: '${widget.actionName ?? 'item'}_long_press',
+                  enableHaptic: widget.enableHaptic,
+                )
               : null,
           borderRadius: widget.borderRadius,
           child: widget.child,
@@ -156,21 +169,18 @@ class _AppTapState extends State<AppTap> with SingleTickerProviderStateMixin {
       onTap: _handleTap,
       onLongPress: widget.onLongPress != null
           ? () => AppTapHandler.handle(
-                context,
-                onTap: widget.onLongPress,
-                actionName: '${widget.actionName ?? 'item'}_long_press',
-                enableHaptic: widget.enableHaptic,
-              )
+              context,
+              onTap: widget.onLongPress,
+              actionName: '${widget.actionName ?? 'item'}_long_press',
+              enableHaptic: widget.enableHaptic,
+            )
           : null,
       child: AnimatedBuilder(
         animation: _animController,
         builder: (context, child) {
           Widget current = child!;
           if (widget.fadeOnTap) {
-            current = Opacity(
-              opacity: _fadeAnimation.value,
-              child: current,
-            );
+            current = Opacity(opacity: _fadeAnimation.value, child: current);
           }
           if (widget.scaleOnTap) {
             current = Transform.scale(

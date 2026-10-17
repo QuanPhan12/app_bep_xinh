@@ -8,8 +8,8 @@ import '../../../core/router/app_router.dart';
 import '../../../core/text_styles/app_text_styles.dart';
 import '../../../core/widgets/widgets.dart';
 import '../cubits/register/register.dart';
-import 'login_textfiled.dart';
-import 'register_checkbox_procity.dart';
+import 'login_text_field.dart';
+import 'register_checkbox_policy.dart';
 
 class RegisterForm extends StatelessWidget {
   final VoidCallback? onRegisterSuccess;
@@ -108,7 +108,7 @@ class RegisterForm extends StatelessWidget {
           // 5. Đồng ý điều khoản & chính sách bảo mật
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: const RegisterCheckboxProcity(),
+            child: const RegisterCheckboxPolicy(),
           ),
           SizedBox(height: size.space24.h(context)),
 

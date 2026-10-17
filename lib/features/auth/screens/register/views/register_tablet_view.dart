@@ -1,5 +1,5 @@
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
-import 'package:app_bep_xinh/core/constants/app_const.dart';
+import 'package:app_bep_xinh/core/constants/app_constants.dart';
 import 'package:app_bep_xinh/core/dimensions/app_size.dart';
 import 'package:app_bep_xinh/core/widgets/app_sliver_app_bar.dart';
 import 'package:app_bep_xinh/features/auth/widgets/register_form.dart';
@@ -25,7 +25,7 @@ class RegisterTabletView extends StatelessWidget {
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(
-                    maxWidth: AppConst.maxContentWidth,
+                    maxWidth: AppConstants.maxContentWidth,
                   ),
                   child: RegisterForm(),
                 ),

@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 /// Cấu hình và metadata cho mỗi hành động onTap trong toàn ứng dụng.
@@ -15,7 +16,7 @@ class TapConfig {
   /// Nếu true và mất mạng -> NetworkTapInterceptor sẽ chặn lại và thông báo.
   final bool requiresNetwork;
 
-  /// Thời gian tối thiểu giữa 2 lần tap để chống spam / double click (mặc định 500ms)
+  /// Thời gian tối thiểu giữa 2 lần tap trên CÙNG một nút để chống spam / double click (mặc định 500ms)
   final Duration throttleDuration;
 
   /// Có kích hoạt rung nhẹ (haptic feedback) khi chạm không? (mặc định true)
@@ -27,14 +28,29 @@ class TapConfig {
   /// Hàm kiểm tra điều kiện tùy biến trước khi thực thi. Trả về false sẽ chặn tap.
   final FutureOr<bool> Function(BuildContext context)? customGuard;
 
+  /// Cho phép thực thi đồng thời với hành động khác không?
+  /// Mặc định: false (tự động khóa để chặn người dùng nhấn nút khác trong khi một tác vụ bất đồng bộ đang xử lý).
+  final bool allowConcurrent;
+
+  /// Cho phép nhấn đồng thời / bỏ qua bộ lọc chống chạm đa điểm (multi-touch) không?
+  /// Mặc định: false (chống người dùng dùng 2 ngón tay nhấn 2 nút cùng lúc).
+  final bool allowMultiTap;
+
+  /// Khoảng thời gian tối thiểu giữa 2 lần chạm bất kỳ trên toàn bộ ứng dụng (toàn cục)
+  /// Nếu null, sử dụng giá trị mặc định của hệ thống (350ms).
+  final Duration? globalThrottleDuration;
+
   const TapConfig({
     this.actionName,
     this.requiresAuth = false,
     this.requiresNetwork = false,
-    this.throttleDuration = const Duration(milliseconds: 500),
+    this.throttleDuration = const Duration(milliseconds: 100),
     this.enableHaptic = true,
     this.params,
     this.customGuard,
+    this.allowConcurrent = false,
+    this.allowMultiTap = false,
+    this.globalThrottleDuration,
   });
 
   /// Tạo bản sao với các thuộc tính được cập nhật
@@ -46,6 +62,9 @@ class TapConfig {
     bool? enableHaptic,
     Map<String, dynamic>? params,
     FutureOr<bool> Function(BuildContext context)? customGuard,
+    bool? allowConcurrent,
+    bool? allowMultiTap,
+    Duration? globalThrottleDuration,
   }) {
     return TapConfig(
       actionName: actionName ?? this.actionName,
@@ -55,6 +74,10 @@ class TapConfig {
       enableHaptic: enableHaptic ?? this.enableHaptic,
       params: params ?? this.params,
       customGuard: customGuard ?? this.customGuard,
+      allowConcurrent: allowConcurrent ?? this.allowConcurrent,
+      allowMultiTap: allowMultiTap ?? this.allowMultiTap,
+      globalThrottleDuration:
+          globalThrottleDuration ?? this.globalThrottleDuration,
     );
   }
 }

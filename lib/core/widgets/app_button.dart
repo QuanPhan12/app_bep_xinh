@@ -24,6 +24,9 @@ class AppButton extends StatelessWidget {
   final Map<String, dynamic>? params;
   final FutureOr<bool> Function(BuildContext context)? customGuard;
   final TapConfig? config;
+  final bool allowConcurrent;
+  final bool allowMultiTap;
+  final Duration? globalThrottleDuration;
 
   final AppButtonVariant variant;
   final bool isLoading;
@@ -44,11 +47,14 @@ class AppButton extends StatelessWidget {
     this.actionName,
     this.requiresAuth = false,
     this.requiresNetwork = false,
-    this.throttleDuration = const Duration(milliseconds: 500),
+    this.throttleDuration = const Duration(milliseconds: 100),
     this.enableHaptic = true,
     this.params,
     this.customGuard,
     this.config,
+    this.allowConcurrent = false,
+    this.allowMultiTap = false,
+    this.globalThrottleDuration,
     this.variant = AppButtonVariant.primary,
     this.isLoading = false,
     this.isFullWidth = true,
@@ -76,6 +82,9 @@ class AppButton extends StatelessWidget {
             enableHaptic: enableHaptic,
             params: params,
             customGuard: customGuard,
+            allowConcurrent: allowConcurrent,
+            allowMultiTap: allowMultiTap,
+            globalThrottleDuration: globalThrottleDuration,
             config: config,
           );
 

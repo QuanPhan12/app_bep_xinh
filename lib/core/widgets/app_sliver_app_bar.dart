@@ -163,6 +163,7 @@ class AppSliverAppBar extends StatelessWidget {
     if (leadingWidget == null && automaticallyImplyLeading && canPop) {
       leadingWidget = AppTap(
         actionName: 'app_bar_back',
+        allowConcurrent: true,
         onTap: () {
           if (onBackPressed != null) {
             onBackPressed!();

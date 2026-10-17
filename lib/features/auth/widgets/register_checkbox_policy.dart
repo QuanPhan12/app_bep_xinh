@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -8,8 +7,8 @@ import '../../../core/widgets/widgets.dart';
 import '../cubits/register/register.dart';
 
 /// Widget Checkbox xác nhận đồng ý với Điều khoản dịch vụ và Chính sách bảo mật Bếp Xinh
-class RegisterCheckboxProcity extends StatelessWidget {
-  const RegisterCheckboxProcity({super.key});
+class RegisterCheckboxPolicy extends StatelessWidget {
+  const RegisterCheckboxPolicy({super.key});
 
   @override
   Widget build(BuildContext context) {

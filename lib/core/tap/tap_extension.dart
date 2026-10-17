@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+
 import 'app_tap_handler.dart';
 import 'tap_config.dart';
 
@@ -22,10 +24,13 @@ extension AppTapContextExtension on BuildContext {
     String? actionName,
     bool requiresAuth = false,
     bool requiresNetwork = false,
-    Duration throttleDuration = const Duration(milliseconds: 500),
+    Duration throttleDuration = const Duration(milliseconds: 100),
     bool enableHaptic = true,
     Map<String, dynamic>? params,
     FutureOr<bool> Function(BuildContext context)? customGuard,
+    bool allowConcurrent = false,
+    bool allowMultiTap = false,
+    Duration? globalThrottleDuration,
     TapConfig? config,
   }) {
     return AppTapHandler.wrap(
@@ -38,6 +43,9 @@ extension AppTapContextExtension on BuildContext {
       enableHaptic: enableHaptic,
       params: params,
       customGuard: customGuard,
+      allowConcurrent: allowConcurrent,
+      allowMultiTap: allowMultiTap,
+      globalThrottleDuration: globalThrottleDuration,
       config: config,
     );
   }
@@ -53,10 +61,13 @@ extension AppTapFunctionExtension on FutureOr<void> Function()? {
     String? actionName,
     bool requiresAuth = false,
     bool requiresNetwork = false,
-    Duration throttleDuration = const Duration(milliseconds: 500),
+    Duration throttleDuration = const Duration(milliseconds: 100),
     bool enableHaptic = true,
     Map<String, dynamic>? params,
     FutureOr<bool> Function(BuildContext context)? customGuard,
+    bool allowConcurrent = false,
+    bool allowMultiTap = false,
+    Duration? globalThrottleDuration,
     TapConfig? config,
   }) {
     return AppTapHandler.wrap(
@@ -69,6 +80,9 @@ extension AppTapFunctionExtension on FutureOr<void> Function()? {
       enableHaptic: enableHaptic,
       params: params,
       customGuard: customGuard,
+      allowConcurrent: allowConcurrent,
+      allowMultiTap: allowMultiTap,
+      globalThrottleDuration: globalThrottleDuration,
       config: config,
     );
   }

@@ -26,23 +26,70 @@ abstract class TapInterceptor {
     Object error,
     StackTrace stackTrace,
   ) {}
+
+  /// Chạy khi tiến trình onTap kết thúc (luôn được gọi trong finally hoặc khi chuỗi bị hủy/chặn).
+  void onComplete(TapConfig config) {}
 }
 
-/// 1. Interceptor chống spam / double-click (Throttling)
+/// 1. Interceptor chống spam / double-click (Throttling) & Chống tap trùng đồng thời (Multi-Touch / Concurrency Guard)
 class ThrottleTapInterceptor extends TapInterceptor {
   final Map<String, int> _lastTapTimes = {};
   int _globalLastTapTime = 0;
+  bool _isExecuting = false;
+  String? _currentRunningAction;
+
+  /// Khoảng thời gian tối thiểu giữa 2 lần chạm bất kỳ trên toàn bộ ứng dụng (chống user dùng 2 ngón tay nhấn 2 nút cùng lúc)
+  final Duration defaultGlobalThrottleDuration;
+
+  ThrottleTapInterceptor({
+    this.defaultGlobalThrottleDuration = const Duration(milliseconds: 100),
+  });
+
+  /// Kiểm tra xem hiện tại có đang trong tiến trình xử lý một action nào không
+  bool get isExecuting => _isExecuting;
+
+  /// Đặt lại toàn bộ trạng thái khóa
+  void reset() {
+    _lastTapTimes.clear();
+    _globalLastTapTime = 0;
+    _isExecuting = false;
+    _currentRunningAction = null;
+  }
 
   @override
   bool beforeExecute(BuildContext context, TapConfig config) {
     final now = DateTime.now().millisecondsSinceEpoch;
+
+    // 1. CHỐNG NHẤN 2 NÚT CÙNG LÚC / ĐA CHẠM (Multi-touch Simultaneous Tap Guard)
+    // Nếu không cho phép multi-tap, bất kỳ 2 lần chạm nào trên toàn app phải cách nhau tối thiểu globalInterval
+    if (!config.allowMultiTap) {
+      final globalIntervalMs =
+          (config.globalThrottleDuration ?? defaultGlobalThrottleDuration)
+              .inMilliseconds;
+      if (globalIntervalMs > 0 && now - _globalLastTapTime < globalIntervalMs) {
+        debugPrint(
+          '⚠️ [AppTap] Bị chặn: Nhấn cùng lúc 2 nút / đa chạm quá nhanh '
+          '(cách nhau ${now - _globalLastTapTime}ms < ${globalIntervalMs}ms). '
+          'Bỏ qua action "${config.actionName ?? 'unnamed'}".',
+        );
+        return false;
+      }
+    }
+
+    // 2. CHỐNG CHẠY ĐÈ KHI ĐANG CÓ ACTION KHÁC XỬ LÝ (Concurrency Lock)
+    // Chặn người dùng nhấn các nút khác trong khi một tác vụ bất đồng bộ đang chạy
+    if (!config.allowConcurrent && _isExecuting) {
+      debugPrint(
+        '⚠️ [AppTap] Bị chặn: Đang có hành động "$_currentRunningAction" đang xử lý, '
+        'chặn hành động "${config.actionName ?? 'unnamed'}".',
+      );
+      return false;
+    }
+
+    // 3. CHỐNG SPAM TRÊN CÙNG MỘT NÚT (Per-action Throttling)
     final throttleMs = config.throttleDuration.inMilliseconds;
-
-    if (throttleMs <= 0) return true;
-
-    // Nếu có actionName, kiểm tra throttle riêng theo action; nếu không, kiểm tra theo global
     final key = config.actionName;
-    if (key != null) {
+    if (key != null && throttleMs > 0) {
       final lastTime = _lastTapTimes[key] ?? 0;
       if (now - lastTime < throttleMs) {
         debugPrint(
@@ -51,17 +98,21 @@ class ThrottleTapInterceptor extends TapInterceptor {
         return false;
       }
       _lastTapTimes[key] = now;
-    } else {
-      if (now - _globalLastTapTime < throttleMs) {
-        debugPrint(
-          '⚠️ [AppTap] Bị chặn: Tap toàn cục bị spam (chờ ${throttleMs}ms).',
-        );
-        return false;
-      }
-      _globalLastTapTime = now;
     }
 
+    // Cập nhật mốc thời gian toàn cục và kích hoạt cờ đang thực thi
+    _globalLastTapTime = now;
+    _isExecuting = true;
+    _currentRunningAction = config.actionName ?? 'unnamed';
+
     return true;
+  }
+
+  @override
+  void onComplete(TapConfig config) {
+    // Luôn giải phóng cờ đang thực thi khi action hoàn thành (dù thành công, lỗi hay bị chặn)
+    _isExecuting = false;
+    _currentRunningAction = null;
   }
 }
 

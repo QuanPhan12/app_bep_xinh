@@ -8,7 +8,7 @@ import '../../../core/router/app_router.dart';
 import '../../../core/text_styles/app_text_styles.dart';
 import '../../../core/widgets/widgets.dart';
 import '../cubits/login/login.dart';
-import 'login_textfiled.dart';
+import 'login_text_field.dart';
 
 class LoginForm extends StatelessWidget {
   final VoidCallback? onLoginSuccess;
@@ -78,10 +78,7 @@ class LoginForm extends StatelessWidget {
             child: AppTap(
               actionName: 'btn_forgot_password',
               onTap: () {
-                context.showInfo(
-                  'Vui lòng liên hệ hỗ trợ hoặc nhập email để đặt lại mật khẩu.',
-                  title: 'Quên mật khẩu',
-                );
+                context.push(PathRouter.forgotPasswordScreen);
               },
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
@@ -121,7 +118,9 @@ class LoginForm extends StatelessWidget {
                 Text('Chưa có tài khoản? ', style: AppTextStyles.labelMedium),
                 AppTap(
                   actionName: 'btn_no_account',
-                  onTap: () => context.pushNamed(NameRouter.registerScreen),
+                  onTap: () {
+                    context.pushNamed(NameRouter.registerScreen);
+                  },
                   child: Text(
                     'Đăng ký tại đây',
                     style: AppTextStyles.labelMedium.copyWith(
