@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import '../colors/app_colors.dart';
 
 /* Hệ thống Typography cho ứng dụng Bếp Xinh (Font Be Vietnam Pro) */
@@ -175,22 +176,22 @@ class AppTextStyles {
 
   /* 7. MATERIAL 3 TEXT THEME - Tích hợp toàn diện vào ThemeData */
   static TextTheme get textTheme => GoogleFonts.beVietnamProTextTheme(
-        TextTheme(
-          displayLarge: displayLarge,
-          displayMedium: displayMedium,
-          displaySmall: displaySmall,
-          headlineLarge: headlineLarge,
-          headlineMedium: headlineMedium,
-          headlineSmall: headlineSmall,
-          titleLarge: titleLarge,
-          titleMedium: titleMedium,
-          titleSmall: titleSmall,
-          bodyLarge: bodyLarge,
-          bodyMedium: bodyMedium,
-          bodySmall: bodySmall,
-          labelLarge: labelLarge,
-          labelMedium: labelMedium,
-          labelSmall: labelSmall,
-        ),
-      );
+    TextTheme(
+      displayLarge: displayLarge,
+      displayMedium: displayMedium,
+      displaySmall: displaySmall,
+      headlineLarge: headlineLarge,
+      headlineMedium: headlineMedium,
+      headlineSmall: headlineSmall,
+      titleLarge: titleLarge,
+      titleMedium: titleMedium,
+      titleSmall: titleSmall,
+      bodyLarge: bodyLarge,
+      bodyMedium: bodyMedium,
+      bodySmall: bodySmall,
+      labelLarge: labelLarge,
+      labelMedium: labelMedium,
+      labelSmall: labelSmall,
+    ),
+  );
 }
