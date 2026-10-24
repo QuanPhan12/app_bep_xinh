@@ -29,6 +29,9 @@ class LoginForm extends StatelessWidget {
               title: 'Đăng nhập thành công',
             );
             onLoginSuccess?.call();
+            if (context.mounted) {
+              context.replace(PathRouter.homeScreen);
+            }
           case LoginStatus.failure:
             context.showWarning(
               state.errorMessage ?? 'Đăng nhập thất bại. Vui lòng thử lại!',
