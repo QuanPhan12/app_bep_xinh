@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'fridge_mobile_view.dart';
 
 /// Giao diện Tủ lạnh thông minh (Tablet View)

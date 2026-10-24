@@ -1,0 +1,101 @@
+{
+  "categories": [
+    {
+      "id": "cat_new",
+      "title": "Món mới",
+      "icon": "new"
+    },
+    {
+      "id": "cat_eat_clean",
+      "title": "Eat Clean",
+      "icon": "eat_clean"
+    },
+    {
+      "id": "cat_fast",
+      "title": "Nấu nhanh",
+      "icon": "fast"
+    },
+    {
+      "id": "cat_soup",
+      "title": "Món nước",
+      "icon": "soup"
+    },
+    {
+      "id": "cat_vegetarian",
+      "title": "Món chay",
+      "icon": "vegetarian"
+    }
+  ],
+  "banners": [
+    {
+      "id": "canh_suon_ham_rau_cu",
+      "title": "Canh sườn hầm rau củ",
+      "description": "Vị ngọt thanh từ sườn non hầm mềm cùng bắp ngọt và rau củ tươi mát...",
+      "image": "assets/images/canh_suon_banner.jpg",
+      "tag": "Dễ làm",
+      "cookTime": "25 phút"
+    },
+    {
+      "id": "bo_ne_tieu_den",
+      "title": "Bò né sốt tiêu đen",
+      "description": "Thịt bò xèo xèo cùng trứng ốp la béo ngậy và bánh mì nóng giòn...",
+      "image": "assets/images/bo_ne.jpg",
+      "tag": "Phổ biến",
+      "cookTime": "20 phút"
+    },
+    {
+      "id": "salad_uc_ga_me_rang",
+      "title": "Salad ức gà sốt mè",
+      "description": "Thanh đạm, giàu protein, giữ dáng tuyệt vời cho bữa ăn lành mạnh...",
+      "image": "assets/images/salad_uc_ga.jpg",
+      "tag": "Healthy",
+      "cookTime": "15 phút"
+    }
+  ],
+  "recipes": [
+    {
+      "id": "bo_ne_tieu_den",
+      "title": "Bò né sốt tiêu đen bánh mì",
+      "image": "assets/images/bo_ne.jpg",
+      "rating": 4.9,
+      "cookTimeMinutes": 20,
+      "tag": "Dễ làm",
+      "difficulty": "Dễ làm",
+      "calories": 450,
+      "isFavorite": false
+    },
+    {
+      "id": "salad_uc_ga_me_rang",
+      "title": "Salad ức gà sốt mè rang",
+      "image": "assets/images/salad_uc_ga.jpg",
+      "rating": 4.8,
+      "cookTimeMinutes": 15,
+      "tag": "Eat Clean",
+      "difficulty": "Dễ làm",
+      "calories": 280,
+      "isFavorite": true
+    },
+    {
+      "id": "ca_hoi_ap_chao",
+      "title": "Cá hồi áp chảo bơ tỏi",
+      "image": "assets/images/ca_hoi.png",
+      "rating": 5,
+      "cookTimeMinutes": 25,
+      "tag": "Nhanh gọn",
+      "difficulty": "Trung bình",
+      "calories": 390,
+      "isFavorite": false
+    },
+    {
+      "id": "canh_kim_chi_thit_heo",
+      "title": "Canh kim chi thịt heo đậu hũ",
+      "image": "assets/images/canh_kimchi.png",
+      "rating": 4.9,
+      "cookTimeMinutes": 30,
+      "tag": "Đậm đà",
+      "difficulty": "Dễ làm",
+      "calories": 320,
+      "isFavorite": false
+    }
+  ]
+}

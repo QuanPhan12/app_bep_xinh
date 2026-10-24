@@ -7,12 +7,18 @@ import 'package:go_router/go_router.dart';
 
 import '../../cubits/home/home.dart';
 import '../../models/recipe_item.dart';
-import '../../widgets/home_banner.dart';
+import '../../widgets/home_banner_sliver.dart';
 import '../../widgets/home_categories.dart';
-import '../../widgets/home_label_action.dart';
-import 'package:app_bep_xinh/features/product/widgets/product_card.dart';
-import '../../widgets/home_search_bar.dart';
-import '../../widgets/home_smart_fridge_card.dart';
+
+import 'package:app_bep_xinh/core/widgets/app_section_header.dart';
+import 'package:app_bep_xinh/core/widgets/app_text_action.dart';
+import 'package:app_bep_xinh/core/constants/app_constants.dart';
+
+import 'package:app_bep_xinh/features/product/widgets/product_grid.dart';
+
+import 'package:app_bep_xinh/core/widgets/app_search_bar.dart';
+
+import 'package:app_bep_xinh/features/fridge/widgets/fridge_card.dart';
 
 /// Giao diện Trang chủ & Khám phá dành cho thiết bị di động (Mobile View)
 /// Chịu trách nhiệm hiển thị bảng tin ẩm thực, không chứa Bottom Navigation Bar
@@ -21,6 +27,10 @@ class HomeMobileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final (banners, categories, summary) = context.select((HomeCubit cubit) {
+      final data = cubit.state.data!;
+      return (data.banners, data.categories, data.fridgeSummary);
+    });
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -37,19 +47,22 @@ class HomeMobileView extends StatelessWidget {
               SliverToBoxAdapter(child: SizedBox(height: 10.h(context))),
 
               // 3. Thanh tìm kiếm món ăn & nguyên liệu
-              const SliverToBoxAdapter(child: HomeSearchBar()),
+              SliverToBoxAdapter(
+                child: AppSearchBar(
+                  hintText: 'Hôm nay nấu gì?',
+                  actionName: 'home_search_bar_tap',
+                  padding: EdgeInsets.symmetric(horizontal: 16.w(context)),
+                ),
+              ),
 
               SliverToBoxAdapter(child: SizedBox(height: 16.h(context))),
 
               // 4. Hero Banner gợi ý hôm nay (Canh sườn hầm rau củ)
-              SliverToBoxAdapter(
-                child: HomeBanner(
-                  onTap: (recipeId) {
-                    context.push(
-                      PathRouter.recipeDetail(recipeId),
-                    );
-                  },
-                ),
+              HomeBannerSliver(
+                banners: banners,
+                onTap: (recipeId) {
+                  context.push(PathRouter.recipeDetail(recipeId));
+                },
               ),
 
               SliverToBoxAdapter(child: SizedBox(height: 18.h(context))),
@@ -57,6 +70,7 @@ class HomeMobileView extends StatelessWidget {
               // 5. Hàng 5 biểu tượng danh mục (Món mới, Eat Clean, Nấu nhanh, Món nước, Món chay)
               SliverToBoxAdapter(
                 child: HomeCategories(
+                  categories: categories,
                   onSelectCategory: (categoryId) {
                     context.read<HomeCubit>().selectCategory(categoryId);
                   },
@@ -67,7 +81,8 @@ class HomeMobileView extends StatelessWidget {
 
               // 6. Thẻ "Tủ lạnh thông minh" (Smart Fridge Recommendation)
               SliverToBoxAdapter(
-                child: HomeSmartFridgeCard(
+                child: FridgeCard(
+                  summary: summary,
                   onExploreTap: () {
                     context.go(PathRouter.fridgeScreen);
                   },
@@ -77,8 +92,17 @@ class HomeMobileView extends StatelessWidget {
               SliverToBoxAdapter(child: SizedBox(height: 20.h(context))),
 
               // 7. Tiêu đề mục "Món ăn thịnh hành"
-              const SliverToBoxAdapter(
-                child: HomeLabelAction(label: 'Món ăn thịnh hành'),
+              SliverToBoxAdapter(
+                child: AppSectionHeader(
+                  title: 'Món ăn thịnh hành',
+                  titleMaxLines: 1,
+                  padding: EdgeInsets.symmetric(horizontal: 16.w(context)),
+                  maxWidth: AppConstants.maxContentWidth,
+                  action: const AppTextAction(
+                    label: 'Xem tất cả',
+                    trailingIcon: Icons.arrow_forward_ios_rounded,
+                  ),
+                ),
               ),
 
               SliverToBoxAdapter(child: SizedBox(height: 12.h(context))),
@@ -89,25 +113,17 @@ class HomeMobileView extends StatelessWidget {
                 sliver: BlocSelector<HomeCubit, HomeState, List<RecipeItem>>(
                   selector: (state) => state.recipes,
                   builder: (context, recipes) {
-                    return SliverGrid(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 12.w(context),
-                        mainAxisSpacing: 12.h(context),
-                        childAspectRatio: 0.72,
-                      ),
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        final recipe = recipes[index];
-                        return ProductCard(
-                          recipe: recipe,
-                          onTap: () {
-                            context.push(PathRouter.recipeDetail(recipe.id));
-                          },
-                          onFavoriteTap: () {
-                            context.read<HomeCubit>().toggleFavorite(recipe.id);
-                          },
-                        );
-                      }, childCount: recipes.length),
+                    return ProductGrid(
+                      recipes: recipes,
+                      columns: 2,
+                      spacing: 12.w(context),
+                      runSpacing: 12.h(context),
+                      aspectRatio: 0.72,
+                      onRecipeTap: (recipe) {
+                        context.push(PathRouter.recipeDetail(recipe.id));
+                      },
+                      onFavoriteTap: (recipeId) =>
+                          context.read<HomeCubit>().toggleFavorite(recipeId),
                     );
                   },
                 ),

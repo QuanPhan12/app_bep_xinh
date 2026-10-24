@@ -7,6 +7,7 @@ import 'package:app_bep_xinh/features/home/screens/home_screen.dart';
 import 'package:app_bep_xinh/features/navigation/screens/navigation_screen.dart';
 import 'package:app_bep_xinh/features/profile/screens/profile_screen.dart';
 import 'package:app_bep_xinh/features/recipe_detail/screens/recipe_detail_screen.dart';
+import 'package:app_bep_xinh/features/recipe_editor/screens/recipe_editor_screen.dart';
 import 'package:go_router/go_router.dart';
 
 class PathRouter {
@@ -19,6 +20,7 @@ class PathRouter {
   static const cartScreen = "/cart";
   static const profileScreen = "/profile";
   static const recipeDetailScreen = "/recipe/:id";
+  static const recipeEditorScreen = '/recipes/new';
 
   static String recipeDetail(String id) => "/recipe/$id";
 }
@@ -33,6 +35,7 @@ class NameRouter {
   static const cartScreen = "cart_screen";
   static const profileScreen = "profile_screen";
   static const recipeDetailScreen = "recipe_detail_screen";
+  static const recipeEditorScreen = 'recipe_editor_screen';
 }
 
 final appRouter = GoRouter(
@@ -60,6 +63,11 @@ final appRouter = GoRouter(
         final id = state.pathParameters['id'] ?? 'bo_ne_tieu_den';
         return RecipeDetailScreen(recipeId: id);
       },
+    ),
+    GoRoute(
+      path: PathRouter.recipeEditorScreen,
+      name: NameRouter.recipeEditorScreen,
+      builder: (context, state) => const RecipeEditorScreen(),
     ),
 
     // StatefulShellRoute quản lý cấu trúc Shell với BottomBar và các branches

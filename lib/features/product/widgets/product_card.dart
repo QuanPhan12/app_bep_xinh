@@ -1,3 +1,7 @@
+import 'package:app_bep_xinh/core/widgets/app_card.dart';
+
+import 'dart:async';
+
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
 import 'package:app_bep_xinh/core/dimensions/app_size.dart';
 import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
@@ -9,9 +13,25 @@ import 'package:flutter/material.dart';
 /// Thẻ hiển thị sản phẩm / công thức món ăn (Product Card) của hệ thống Bếp Xinh
 /// Được tách thành component dùng chung trong Feature Product
 class ProductCard extends StatelessWidget {
+  static const imageAspectRatio = 1.35;
+
+  /// Giữ tỷ lệ mặc định khi đủ chỗ; dành thêm chiều cao cho chữ hệ thống lớn.
+  static double minimumHeight(BuildContext context, double width) {
+    final scaler = MediaQuery.textScalerOf(context);
+    final contentWidth = width - 20.w(context);
+    final metaRows = scaler.scale(11) * 7 + 33 > contentWidth ? 2 : 1;
+    return width / imageAspectRatio +
+        20.w(context) +
+        scaler.scale(13) * 1.3 * 2 +
+        6.h(context) +
+        scaler.scale(11) * 1.5 * metaRows +
+        (metaRows - 1) * 4 +
+        4;
+  }
+
   final RecipeItem recipe;
   final VoidCallback? onTap;
-  final VoidCallback? onFavoriteTap;
+  final FutureOr<void> Function()? onFavoriteTap;
 
   const ProductCard({
     super.key,
@@ -25,21 +45,8 @@ class ProductCard extends StatelessWidget {
     return AppTap(
       actionName: 'product_card_tap',
       params: {'recipe_id': recipe.id, 'title': recipe.title},
-      onTap: onTap ?? () {},
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(16.r(context)),
-          border: Border.all(color: AppColors.border, width: 0.8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        clipBehavior: Clip.antiAlias,
+      onTap: onTap,
+      child: AppCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -47,20 +54,27 @@ class ProductCard extends StatelessWidget {
             Stack(
               children: [
                 AspectRatio(
-                  aspectRatio: 1.35,
-                  child: Image.asset(
-                    recipe.image,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: AppColors.surfaceVariant,
-                        child: const Icon(
-                          Icons.restaurant,
-                          color: AppColors.textTertiary,
-                          size: 32,
-                        ),
-                      );
-                    },
+                  aspectRatio: imageAspectRatio,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) => Image.asset(
+                      recipe.image,
+                      fit: BoxFit.cover,
+                      cacheWidth:
+                          (constraints.maxWidth *
+                                  MediaQuery.devicePixelRatioOf(context))
+                              .round()
+                              .clamp(1, 2048),
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: AppColors.surfaceVariant,
+                          child: const Icon(
+                            Icons.restaurant,
+                            color: AppColors.textTertiary,
+                            size: 32,
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
 
@@ -81,7 +95,7 @@ class ProductCard extends StatelessWidget {
                       recipe.tag,
                       style: AppTextStyles.labelSmall.copyWith(
                         color: Colors.white,
-                        fontSize: 10.sp(context),
+                        fontSize: 10,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -95,7 +109,7 @@ class ProductCard extends StatelessWidget {
                   child: AppTap(
                     actionName: 'product_favorite_tap',
                     params: {'recipe_id': recipe.id},
-                    onTap: onFavoriteTap ?? () {},
+                    onTap: onFavoriteTap,
                     child: Container(
                       width: 28.w(context),
                       height: 28.w(context),
@@ -137,7 +151,7 @@ class ProductCard extends StatelessWidget {
                     style: AppTextStyles.titleSmall.copyWith(
                       color: AppColors.textPrimary,
                       fontWeight: FontWeight.w700,
-                      fontSize: 13.sp(context),
+                      fontSize: 13,
                       height: 1.3,
                     ),
                     maxLines: 2,
@@ -146,43 +160,54 @@ class ProductCard extends StatelessWidget {
                   SizedBox(height: 6.h(context)),
 
                   // Hàng Đánh giá & Thời gian nấu
-                  Row(
+                  Wrap(
+                    spacing: 6.w(context),
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      const Icon(
-                        Icons.star_rounded,
-                        color: AppColors.accent,
-                        size: 15,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.star_rounded,
+                            color: AppColors.accent,
+                            size: 15,
+                          ),
+                          SizedBox(width: 3.w(context)),
+                          Text(
+                            recipe.rating.toStringAsFixed(1),
+                            style: AppTextStyles.labelSmall.copyWith(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
                       ),
-                      SizedBox(width: 3.w(context)),
-                      Text(
-                        recipe.rating.toStringAsFixed(1),
-                        style: AppTextStyles.labelSmall.copyWith(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 11.sp(context),
-                        ),
-                      ),
-                      SizedBox(width: 6.w(context)),
                       Text(
                         '•',
                         style: TextStyle(
                           color: AppColors.textTertiary,
-                          fontSize: 10.sp(context),
+                          fontSize: 10,
                         ),
                       ),
-                      SizedBox(width: 6.w(context)),
-                      const Icon(
-                        CupertinoIcons.time,
-                        color: AppColors.textTertiary,
-                        size: 12,
-                      ),
-                      SizedBox(width: 3.w(context)),
-                      Text(
-                        '${recipe.cookTimeMinutes}p',
-                        style: AppTextStyles.labelSmall.copyWith(
-                          color: AppColors.textSecondary,
-                          fontSize: 11.sp(context),
-                        ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            CupertinoIcons.time,
+                            color: AppColors.textTertiary,
+                            size: 12,
+                          ),
+                          SizedBox(width: 3.w(context)),
+                          Text(
+                            '${recipe.cookTimeMinutes}p',
+                            style: AppTextStyles.labelSmall.copyWith(
+                              color: AppColors.textSecondary,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

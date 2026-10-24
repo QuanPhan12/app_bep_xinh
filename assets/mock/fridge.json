@@ -1,0 +1,80 @@
+{
+  "selectedIds": [
+    "egg",
+    "tomato",
+    "tofu",
+    "scallion"
+  ],
+  "recipes": [
+    {
+      "id": "tofu_tomato",
+      "title": "Đậu hũ sốt cà chua",
+      "description": "Mềm béo, đậm vị, ăn cùng cơm nóng.",
+      "minutes": 15,
+      "isVegetarian": true,
+      "ingredientIds": [
+        "tofu",
+        "tomato",
+        "scallion"
+      ]
+    },
+    {
+      "id": "egg_tomato_soup",
+      "title": "Canh cà chua trứng",
+      "description": "Bát canh thanh nhẹ cho bữa cơm nhà.",
+      "minutes": 10,
+      "ingredientIds": [
+        "egg",
+        "tomato",
+        "scallion"
+      ]
+    },
+    {
+      "id": "beef_tomato",
+      "title": "Bò xào cà chua",
+      "description": "Thịt bò mềm, cà chua chín mọng.",
+      "minutes": 20,
+      "ingredientIds": [
+        "beef",
+        "tomato",
+        "scallion"
+      ]
+    },
+    {
+      "id": "chicken_salad",
+      "title": "Salad ức gà",
+      "description": "Tươi mát, nhẹ bụng và dễ chuẩn bị.",
+      "minutes": 15,
+      "ingredientIds": [
+        "chicken",
+        "egg",
+        "cucumber"
+      ],
+      "image": "assets/images/salad_uc_ga.jpg"
+    },
+    {
+      "id": "salmon_garlic",
+      "title": "Cá hồi áp chảo bơ tỏi",
+      "description": "Da giòn, thơm bơ tỏi.",
+      "minutes": 25,
+      "ingredientIds": [
+        "salmon",
+        "butter",
+        "garlic"
+      ],
+      "image": "assets/images/ca_hoi.png"
+    },
+    {
+      "id": "kimchi_soup",
+      "title": "Canh kim chi thịt heo đậu hũ",
+      "description": "Chua cay, ấm bụng cho ngày mưa.",
+      "minutes": 30,
+      "ingredientIds": [
+        "kimchi",
+        "pork",
+        "tofu"
+      ],
+      "image": "assets/images/canh_kimchi.png"
+    }
+  ]
+}

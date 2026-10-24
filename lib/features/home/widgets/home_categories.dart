@@ -5,71 +5,55 @@ import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
 import 'package:app_bep_xinh/core/widgets/app_tap.dart';
 import 'package:flutter/material.dart';
 
-class _CategoryModel {
-  final String title;
-  final IconData icon;
-  final Color bgColor;
-  final Color iconColor;
-  final String actionId;
+import '../models/home_category.dart';
 
-  const _CategoryModel({
-    required this.title,
-    required this.icon,
-    required this.bgColor,
-    required this.iconColor,
-    required this.actionId,
-  });
-}
-
-/// Hàng danh mục phân loại món ăn nhanh (5 biểu tượng hình tròn theo Figma)
 class HomeCategories extends StatelessWidget {
-  final void Function(String categoryId)? onSelectCategory;
+  final List<HomeCategory> categories;
+  final ValueChanged<String>? onSelectCategory;
 
   const HomeCategories({
     super.key,
+    required this.categories,
     this.onSelectCategory,
   });
 
-  static const List<_CategoryModel> _categories = [
-    _CategoryModel(
-      title: 'Món mới',
-      icon: Icons.local_fire_department_rounded,
-      bgColor: Color(0xFFFFECE8),
-      iconColor: Color(0xFFFA5252),
-      actionId: 'cat_new',
+  // Icon và màu thuộc giao diện; tên và danh sách danh mục do service cung cấp.
+  (IconData, Color, Color) _appearance(String icon) => switch (icon) {
+    'new' => (
+      Icons.local_fire_department_rounded,
+      const Color(0xFFFFECE8),
+      const Color(0xFFFA5252),
     ),
-    _CategoryModel(
-      title: 'Eat Clean',
-      icon: Icons.spa_rounded,
-      bgColor: Color(0xFFEBFBEE),
-      iconColor: AppColors.secondary,
-      actionId: 'cat_eat_clean',
+    'eat_clean' => (
+      Icons.spa_rounded,
+      const Color(0xFFEBFBEE),
+      AppColors.secondary,
     ),
-    _CategoryModel(
-      title: 'Nấu nhanh',
-      icon: Icons.bolt_rounded,
-      bgColor: Color(0xFFE7F5FF),
-      iconColor: Color(0xFF1971C2),
-      actionId: 'cat_fast',
+    'fast' => (
+      Icons.bolt_rounded,
+      const Color(0xFFE7F5FF),
+      const Color(0xFF1971C2),
     ),
-    _CategoryModel(
-      title: 'Món nước',
-      icon: Icons.soup_kitchen_rounded,
-      bgColor: Color(0xFFFFF4E6),
-      iconColor: AppColors.primary,
-      actionId: 'cat_soup',
+    'soup' => (
+      Icons.soup_kitchen_rounded,
+      const Color(0xFFFFF4E6),
+      AppColors.primary,
     ),
-    _CategoryModel(
-      title: 'Món chay',
-      icon: Icons.grass_rounded,
-      bgColor: Color(0xFFE6FCF5),
-      iconColor: Color(0xFF0CA678),
-      actionId: 'cat_vegetarian',
+    'vegetarian' => (
+      Icons.grass_rounded,
+      const Color(0xFFE6FCF5),
+      const Color(0xFF0CA678),
     ),
-  ];
+    _ => (
+      Icons.restaurant_rounded,
+      AppColors.surfaceVariant,
+      AppColors.textSecondary,
+    ),
+  };
 
   @override
   Widget build(BuildContext context) {
+    if (categories.isEmpty) return const SizedBox.shrink();
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(
@@ -79,47 +63,50 @@ class HomeCategories extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 16.w(context)),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: _categories.map((cat) {
-              return AppTap(
-                actionName: 'home_category_${cat.actionId}',
-                onTap: () {
-                  if (onSelectCategory != null) {
-                    onSelectCategory!(cat.actionId);
-                  }
-                },
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 52.w(context),
-                      height: 52.w(context),
-                      decoration: BoxDecoration(
-                        color: cat.bgColor,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: cat.iconColor.withValues(alpha: 0.12),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
+            children: categories.map((category) {
+              final (icon, background, foreground) = _appearance(category.icon);
+              return Flexible(
+                child: AppTap(
+                  actionName: 'home_category_${category.id}',
+                  onTap: onSelectCategory == null
+                      ? null
+                      : () => onSelectCategory!(category.id),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 52.w(context),
+                        height: 52.w(context),
+                        decoration: BoxDecoration(
+                          color: background,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: foreground.withValues(alpha: 0.12),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          icon,
+                          color: foreground,
+                          size: 24.sp(context),
+                        ),
                       ),
-                      child: Icon(
-                        cat.icon,
-                        color: cat.iconColor,
-                        size: 24.sp(context),
+                      SizedBox(height: 6.h(context)),
+                      Text(
+                        category.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.labelMedium.copyWith(
+                          fontSize: 12.sp(context),
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 6.h(context)),
-                    Text(
-                      cat.title,
-                      style: AppTextStyles.labelMedium.copyWith(
-                        fontSize: 12.sp(context),
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             }).toList(),

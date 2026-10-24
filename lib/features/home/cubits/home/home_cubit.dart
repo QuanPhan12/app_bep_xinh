@@ -1,40 +1,153 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:app_bep_xinh/features/fridge/models/fridge_summary.dart';
+
+import '../../services/home_service.dart';
 import 'home_state.dart';
 
-/// Cubit quản lý trạng thái của màn hình Trang chủ Bếp Xinh
 class HomeCubit extends Cubit<HomeState> {
-  HomeCubit() : super(const HomeState());
+  final HomeService service;
+  Future<void>? _loadTask;
+  final Map<String, bool> _refreshFavorites = {};
+  late final StreamSubscription<FridgeSummary> _summarySubscription;
+  FridgeSummary? _latestSummary;
+  int _summaryRevision = 0;
 
-  /// Chọn danh mục món ăn
-  void selectCategory(String categoryId) {
-    emit(state.copyWith(selectedCategory: categoryId));
+  HomeCubit({required this.service}) : super(const HomeState()) {
+    _summarySubscription = service.fridgeSummaries.listen(
+      _onSummary,
+      onError: (Object error, StackTrace stack) {
+        if (!isClosed) addError(error, stack);
+      },
+    );
   }
 
-  /// Chuyển đổi trạng thái yêu thích của món ăn
-  void toggleFavorite(String recipeId) {
-    final updatedList = state.recipes.map((item) {
-      if (item.id == recipeId) {
-        return item.copyWith(isFavorite: !item.isFavorite);
-      }
-      return item;
-    }).toList();
-
-    emit(state.copyWith(recipes: updatedList));
+  Future<void> loadHome() {
+    if (isClosed) return Future.value();
+    // Caller trùng cùng chờ request hiện tại; RefreshIndicator không kết thúc sớm.
+    return _loadTask ??= _loadHome().whenComplete(() => _loadTask = null);
   }
 
-  /// Tải lại dữ liệu trang chủ
-  Future<void> refreshHome() async {
+  Future<void> _loadHome() async {
+    _refreshFavorites.clear();
+    final summaryRevision = _summaryRevision;
     emit(state.copyWith(status: HomeStatus.loading));
     try {
-      await Future.delayed(const Duration(milliseconds: 500));
-      emit(state.copyWith(status: HomeStatus.success));
-    } catch (e) {
+      var data = await service.fetchHome();
+      if (isClosed) return;
+      // Chỉ bảo vệ write xảy ra trong request này; request sau vẫn tin server.
+      if (_refreshFavorites.isNotEmpty) {
+        data = data.withRecipes(
+          data.recipes
+              .map(
+                (recipe) => _refreshFavorites.containsKey(recipe.id)
+                    ? recipe.copyWith(isFavorite: _refreshFavorites[recipe.id])
+                    : recipe,
+              )
+              .toList(),
+        );
+      }
+      if (_summaryRevision != summaryRevision && _latestSummary != null) {
+        data = data.withFridgeSummary(_latestSummary!);
+      }
+      final category =
+          data.categories.any((item) => item.id == state.selectedCategory)
+          ? state.selectedCategory
+          : 'all';
       emit(
         state.copyWith(
-          status: HomeStatus.failure,
-          errorMessage: e.toString(),
+          status: HomeStatus.success,
+          data: data,
+          selectedCategory: category,
+        ),
+      );
+    } catch (error, stack) {
+      if (!isClosed) {
+        addError(error, stack);
+        emit(
+          state.copyWith(
+            status: HomeStatus.failure,
+            errorMessage: 'Không tải được trang chủ. Vui lòng thử lại.',
+          ),
+        );
+      }
+    } finally {
+      _refreshFavorites.clear();
+    }
+  }
+
+  void _onSummary(FridgeSummary summary) {
+    if (isClosed) return;
+    _latestSummary = summary;
+    _summaryRevision++;
+    final data = state.data;
+    if (data != null && data.fridgeSummary != summary) {
+      emit(
+        state.copyWith(
+          data: data.withFridgeSummary(summary),
+          errorMessage: state.errorMessage,
         ),
       );
     }
+  }
+
+  Future<void> refreshHome() => loadHome();
+
+  void selectCategory(String id) {
+    if (isClosed) return;
+    if (id == 'all' ||
+        (state.data?.categories.any((category) => category.id == id) ??
+            false)) {
+      emit(
+        state.copyWith(selectedCategory: id, errorMessage: state.errorMessage),
+      );
+    }
+  }
+
+  Future<void> toggleFavorite(String recipeId) async {
+    if (isClosed || state.savingFavorites.contains(recipeId)) return;
+    final matches = state.recipes.where((item) => item.id == recipeId);
+    if (matches.isEmpty) return;
+    final value = !matches.first.isFavorite;
+    emit(state.copyWith(savingFavorites: {...state.savingFavorites, recipeId}));
+    try {
+      await service.setFavorite(recipeId, value);
+      if (isClosed) return;
+      if (_loadTask != null) _refreshFavorites[recipeId] = value;
+      emit(
+        state.copyWith(
+          data: state.data!.withRecipes(
+            state.recipes
+                .map(
+                  (item) => item.id == recipeId
+                      ? item.copyWith(isFavorite: value)
+                      : item,
+                )
+                .toList(),
+          ),
+          savingFavorites: {...state.savingFavorites}..remove(recipeId),
+        ),
+      );
+    } catch (error, stack) {
+      if (!isClosed) {
+        addError(error, stack);
+        emit(
+          state.copyWith(
+            savingFavorites: {...state.savingFavorites}..remove(recipeId),
+            errorMessage: 'Chưa lưu được món yêu thích. Vui lòng thử lại.',
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Future<void> close() async {
+    // Không chờ HTTP trong close; chỉ hủy resource do Cubit sở hữu.
+    final cancellation = _summarySubscription.cancel();
+    await super.close();
+    await cancellation;
   }
 }

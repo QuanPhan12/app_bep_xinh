@@ -7,14 +7,20 @@ import 'package:go_router/go_router.dart';
 
 import '../../cubits/home/home.dart';
 import '../../models/recipe_item.dart';
-import '../../widgets/home_banner.dart';
+import '../../widgets/home_banner_sliver.dart';
 import '../../widgets/home_categories.dart';
 import '../../widgets/home_header.dart';
-import '../../widgets/home_label_action.dart';
-import 'package:app_bep_xinh/features/product/widgets/product_card.dart';
+
+import 'package:app_bep_xinh/core/widgets/app_section_header.dart';
+import 'package:app_bep_xinh/core/widgets/app_text_action.dart';
+import 'package:app_bep_xinh/core/constants/app_constants.dart';
+
+import 'package:app_bep_xinh/features/product/widgets/product_grid.dart';
 import 'package:app_bep_xinh/features/product/widgets/product_slider.dart';
-import '../../widgets/home_search_bar.dart';
-import '../../widgets/home_smart_fridge_card.dart';
+
+import 'package:app_bep_xinh/core/widgets/app_search_bar.dart';
+
+import 'package:app_bep_xinh/features/fridge/widgets/fridge_card.dart';
 
 /// Giao diện Trang chủ Bếp Xinh tối ưu hóa cho Máy tính bảng (Tablet View)
 /// Bố cục rộng rãi, co giãn thông minh, lưới 3 cột hiện đại
@@ -25,6 +31,10 @@ class HomeTabletView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final (banners, categories, summary) = context.select((HomeCubit cubit) {
+      final data = cubit.state.data!;
+      return (data.banners, data.categories, data.fridgeSummary);
+    });
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -48,19 +58,22 @@ class HomeTabletView extends StatelessWidget {
                   SliverToBoxAdapter(child: SizedBox(height: 16.h(context))),
 
                   // Thanh tìm kiếm
-                  const SliverToBoxAdapter(child: HomeSearchBar()),
+                  SliverToBoxAdapter(
+                    child: AppSearchBar(
+                      hintText: 'Hôm nay nấu gì?',
+                      actionName: 'home_search_bar_tap',
+                      padding: EdgeInsets.symmetric(horizontal: 16.w(context)),
+                    ),
+                  ),
 
                   SliverToBoxAdapter(child: SizedBox(height: 20.h(context))),
 
                   // Hero Banner Carousel
-                  SliverToBoxAdapter(
-                    child: HomeBanner(
-                      onTap: (recipeId) {
-                        context.push(
-                          PathRouter.recipeDetail(recipeId),
-                        );
-                      },
-                    ),
+                  HomeBannerSliver(
+                    banners: banners,
+                    onTap: (recipeId) {
+                      context.push(PathRouter.recipeDetail(recipeId));
+                    },
                   ),
 
                   SliverToBoxAdapter(child: SizedBox(height: 24.h(context))),
@@ -68,6 +81,7 @@ class HomeTabletView extends StatelessWidget {
                   // 5 danh mục
                   SliverToBoxAdapter(
                     child: HomeCategories(
+                      categories: categories,
                       onSelectCategory: (categoryId) {
                         context.read<HomeCubit>().selectCategory(categoryId);
                       },
@@ -78,7 +92,8 @@ class HomeTabletView extends StatelessWidget {
 
                   // Tủ lạnh thông minh
                   SliverToBoxAdapter(
-                    child: HomeSmartFridgeCard(
+                    child: FridgeCard(
+                      summary: summary,
                       onExploreTap: () {
                         context.go(PathRouter.fridgeScreen);
                       },
@@ -96,13 +111,11 @@ class HomeTabletView extends StatelessWidget {
                           title: 'Món ăn thịnh hành',
                           recipes: recipes,
                           onRecipeTap: (recipe) {
-                            context.push(
-                              PathRouter.recipeDetail(recipe.id),
-                            );
+                            context.push(PathRouter.recipeDetail(recipe.id));
                           },
-                          onFavoriteTap: (recipeId) {
-                            context.read<HomeCubit>().toggleFavorite(recipeId);
-                          },
+                          onFavoriteTap: (recipeId) => context
+                              .read<HomeCubit>()
+                              .toggleFavorite(recipeId),
                         );
                       },
                     ),
@@ -111,8 +124,17 @@ class HomeTabletView extends StatelessWidget {
                   SliverToBoxAdapter(child: SizedBox(height: 28.h(context))),
 
                   // Tiêu đề Khám phá tất cả món ngon
-                  const SliverToBoxAdapter(
-                    child: HomeLabelAction(label: 'Khám phá tất cả món ngon'),
+                  SliverToBoxAdapter(
+                    child: AppSectionHeader(
+                      title: 'Khám phá tất cả món ngon',
+                      titleMaxLines: 1,
+                      padding: EdgeInsets.symmetric(horizontal: 16.w(context)),
+                      maxWidth: AppConstants.maxContentWidth,
+                      action: const AppTextAction(
+                        label: 'Xem tất cả',
+                        trailingIcon: Icons.arrow_forward_ios_rounded,
+                      ),
+                    ),
                   ),
 
                   SliverToBoxAdapter(child: SizedBox(height: 16.h(context))),
@@ -124,33 +146,20 @@ class HomeTabletView extends StatelessWidget {
                         BlocSelector<HomeCubit, HomeState, List<RecipeItem>>(
                           selector: (state) => state.recipes,
                           builder: (context, recipes) {
-                            return SliverGrid(
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 3,
-                                    crossAxisSpacing: 16.w(context),
-                                    mainAxisSpacing: 16.h(context),
-                                    childAspectRatio: 0.75,
-                                  ),
-                              delegate: SliverChildBuilderDelegate((
-                                context,
-                                index,
-                              ) {
-                                final recipe = recipes[index];
-                                return ProductCard(
-                                  recipe: recipe,
-                                  onTap: () {
-                                    context.push(
-                                      PathRouter.recipeDetail(recipe.id),
-                                    );
-                                  },
-                                  onFavoriteTap: () {
-                                    context.read<HomeCubit>().toggleFavorite(
-                                      recipe.id,
-                                    );
-                                  },
+                            return ProductGrid(
+                              recipes: recipes,
+                              columns: 3,
+                              spacing: 16.w(context),
+                              runSpacing: 16.h(context),
+                              aspectRatio: 0.75,
+                              onRecipeTap: (recipe) {
+                                context.push(
+                                  PathRouter.recipeDetail(recipe.id),
                                 );
-                              }, childCount: recipes.length),
+                              },
+                              onFavoriteTap: (recipeId) => context
+                                  .read<HomeCubit>()
+                                  .toggleFavorite(recipeId),
                             );
                           },
                         ),

@@ -1,5 +1,5 @@
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
-import 'package:app_bep_xinh/core/widgets/app_messenger.dart';
+import 'package:app_bep_xinh/core/router/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,10 +9,7 @@ import '../../widgets/app_bottom_nav_bar.dart';
 class NavigationMobileView extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
-  const NavigationMobileView({
-    super.key,
-    required this.navigationShell,
-  });
+  const NavigationMobileView({super.key, required this.navigationShell});
 
   @override
   Widget build(BuildContext context) {
@@ -28,10 +25,7 @@ class NavigationMobileView extends StatelessWidget {
           );
         },
         onAddTap: () {
-          context.showInfo(
-            'Tính năng Đăng tải công thức mới đang được cập nhật!',
-            title: 'Đăng món',
-          );
+          context.push(PathRouter.recipeEditorScreen);
         },
       ),
     );

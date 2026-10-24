@@ -5,12 +5,19 @@ import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
 import 'package:app_bep_xinh/core/widgets/app_tap.dart';
 import 'package:flutter/material.dart';
 
+import '../models/fridge_summary.dart';
+
 /// Thẻ gợi ý "Tủ lạnh thông minh" (Smart Fridge Recommendation Card)
 /// Giúp người dùng nấu ăn từ nguyên liệu sẵn có trong tủ lạnh
-class HomeSmartFridgeCard extends StatelessWidget {
-  final VoidCallback? onExploreTap;
+class FridgeCard extends StatelessWidget {
+  final VoidCallback onExploreTap;
+  final FridgeSummary summary;
 
-  const HomeSmartFridgeCard({super.key, this.onExploreTap});
+  const FridgeCard({
+    super.key,
+    required this.onExploreTap,
+    required this.summary,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,12 +41,14 @@ class HomeSmartFridgeCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Tủ lạnh thông minh',
-                      style: AppTextStyles.titleMedium.copyWith(
-                        color: AppColors.textWhite,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15.sp(context),
+                    Flexible(
+                      child: Text(
+                        'Tủ lạnh thông minh',
+                        style: AppTextStyles.titleMedium.copyWith(
+                          color: AppColors.textWhite,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15.sp(context),
+                        ),
                       ),
                     ),
                     Container(
@@ -75,7 +84,9 @@ class HomeSmartFridgeCard extends StatelessWidget {
                     children: [
                       const TextSpan(text: 'Gợi ý từ nguyên liệu của bạn:'),
                       TextSpan(
-                        text: '(Trứng gà, Cà chua, Thịt bò...)',
+                        text: summary.ingredientNames.isEmpty
+                            ? 'Chưa có nguyên liệu'
+                            : '(${summary.ingredientNames.take(3).join(', ')}${summary.ingredientNames.length > 3 ? '…' : ''})',
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
@@ -87,35 +98,32 @@ class HomeSmartFridgeCard extends StatelessWidget {
                 SizedBox(height: 12.h(context)),
 
                 // Hàng hành động: Số món nấu được + Nút Khám phá ngay
-                Row(
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 8.h(context),
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          alignment: Alignment.center,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 12.w(context),
-                            vertical: 6.h(context),
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.secondaryLight,
-                            borderRadius: BorderRadius.circular(8.r(context)),
-                          ),
-                          child: Text(
-                            'Nấu được 3 món ngon',
-                            style: AppTextStyles.labelMedium.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12.sp(context),
-                            ),
-                          ),
+                    Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12.w(context),
+                        vertical: 6.h(context),
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.secondaryLight,
+                        borderRadius: BorderRadius.circular(8.r(context)),
+                      ),
+                      child: Text(
+                        'Nấu được ${summary.readyRecipeCount} món ngon',
+                        style: AppTextStyles.labelMedium.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12.sp(context),
                         ),
-                      ],
+                      ),
                     ),
-                    const SizedBox(width: 12),
                     AppTap(
                       actionName: 'home_smart_fridge_explore_tap',
-                      onTap: onExploreTap ?? () {},
+                      onTap: onExploreTap,
                       child: Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: 14.w(context),

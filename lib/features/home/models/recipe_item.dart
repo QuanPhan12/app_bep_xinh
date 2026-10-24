@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:app_bep_xinh/core/services/json_reader.dart';
 
 /// Model đại diện cho một món ăn trên màn hình Trang chủ & Khám phá
 class RecipeItem extends Equatable {
@@ -48,16 +49,28 @@ class RecipeItem extends Equatable {
     );
   }
 
+  factory RecipeItem.fromJson(Map<String, dynamic> json) => RecipeItem(
+    id: JsonReader(json).string('id'),
+    title: JsonReader(json).string('title'),
+    image: JsonReader(json).string('image'),
+    rating: JsonReader(json).number('rating', max: 5),
+    cookTimeMinutes: JsonReader(json).integer('cookTimeMinutes', min: 1),
+    tag: JsonReader(json).string('tag'),
+    difficulty: JsonReader(json).string('difficulty'),
+    calories: JsonReader(json).optionalInteger('calories'),
+    isFavorite: JsonReader(json).boolean('isFavorite'),
+  );
+
   @override
   List<Object?> get props => [
-        id,
-        title,
-        image,
-        rating,
-        cookTimeMinutes,
-        tag,
-        difficulty,
-        calories,
-        isFavorite,
-      ];
+    id,
+    title,
+    image,
+    rating,
+    cookTimeMinutes,
+    tag,
+    difficulty,
+    calories,
+    isFavorite,
+  ];
 }

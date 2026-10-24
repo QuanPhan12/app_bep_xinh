@@ -1,0 +1,259 @@
+{
+  "ingredients": [
+    {
+      "id": "egg",
+      "name": "Trứng gà",
+      "group": "Đạm & đậu",
+      "aliases": [
+        "trứng"
+      ],
+      "unitIds": [
+        "fruit",
+        "g"
+      ]
+    },
+    {
+      "id": "beef",
+      "name": "Thịt bò",
+      "group": "Đạm & đậu",
+      "aliases": [],
+      "unitIds": [
+        "g",
+        "kg"
+      ]
+    },
+    {
+      "id": "chicken",
+      "name": "Ức gà",
+      "group": "Đạm & đậu",
+      "aliases": [
+        "thịt gà",
+        "gà"
+      ],
+      "unitIds": [
+        "g",
+        "kg"
+      ]
+    },
+    {
+      "id": "shrimp",
+      "name": "Tôm sú",
+      "group": "Đạm & đậu",
+      "aliases": [],
+      "unitIds": [
+        "g",
+        "kg"
+      ]
+    },
+    {
+      "id": "tofu",
+      "name": "Đậu hũ",
+      "group": "Đạm & đậu",
+      "aliases": [
+        "đậu phụ"
+      ],
+      "unitIds": [
+        "piece",
+        "g",
+        "kg"
+      ]
+    },
+    {
+      "id": "pork",
+      "name": "Thịt heo",
+      "group": "Đạm & đậu",
+      "aliases": [
+        "thịt lợn",
+        "heo",
+        "lợn"
+      ],
+      "unitIds": [
+        "g",
+        "kg"
+      ]
+    },
+    {
+      "id": "salmon",
+      "name": "Cá hồi",
+      "group": "Đạm & đậu",
+      "aliases": [],
+      "unitIds": [
+        "g",
+        "kg"
+      ]
+    },
+    {
+      "id": "tomato",
+      "name": "Cà chua",
+      "group": "Rau củ",
+      "aliases": [],
+      "unitIds": [
+        "fruit",
+        "g"
+      ]
+    },
+    {
+      "id": "mushroom",
+      "name": "Nấm kim châm",
+      "group": "Rau củ",
+      "aliases": [
+        "nấm"
+      ],
+      "unitIds": [
+        "g",
+        "kg"
+      ]
+    },
+    {
+      "id": "potato",
+      "name": "Khoai tây",
+      "group": "Rau củ",
+      "aliases": [],
+      "unitIds": [
+        "fruit",
+        "g"
+      ]
+    },
+    {
+      "id": "cucumber",
+      "name": "Dưa leo",
+      "group": "Rau củ",
+      "aliases": [
+        "dưa chuột"
+      ],
+      "unitIds": [
+        "g",
+        "kg"
+      ]
+    },
+    {
+      "id": "kimchi",
+      "name": "Kim chi",
+      "group": "Rau củ",
+      "aliases": [],
+      "unitIds": [
+        "g",
+        "kg"
+      ]
+    },
+    {
+      "id": "scallion",
+      "name": "Hành lá",
+      "group": "Hành & gia vị",
+      "aliases": [
+        "hành xanh"
+      ],
+      "unitIds": [
+        "g",
+        "kg"
+      ]
+    },
+    {
+      "id": "garlic",
+      "name": "Tỏi",
+      "group": "Hành & gia vị",
+      "aliases": [],
+      "unitIds": [
+        "g",
+        "kg",
+        "tsp",
+        "tbsp"
+      ]
+    },
+    {
+      "id": "chili",
+      "name": "Ớt",
+      "group": "Hành & gia vị",
+      "aliases": [],
+      "unitIds": [
+        "fruit",
+        "g"
+      ]
+    },
+    {
+      "id": "butter",
+      "name": "Bơ lạt",
+      "group": "Hành & gia vị",
+      "aliases": [
+        "bơ"
+      ],
+      "unitIds": [
+        "g",
+        "kg",
+        "tsp",
+        "tbsp"
+      ]
+    },
+    {
+      "id": "salt",
+      "name": "Muối",
+      "group": "Hành & gia vị",
+      "aliases": [
+        "muối ăn"
+      ],
+      "unitIds": [
+        "g",
+        "tsp",
+        "tbsp"
+      ]
+    },
+    {
+      "id": "pepper",
+      "name": "Tiêu",
+      "group": "Hành & gia vị",
+      "aliases": [
+        "tiêu đen",
+        "hạt tiêu"
+      ],
+      "unitIds": [
+        "g",
+        "tsp"
+      ]
+    },
+    {
+      "id": "fish_sauce",
+      "name": "Nước mắm",
+      "group": "Hành & gia vị",
+      "aliases": [],
+      "unitIds": [
+        "ml",
+        "tsp",
+        "tbsp"
+      ]
+    }
+  ],
+  "units": [
+    {
+      "id": "g",
+      "label": "g"
+    },
+    {
+      "id": "kg",
+      "label": "kg"
+    },
+    {
+      "id": "ml",
+      "label": "ml"
+    },
+    {
+      "id": "l",
+      "label": "l"
+    },
+    {
+      "id": "fruit",
+      "label": "quả"
+    },
+    {
+      "id": "piece",
+      "label": "cái"
+    },
+    {
+      "id": "tsp",
+      "label": "thìa cà phê"
+    },
+    {
+      "id": "tbsp",
+      "label": "thìa canh"
+    }
+  ]
+}
