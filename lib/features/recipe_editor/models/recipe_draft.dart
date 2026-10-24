@@ -1,3 +1,5 @@
+import 'package:app_bep_xinh/features/ingredients/models/ingredient_quantity.dart';
+
 import 'dart:typed_data';
 
 import 'package:app_bep_xinh/features/ingredients/models/ingredient_catalog.dart';
@@ -40,15 +42,8 @@ class RecipeIngredientDraft extends Equatable {
   });
 
   String? get unitId => unit?.id;
-  String get quantityLabel {
-    if (toTaste) return 'Vừa đủ';
-    final value = amount;
-    if (value == null) return '';
-    final text = value == value.truncateToDouble()
-        ? value.toInt().toString()
-        : value.toString().replaceAll('.', ',');
-    return '$text ${unit?.label ?? ''}'.trim();
-  }
+  String get quantityLabel =>
+      formatIngredientQuantity(amount: amount, unit: unit, toTaste: toTaste);
 
   RecipeIngredientDraft withId(String value) => RecipeIngredientDraft(
     id: value,

@@ -1,3 +1,5 @@
+import 'package:app_bep_xinh/features/recipes/services/recipe_favorites_service.dart';
+
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,10 +14,17 @@ class HomeCubit extends Cubit<HomeState> {
   Future<void>? _loadTask;
   final Map<String, bool> _refreshFavorites = {};
   late final StreamSubscription<FridgeSummary> _summarySubscription;
+  late final StreamSubscription<RecipeFavoriteChange> _favoriteSubscription;
   FridgeSummary? _latestSummary;
   int _summaryRevision = 0;
 
   HomeCubit({required this.service}) : super(const HomeState()) {
+    _favoriteSubscription = service.favoriteChanges.listen(
+      _onFavorite,
+      onError: (Object error, StackTrace stack) {
+        if (!isClosed) addError(error, stack);
+      },
+    );
     _summarySubscription = service.fridgeSummaries.listen(
       _onSummary,
       onError: (Object error, StackTrace stack) {
@@ -76,6 +85,29 @@ class HomeCubit extends Cubit<HomeState> {
     } finally {
       _refreshFavorites.clear();
     }
+  }
+
+  void _onFavorite(RecipeFavoriteChange change) {
+    if (isClosed) return;
+    if (_loadTask != null) {
+      _refreshFavorites[change.recipeId] = change.isFavorite;
+    }
+    final data = state.data;
+    if (data == null) return;
+    emit(
+      state.copyWith(
+        data: data.withRecipes(
+          data.recipes
+              .map(
+                (recipe) => recipe.id == change.recipeId
+                    ? recipe.copyWith(isFavorite: change.isFavorite)
+                    : recipe,
+              )
+              .toList(),
+        ),
+        errorMessage: state.errorMessage,
+      ),
+    );
   }
 
   void _onSummary(FridgeSummary summary) {
@@ -146,7 +178,10 @@ class HomeCubit extends Cubit<HomeState> {
   @override
   Future<void> close() async {
     // Không chờ HTTP trong close; chỉ hủy resource do Cubit sở hữu.
-    final cancellation = _summarySubscription.cancel();
+    final cancellation = Future.wait([
+      _summarySubscription.cancel(),
+      _favoriteSubscription.cancel(),
+    ]);
     await super.close();
     await cancellation;
   }

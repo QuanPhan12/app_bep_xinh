@@ -1,16 +1,13 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+
 import '../colors/app_colors.dart';
+import '../models/app_notification_type.dart';
 import '../text_styles/app_text_styles.dart';
 import '../utils/responsive_utils.dart';
 
-/// Các loại thông báo trong hệ thống Messenger
-enum AppNotificationType {
-  success,
-  error,
-  warning,
-  info,
-}
+export '../models/app_notification_type.dart';
 
 /// Hệ thống thông báo tùy biến (Custom Messenger) thay thế ScaffoldMessenger chuẩn.
 /// Hỗ trợ 2 chế độ hiển thị thích ứng theo thiết bị (Responsive):
@@ -204,9 +201,7 @@ class _AppNotificationWidgetState extends State<_AppNotificationWidget>
     _slideAnimation = Tween<Offset>(
       begin: beginOffset,
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
     _controller.forward();
   }
@@ -268,7 +263,10 @@ class _AppNotificationWidgetState extends State<_AppNotificationWidget>
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: mainColor.withValues(alpha: 0.35), width: 1.2),
+          border: Border.all(
+            color: mainColor.withValues(alpha: 0.35),
+            width: 1.2,
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.08),
@@ -289,10 +287,7 @@ class _AppNotificationWidgetState extends State<_AppNotificationWidget>
             Container(
               width: 38,
               height: 38,
-              decoration: BoxDecoration(
-                color: bgColor,
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
               child: Icon(iconData, color: mainColor, size: 22),
             ),
             const SizedBox(width: 12),
@@ -373,10 +368,7 @@ class _AppNotificationWidgetState extends State<_AppNotificationWidget>
       onDismissed: (_) => widget.onClose(),
       child: FadeTransition(
         opacity: _fadeAnimation,
-        child: SlideTransition(
-          position: _slideAnimation,
-          child: cardContent,
-        ),
+        child: SlideTransition(position: _slideAnimation, child: cardContent),
       ),
     );
 

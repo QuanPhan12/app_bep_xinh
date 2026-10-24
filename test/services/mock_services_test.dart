@@ -1,3 +1,4 @@
+import 'package:app_bep_xinh/features/recipes/services/recipe_favorites_service.dart';
 import 'package:app_bep_xinh/features/ingredients/services/ingredient_catalog_service.dart';
 import 'package:app_bep_xinh/core/services/mock_api_client.dart';
 import 'package:app_bep_xinh/features/fridge/services/fridge_service.dart';
@@ -22,7 +23,11 @@ void main() {
     final api = MockApiClient(bundle: rootBundle, latency: Duration.zero);
     final fridge = MockFridgeService(api, MockIngredientCatalogService(api));
     addTearDown(fridge.dispose);
-    final home = await MockHomeService(api, fridge).fetchHome();
+    final home = await MockHomeService(
+      api,
+      fridge,
+      MockRecipeFavoritesService(api),
+    ).fetchHome();
     expect(home.banners.length, 3);
     expect(home.categories.length, 5);
     expect(home.recipes.length, 4);
@@ -35,7 +40,11 @@ void main() {
       final api = fixtureApi();
       final fridge = MockFridgeService(api, MockIngredientCatalogService(api));
       addTearDown(fridge.dispose);
-      final home = MockHomeService(api, fridge);
+      final home = MockHomeService(
+        api,
+        fridge,
+        MockRecipeFavoritesService(api),
+      );
       final before = await home.fetchHome();
       final recipeId = before.recipes.first.id;
       await home.setFavorite(recipeId, true);
@@ -67,7 +76,13 @@ void main() {
     'inventory writes update loaded Home without fetching Home again',
     () async {
       final fridge = createMockFridgeService();
-      final home = HomeCubit(service: MockHomeService(fixtureApi(), fridge));
+      final home = HomeCubit(
+        service: MockHomeService(
+          fixtureApi(),
+          fridge,
+          MockRecipeFavoritesService(fixtureApi()),
+        ),
+      );
       final inventory = FridgeCubit(service: fridge);
       await Future.wait([home.loadHome(), inventory.loadFridge()]);
       expect(home.state.data!.fridgeSummary.readyRecipeCount, 2);

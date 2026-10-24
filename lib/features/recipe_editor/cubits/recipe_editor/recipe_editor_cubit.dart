@@ -1,4 +1,5 @@
 import 'package:app_bep_xinh/core/utils/search_utils.dart';
+import 'package:app_bep_xinh/core/models/app_notification_type.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../models/recipe_draft.dart';
@@ -117,7 +118,10 @@ class RecipeEditorCubit extends Cubit<RecipeEditorState> {
               : searchKey(row.name) == searchKey(item.name)),
     );
     if (duplicate) {
-      _notice('Nguyên liệu đã có. Chạm vào dòng để sửa lượng dùng.');
+      _notice(
+        'Nguyên liệu đã có. Chạm vào dòng để sửa lượng dùng.',
+        type: AppNotificationType.warning,
+      );
       return;
     }
     if (existing >= 0) {
@@ -213,7 +217,7 @@ class RecipeEditorCubit extends Cubit<RecipeEditorState> {
       if (isClosed) return;
       // Nếu người dùng tiếp tục gõ lúc lưu, phần mới vẫn được coi là chưa lưu.
       emit(state.copyWith(savedDraft: snapshot));
-      _notice('Đã lưu bản nháp.');
+      _notice('Đã lưu bản nháp.', type: AppNotificationType.success);
     } catch (error, stack) {
       if (!isClosed) {
         addError(error, stack);
@@ -253,8 +257,16 @@ class RecipeEditorCubit extends Cubit<RecipeEditorState> {
     }
   }
 
-  void _notice(String message) =>
-      emit(state.copyWith(message: message, noticeId: state.noticeId + 1));
+  void _notice(
+    String message, {
+    AppNotificationType type = AppNotificationType.error,
+  }) => emit(
+    state.copyWith(
+      message: message,
+      noticeType: type,
+      noticeId: state.noticeId + 1,
+    ),
+  );
 
   Future<bool> requestExit(Future<bool> Function() confirmDiscard) {
     if (isClosed || state.isBusy || _exitTask != null) {

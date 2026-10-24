@@ -22,7 +22,7 @@ class PathRouter {
   static const recipeDetailScreen = "/recipe/:id";
   static const recipeEditorScreen = '/recipes/new';
 
-  static String recipeDetail(String id) => "/recipe/$id";
+  static String recipeDetail(String id) => '/recipe/${Uri.encodeComponent(id)}';
 }
 
 class NameRouter {
@@ -60,7 +60,7 @@ final appRouter = GoRouter(
       path: PathRouter.recipeDetailScreen,
       name: NameRouter.recipeDetailScreen,
       builder: (context, state) {
-        final id = state.pathParameters['id'] ?? 'bo_ne_tieu_den';
+        final id = state.pathParameters['id']!;
         return RecipeDetailScreen(recipeId: id);
       },
     ),

@@ -1,3 +1,4 @@
+import 'package:app_bep_xinh/features/recipes/services/recipe_favorites_service.dart';
 import 'package:app_bep_xinh/features/ingredients/models/ingredient_catalog.dart';
 import 'package:app_bep_xinh/features/ingredients/services/ingredient_catalog_service.dart';
 
@@ -58,6 +59,8 @@ class StubFridgeService implements FridgeService {
 }
 
 class StubHomeService implements HomeService {
+  @override
+  Stream<RecipeFavoriteChange> favoriteChanges = const Stream.empty();
   @override
   Stream<FridgeSummary> fridgeSummaries = const Stream.empty();
   Future<HomeData> Function()? onFetch;

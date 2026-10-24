@@ -1,3 +1,5 @@
+import 'features/recipe_detail/services/recipe_detail_service.dart';
+import 'features/recipes/services/recipe_favorites_service.dart';
 import 'features/ingredients/services/ingredient_catalog_service.dart';
 
 import 'dart:async';
@@ -36,10 +38,24 @@ class AppBepXinh extends StatelessWidget {
           ),
           dispose: (service) => unawaited(service.dispose()),
         ),
+        RepositoryProvider<RecipeFavoritesService>(
+          create: (context) =>
+              MockRecipeFavoritesService(context.read<MockApiClient>()),
+          dispose: (service) => unawaited(service.dispose()),
+        ),
+        RepositoryProvider<RecipeDetailService>(
+          create: (context) => MockRecipeDetailService(
+            context.read<MockApiClient>(),
+            context.read<IngredientCatalogService>(),
+            context.read<FridgeService>(),
+            context.read<RecipeFavoritesService>(),
+          ),
+        ),
         RepositoryProvider<HomeService>(
           create: (context) => MockHomeService(
             context.read<MockApiClient>(),
             context.read<FridgeService>(),
+            context.read<RecipeFavoritesService>(),
           ),
         ),
         RepositoryProvider<RecipeEditorService>(

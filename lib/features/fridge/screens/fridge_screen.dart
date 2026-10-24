@@ -2,6 +2,7 @@ import '../widgets/fridge_skeleton.dart';
 
 import 'package:app_bep_xinh/core/widgets/responsive_layout.dart';
 import 'package:app_bep_xinh/core/widgets/app_load_state.dart';
+import 'package:app_bep_xinh/core/widgets/app_messenger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -27,8 +28,7 @@ class FridgeScreen extends StatelessWidget {
             current.errorMessage != null &&
             previous.errorMessage != current.errorMessage,
         listener: (context, state) =>
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(state.errorMessage!))),
+            AppMessenger.showError(context, state.errorMessage!),
         builder: (context, state) {
           if (!state.hasCatalog) {
             return Scaffold(

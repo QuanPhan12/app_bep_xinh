@@ -3,6 +3,7 @@ import 'package:app_bep_xinh/features/ingredients/services/ingredient_catalog_se
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
 import 'package:app_bep_xinh/core/router/app_router.dart';
 import 'package:app_bep_xinh/core/tap/tap.dart';
+import 'package:app_bep_xinh/core/widgets/app_messenger.dart';
 import 'package:app_bep_xinh/features/fridge/services/fridge_service.dart';
 import 'package:app_bep_xinh/features/home/services/home_service.dart';
 import 'package:app_bep_xinh/features/recipe_editor/screens/recipe_editor_screen.dart';
@@ -80,7 +81,10 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(router.dispose);
-    addTearDown(() => tester.pumpWidget(const SizedBox.shrink()));
+    addTearDown(() async {
+      AppMessenger.hide();
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
     await tester.pumpWidget(host(router, scale: scale));
     router.push(PathRouter.recipeEditorScreen);
     await tester.pumpAndSettle();
@@ -150,6 +154,12 @@ void main() {
       expect(service.submitted!.title, 'Trứng chiên hành');
       expect(service.submitted!.cover, isNotNull);
       expect(find.text('Trang trước'), findsOneWidget);
+      expect(find.text('Đã gửi công thức chờ duyệt.'), findsOneWidget);
+      expect(find.text('Thành công'), findsOneWidget);
+      expect(find.byType(SnackBar), findsNothing);
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pumpAndSettle();
+      expect(find.text('Thành công'), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );
@@ -214,6 +224,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Lá mắc mật'), findsOneWidget);
       expect(find.text('Vừa đủ · Rửa sạch'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
     },
   );
@@ -229,6 +241,9 @@ void main() {
     );
     await tap(tester, find.text('Lưu nháp'));
     expect(service.saved!.title, 'Món nháp');
+    expect(find.text('Đã lưu bản nháp.'), findsOneWidget);
+    expect(find.text('Thành công'), findsOneWidget);
+    expect(find.byType(SnackBar), findsNothing);
     expect(service.saved!.cover, isNull);
     await tap(tester, find.byTooltip('Quay lại'));
     expect(find.text('Rời màn hình?'), findsNothing);
@@ -236,6 +251,8 @@ void main() {
     router.push(PathRouter.recipeEditorScreen);
     await tester.pumpAndSettle();
     expect(find.text('Món nháp'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 4));
+    await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });
 

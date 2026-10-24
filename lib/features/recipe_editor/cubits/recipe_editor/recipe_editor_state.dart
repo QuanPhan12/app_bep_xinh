@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:app_bep_xinh/core/models/app_notification_type.dart';
 
 import '../../models/recipe_draft.dart';
 
@@ -15,6 +16,7 @@ class RecipeEditorState extends Equatable {
   final bool showErrors;
   final String? message;
   final int noticeId;
+  final AppNotificationType noticeType;
   final bool allowExit;
 
   RecipeEditorState({
@@ -26,6 +28,7 @@ class RecipeEditorState extends Equatable {
     this.showErrors = false,
     this.message,
     this.noticeId = 0,
+    this.noticeType = AppNotificationType.info,
     this.allowExit = false,
   }) : draft = draft ?? RecipeDraft(),
        savedDraft = savedDraft ?? RecipeDraft(),
@@ -45,6 +48,7 @@ class RecipeEditorState extends Equatable {
     bool? showErrors,
     String? message,
     int? noticeId,
+    AppNotificationType? noticeType,
     bool? allowExit,
   }) => RecipeEditorState(
     status: status ?? this.status,
@@ -55,6 +59,7 @@ class RecipeEditorState extends Equatable {
     showErrors: showErrors ?? this.showErrors,
     message: message ?? this.message,
     noticeId: noticeId ?? this.noticeId,
+    noticeType: noticeType ?? this.noticeType,
     allowExit: allowExit ?? this.allowExit,
   );
 
@@ -68,6 +73,7 @@ class RecipeEditorState extends Equatable {
     showErrors,
     message,
     noticeId,
+    noticeType,
     allowExit,
   ];
 }

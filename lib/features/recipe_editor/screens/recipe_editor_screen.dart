@@ -7,6 +7,7 @@ import 'package:app_bep_xinh/core/router/app_router.dart';
 import 'package:app_bep_xinh/core/tap/tap_extension.dart';
 import 'package:app_bep_xinh/core/widgets/app_app_bar.dart';
 import 'package:app_bep_xinh/core/widgets/app_load_state.dart';
+import 'package:app_bep_xinh/core/widgets/app_messenger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -91,9 +92,11 @@ class _RecipeEditorPage extends StatelessWidget {
       final submitted = state.status == RecipeEditorStatus.submitted;
       final message = submitted ? 'Đã gửi công thức chờ duyệt.' : state.message;
       if (message != null) {
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(message)));
+        AppMessenger.show(
+          context,
+          message: message,
+          type: submitted ? AppNotificationType.success : state.noticeType,
+        );
       }
       if (submitted) _pop(context);
     },

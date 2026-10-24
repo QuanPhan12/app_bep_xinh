@@ -1,0 +1,532 @@
+{
+  "recipes": [
+    {
+      "id": "bo_ne_tieu_den",
+      "title": "Bò né sốt tiêu đen bánh mì",
+      "description": "Thịt bò mềm, sốt tiêu thơm, dùng cùng trứng và bánh mì nóng.",
+      "author": "Bếp Xinh",
+      "preparationMinutes": 10,
+      "cookingMinutes": 20,
+      "servings": 2,
+      "difficulty": "Dễ làm",
+      "ingredients": [
+        {
+          "id": "beef",
+          "ingredientId": "beef",
+          "amount": 300,
+          "unitId": "g",
+          "note": "Thái lát mỏng",
+          "toTaste": false
+        },
+        {
+          "id": "egg",
+          "ingredientId": "egg",
+          "amount": 2,
+          "unitId": "fruit",
+          "note": "",
+          "toTaste": false
+        },
+        {
+          "id": "pepper",
+          "ingredientId": "pepper",
+          "amount": 1,
+          "unitId": "tsp",
+          "note": "",
+          "toTaste": false
+        },
+        {
+          "id": "butter",
+          "ingredientId": "butter",
+          "amount": 20,
+          "unitId": "g",
+          "note": "",
+          "toTaste": false
+        },
+        {
+          "id": "garlic",
+          "ingredientId": "garlic",
+          "amount": 10,
+          "unitId": "g",
+          "note": "Băm nhỏ",
+          "toTaste": false
+        },
+        {
+          "id": "Bánh mì",
+          "ingredientId": null,
+          "amount": 2,
+          "unitId": "piece",
+          "note": "",
+          "name": "Bánh mì",
+          "toTaste": false
+        }
+      ],
+      "steps": [
+        {
+          "id": "step_1",
+          "instruction": "Thấm khô thịt bò, thái lát vừa ăn. Ướp với tỏi, tiêu và một ít muối trong 10 phút."
+        },
+        {
+          "id": "step_2",
+          "instruction": "Làm nóng chảo, cho bơ vào rồi áp chảo bò đến độ chín mong muốn."
+        },
+        {
+          "id": "step_3",
+          "instruction": "Đập trứng vào chảo, hạ lửa và nấu đến khi trứng chín."
+        },
+        {
+          "id": "step_4",
+          "instruction": "Nêm lại sốt, rắc tiêu và dùng nóng cùng bánh mì."
+        }
+      ],
+      "aliases": [],
+      "image": "assets/images/bo_ne.jpg",
+      "rating": 4.9,
+      "calories": 450
+    },
+    {
+      "id": "salad_uc_ga_me_rang",
+      "title": "Salad ức gà sốt mè rang",
+      "description": "Ức gà, rau giòn và sốt mè cho bữa ăn nhẹ nhàng.",
+      "author": "Bếp Xinh",
+      "preparationMinutes": 10,
+      "cookingMinutes": 15,
+      "servings": 2,
+      "difficulty": "Dễ làm",
+      "ingredients": [
+        {
+          "id": "chicken",
+          "ingredientId": "chicken",
+          "amount": 250,
+          "unitId": "g",
+          "note": "",
+          "toTaste": false
+        },
+        {
+          "id": "egg",
+          "ingredientId": "egg",
+          "amount": 2,
+          "unitId": "fruit",
+          "note": "",
+          "toTaste": false
+        },
+        {
+          "id": "cucumber",
+          "ingredientId": "cucumber",
+          "amount": 150,
+          "unitId": "g",
+          "note": "",
+          "toTaste": false
+        },
+        {
+          "id": "tomato",
+          "ingredientId": "tomato",
+          "amount": 2,
+          "unitId": "fruit",
+          "note": "",
+          "toTaste": false
+        },
+        {
+          "id": "Sốt mè rang",
+          "ingredientId": null,
+          "amount": 2,
+          "unitId": "tbsp",
+          "note": "",
+          "name": "Sốt mè rang",
+          "toTaste": false
+        }
+      ],
+      "steps": [
+        {
+          "id": "step_1",
+          "instruction": "Rửa sạch rau củ, để ráo và cắt miếng vừa ăn."
+        },
+        {
+          "id": "step_2",
+          "instruction": "Luộc trứng đến khi chín, bóc vỏ và cắt đôi."
+        },
+        {
+          "id": "step_3",
+          "instruction": "Áp chảo ức gà đến khi chín hoàn toàn, để nghỉ rồi cắt lát."
+        },
+        {
+          "id": "step_4",
+          "instruction": "Xếp nguyên liệu vào tô, trộn với sốt mè ngay trước khi ăn."
+        }
+      ],
+      "aliases": [
+        "chicken_salad"
+      ],
+      "image": "assets/images/salad_uc_ga.jpg",
+      "rating": 4.8,
+      "calories": 280,
+      "isFavorite": true
+    },
+    {
+      "id": "ca_hoi_ap_chao",
+      "title": "Cá hồi áp chảo bơ tỏi",
+      "description": "Cá hồi vàng mặt, thơm bơ tỏi, dùng cùng rau hoặc cơm nóng.",
+      "author": "Bếp Xinh",
+      "preparationMinutes": 10,
+      "cookingMinutes": 25,
+      "servings": 2,
+      "difficulty": "Dễ làm",
+      "ingredients": [
+        {
+          "id": "salmon",
+          "ingredientId": "salmon",
+          "amount": 300,
+          "unitId": "g",
+          "note": "",
+          "toTaste": false
+        },
+        {
+          "id": "butter",
+          "ingredientId": "butter",
+          "amount": 20,
+          "unitId": "g",
+          "note": "",
+          "toTaste": false
+        },
+        {
+          "id": "garlic",
+          "ingredientId": "garlic",
+          "amount": 15,
+          "unitId": "g",
+          "note": "Băm nhỏ",
+          "toTaste": false
+        },
+        {
+          "id": "pepper",
+          "ingredientId": "pepper",
+          "amount": null,
+          "unitId": "g",
+          "note": "",
+          "toTaste": true
+        }
+      ],
+      "steps": [
+        {
+          "id": "step_1",
+          "instruction": "Thấm khô cá, rắc một ít muối và tiêu hai mặt."
+        },
+        {
+          "id": "step_2",
+          "instruction": "Làm nóng chảo với ít dầu, đặt mặt da cá xuống trước."
+        },
+        {
+          "id": "step_3",
+          "instruction": "Lật cá khi da vàng, thêm bơ và tỏi rồi rưới bơ lên cá."
+        },
+        {
+          "id": "step_4",
+          "instruction": "Nấu đến khi cá chín, bày ra đĩa và dùng nóng."
+        }
+      ],
+      "aliases": [
+        "salmon_garlic"
+      ],
+      "image": "assets/images/ca_hoi.png",
+      "rating": 5,
+      "calories": 390
+    },
+    {
+      "id": "canh_kim_chi_thit_heo",
+      "title": "Canh kim chi thịt heo đậu hũ",
+      "description": "Canh kim chi chua cay, đậu hũ mềm và thịt heo đậm vị.",
+      "author": "Bếp Xinh",
+      "preparationMinutes": 10,
+      "cookingMinutes": 30,
+      "servings": 2,
+      "difficulty": "Dễ làm",
+      "ingredients": [
+        {
+          "id": "kimchi",
+          "ingredientId": "kimchi",
+          "amount": 250,
+          "unitId": "g",
+          "note": "",
+          "toTaste": false
+        },
+        {
+          "id": "pork",
+          "ingredientId": "pork",
+          "amount": 200,
+          "unitId": "g",
+          "note": "",
+          "toTaste": false
+        },
+        {
+          "id": "tofu",
+          "ingredientId": "tofu",
+          "amount": 2,
+          "unitId": "piece",
+          "note": "",
+          "toTaste": false
+        },
+        {
+          "id": "scallion",
+          "ingredientId": "scallion",
+          "amount": 15,
+          "unitId": "g",
+          "note": "",
+          "toTaste": false
+        }
+      ],
+      "steps": [
+        {
+          "id": "step_1",
+          "instruction": "Cắt thịt và đậu hũ thành miếng vừa ăn, thái hành lá."
+        },
+        {
+          "id": "step_2",
+          "instruction": "Xào thịt với kim chi trong nồi cho thơm."
+        },
+        {
+          "id": "step_3",
+          "instruction": "Thêm nước, đun sôi rồi hạ lửa nấu đến khi thịt mềm."
+        },
+        {
+          "id": "step_4",
+          "instruction": "Cho đậu hũ vào, nêm vừa ăn và thêm hành trước khi tắt bếp."
+        }
+      ],
+      "aliases": [
+        "kimchi_soup"
+      ],
+      "image": "assets/images/canh_kimchi.png",
+      "rating": 4.9,
+      "calories": 320
+    },
+    {
+      "id": "canh_suon_ham_rau_cu",
+      "title": "Canh sườn hầm rau củ",
+      "description": "Nước dùng ngọt thanh từ thịt và rau củ, hợp bữa cơm gia đình.",
+      "author": "Bếp Xinh",
+      "preparationMinutes": 10,
+      "cookingMinutes": 25,
+      "servings": 2,
+      "difficulty": "Dễ làm",
+      "ingredients": [
+        {
+          "id": "pork",
+          "ingredientId": "pork",
+          "amount": 300,
+          "unitId": "g",
+          "note": "Chọn phần sườn",
+          "toTaste": false
+        },
+        {
+          "id": "potato",
+          "ingredientId": "potato",
+          "amount": 2,
+          "unitId": "fruit",
+          "note": "",
+          "toTaste": false
+        },
+        {
+          "id": "Cà rốt",
+          "ingredientId": null,
+          "amount": 150,
+          "unitId": "g",
+          "note": "",
+          "name": "Cà rốt",
+          "toTaste": false
+        },
+        {
+          "id": "scallion",
+          "ingredientId": "scallion",
+          "amount": 10,
+          "unitId": "g",
+          "note": "",
+          "toTaste": false
+        }
+      ],
+      "steps": [
+        {
+          "id": "step_1",
+          "instruction": "Rửa sạch thịt, chần sơ rồi rửa lại."
+        },
+        {
+          "id": "step_2",
+          "instruction": "Cắt khoai tây và cà rốt thành miếng vừa ăn."
+        },
+        {
+          "id": "step_3",
+          "instruction": "Cho thịt vào nồi nước, đun sôi và hớt bọt, sau đó hầm nhỏ lửa."
+        },
+        {
+          "id": "step_4",
+          "instruction": "Thêm rau củ, nấu mềm và nêm vừa ăn. Rắc hành lá trước khi dùng."
+        }
+      ],
+      "aliases": [],
+      "image": "assets/images/canh_suon_banner.jpg",
+      "rating": 4.9
+    },
+    {
+      "id": "tofu_tomato",
+      "title": "Đậu hũ sốt cà chua",
+      "description": "Đậu hũ mềm, sốt cà chua đậm vị, dùng cùng cơm nóng.",
+      "author": "Bếp Xinh",
+      "preparationMinutes": 5,
+      "cookingMinutes": 15,
+      "servings": 2,
+      "difficulty": "Dễ làm",
+      "ingredients": [
+        {
+          "id": "tofu",
+          "ingredientId": "tofu",
+          "amount": 2,
+          "unitId": "piece",
+          "note": "",
+          "toTaste": false
+        },
+        {
+          "id": "tomato",
+          "ingredientId": "tomato",
+          "amount": 2,
+          "unitId": "fruit",
+          "note": "",
+          "toTaste": false
+        },
+        {
+          "id": "scallion",
+          "ingredientId": "scallion",
+          "amount": 10,
+          "unitId": "g",
+          "note": "",
+          "toTaste": false
+        }
+      ],
+      "steps": [
+        {
+          "id": "step_1",
+          "instruction": "Cắt đậu hũ thành miếng, thái cà chua và hành."
+        },
+        {
+          "id": "step_2",
+          "instruction": "Áp chảo đậu hũ vàng các mặt rồi gắp ra."
+        },
+        {
+          "id": "step_3",
+          "instruction": "Nấu cà chua với một ít nước đến khi mềm, nêm vừa ăn."
+        },
+        {
+          "id": "step_4",
+          "instruction": "Cho đậu vào sốt, đun nhỏ lửa cho ngấm rồi rắc hành."
+        }
+      ],
+      "aliases": []
+    },
+    {
+      "id": "egg_tomato_soup",
+      "title": "Canh cà chua trứng",
+      "description": "Bát canh thanh nhẹ, dễ nấu cho bữa cơm nhà.",
+      "author": "Bếp Xinh",
+      "preparationMinutes": 5,
+      "cookingMinutes": 10,
+      "servings": 2,
+      "difficulty": "Dễ làm",
+      "ingredients": [
+        {
+          "id": "egg",
+          "ingredientId": "egg",
+          "amount": 2,
+          "unitId": "fruit",
+          "note": "",
+          "toTaste": false
+        },
+        {
+          "id": "tomato",
+          "ingredientId": "tomato",
+          "amount": 2,
+          "unitId": "fruit",
+          "note": "",
+          "toTaste": false
+        },
+        {
+          "id": "scallion",
+          "ingredientId": "scallion",
+          "amount": 10,
+          "unitId": "g",
+          "note": "",
+          "toTaste": false
+        }
+      ],
+      "steps": [
+        {
+          "id": "step_1",
+          "instruction": "Cắt cà chua, thái hành lá và đánh tan trứng."
+        },
+        {
+          "id": "step_2",
+          "instruction": "Xào cà chua cho mềm rồi thêm nước và đun sôi."
+        },
+        {
+          "id": "step_3",
+          "instruction": "Rót trứng từ từ vào nồi, khuấy nhẹ để tạo vân."
+        },
+        {
+          "id": "step_4",
+          "instruction": "Nêm vừa ăn, thêm hành và dùng nóng."
+        }
+      ],
+      "aliases": []
+    },
+    {
+      "id": "beef_tomato",
+      "title": "Bò xào cà chua",
+      "description": "Thịt bò mềm, cà chua chín mọng và hành lá thơm.",
+      "author": "Bếp Xinh",
+      "preparationMinutes": 10,
+      "cookingMinutes": 20,
+      "servings": 2,
+      "difficulty": "Dễ làm",
+      "ingredients": [
+        {
+          "id": "beef",
+          "ingredientId": "beef",
+          "amount": 250,
+          "unitId": "g",
+          "note": "Thái mỏng",
+          "toTaste": false
+        },
+        {
+          "id": "tomato",
+          "ingredientId": "tomato",
+          "amount": 2,
+          "unitId": "fruit",
+          "note": "",
+          "toTaste": false
+        },
+        {
+          "id": "scallion",
+          "ingredientId": "scallion",
+          "amount": 15,
+          "unitId": "g",
+          "note": "",
+          "toTaste": false
+        }
+      ],
+      "steps": [
+        {
+          "id": "step_1",
+          "instruction": "Thái thịt bò, ướp với gia vị vừa ăn. Cắt cà chua và hành lá."
+        },
+        {
+          "id": "step_2",
+          "instruction": "Làm nóng chảo, xào nhanh thịt bò rồi trút ra đĩa."
+        },
+        {
+          "id": "step_3",
+          "instruction": "Xào cà chua đến độ mềm mong muốn."
+        },
+        {
+          "id": "step_4",
+          "instruction": "Cho bò trở lại chảo, đảo cùng hành, nêm lại và tắt bếp."
+        }
+      ],
+      "aliases": []
+    }
+  ]
+}

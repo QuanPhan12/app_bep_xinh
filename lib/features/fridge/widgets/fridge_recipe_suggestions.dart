@@ -1,3 +1,5 @@
+import 'package:go_router/go_router.dart';
+import 'package:app_bep_xinh/core/router/app_router.dart';
 import 'package:app_bep_xinh/core/widgets/app_section_header.dart';
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
 import 'package:app_bep_xinh/core/dimensions/app_size.dart';
@@ -96,6 +98,8 @@ class FridgeRecipeSuggestions extends StatelessWidget {
                   padding: EdgeInsets.only(bottom: 10.h(context)),
                   child: FridgeRecipeCard(
                     recipe: recipe,
+                    onTap: () =>
+                        context.push(PathRouter.recipeDetail(recipe.id)),
                     missingNames: const [],
                   ),
                 ),
@@ -112,6 +116,8 @@ class FridgeRecipeSuggestions extends StatelessWidget {
                   padding: EdgeInsets.only(bottom: 10.h(context)),
                   child: FridgeRecipeCard(
                     recipe: recipe,
+                    onTap: () =>
+                        context.push(PathRouter.recipeDetail(recipe.id)),
                     missingNames: recipe
                         .missingIngredients(state.selectedIds)
                         .map(state.ingredientName)

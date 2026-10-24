@@ -1,5 +1,5 @@
 import 'package:app_bep_xinh/core/services/mock_api_client.dart';
-import 'package:app_bep_xinh/core/utils/async_serial_queue.dart';
+import 'package:app_bep_xinh/features/recipes/services/recipe_favorites_service.dart';
 import 'package:app_bep_xinh/features/fridge/models/fridge_summary.dart';
 import 'package:app_bep_xinh/features/fridge/services/fridge_service.dart';
 
@@ -7,6 +7,7 @@ import '../models/home_data.dart';
 
 abstract interface class HomeService {
   Stream<FridgeSummary> get fridgeSummaries;
+  Stream<RecipeFavoriteChange> get favoriteChanges;
   Future<HomeData> fetchHome();
   Future<void> setFavorite(String recipeId, bool isFavorite);
 }
@@ -14,40 +15,37 @@ abstract interface class HomeService {
 class MockHomeService implements HomeService {
   final MockApiClient api;
   final FridgeService fridgeService;
-  final _writes = AsyncSerialQueue();
-  final Map<String, bool> _favorites = {};
+  final RecipeFavoritesService favorites;
 
-  MockHomeService(this.api, this.fridgeService);
+  MockHomeService(this.api, this.fridgeService, this.favorites);
 
   @override
   Stream<FridgeSummary> get fridgeSummaries => fridgeService.summaries;
 
   @override
   Future<HomeData> fetchHome() async {
-    await _writes.settled;
     final (json, fridge) = await (
       api.get('home'),
       fridgeService.fetchFridge(),
     ).wait;
     final data = HomeData.fromJson(json, FridgeSummary.fromData(fridge));
-    return data.withRecipes(
-      data.recipes
-          .map(
-            (recipe) => _favorites.containsKey(recipe.id)
-                ? recipe.copyWith(isFavorite: _favorites[recipe.id])
-                : recipe,
-          )
-          .toList(),
+    final recipes = await Future.wait(
+      data.recipes.map(
+        (recipe) async => recipe.copyWith(
+          isFavorite: await favorites.isFavorite(
+            recipe.id,
+            fallback: recipe.isFavorite,
+          ),
+        ),
+      ),
     );
+    return data.withRecipes(recipes);
   }
 
   @override
+  Stream<RecipeFavoriteChange> get favoriteChanges => favorites.changes;
+
+  @override
   Future<void> setFavorite(String recipeId, bool isFavorite) =>
-      _writes.run(() async {
-        if (recipeId.trim().isEmpty) {
-          throw ArgumentError.value(recipeId, 'recipeId');
-        }
-        await api.simulateWrite();
-        _favorites[recipeId] = isFavorite;
-      });
+      favorites.setFavorite(recipeId, isFavorite);
 }
