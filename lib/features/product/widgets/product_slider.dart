@@ -76,11 +76,13 @@ class _ProductSliderState extends State<ProductSlider> {
 
     final isTablet = context.isTablet;
     // Trên Tablet hiển thị nhiều thẻ cùng lúc (~2.7 thẻ) để vuốt mượt mà
-    final viewportFraction = isTablet ? 0.36 : 0.68;
     final baseHeight = isTablet ? 230.h(context) : 210.h(context);
 
     return LayoutBuilder(
       builder: (context, constraints) {
+        final viewportFraction = isTablet
+            ? (260 / constraints.maxWidth).clamp(.24, .5)
+            : .68;
         final cardWidth = math.max(
           1.0,
           constraints.maxWidth * viewportFraction - 14.w(context),
@@ -99,12 +101,14 @@ class _ProductSliderState extends State<ProductSlider> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    widget.title,
-                    style: AppTextStyles.titleMedium.copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16.sp(context),
-                      color: AppColors.textPrimary,
+                  Expanded(
+                    child: Text(
+                      widget.title,
+                      style: AppTextStyles.titleMedium.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.sp(context),
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                   ),
                   Row(

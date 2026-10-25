@@ -107,10 +107,7 @@ class AppBottomNavBar extends StatelessWidget {
             activeIcon: Icons.kitchen_rounded,
             title: showLabels ? 'Tủ lạnh' : '',
           ),
-          const TabItem(
-            icon: Icons.add_rounded,
-            title: '',
-          ),
+          const TabItem(icon: Icons.add_rounded, title: ''),
           TabItem(
             icon: CupertinoIcons.cart,
             activeIcon: CupertinoIcons.cart_fill,
@@ -122,7 +119,12 @@ class AppBottomNavBar extends StatelessWidget {
             title: showLabels ? 'Cá nhân' : '',
           ),
         ],
-        onTap: (index) => _handleTap(context, index),
+        // The shell owns selection. Actions and rejected taps must not change
+        // ConvexAppBar's internal index before the router accepts a tab switch.
+        onTabNotify: (index) {
+          _handleTap(context, index);
+          return false;
+        },
       ),
     );
   }

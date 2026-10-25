@@ -29,7 +29,7 @@ void main() {
       MockRecipeFavoritesService(api),
     ).fetchHome();
     expect(home.banners.length, 3);
-    expect(home.categories.length, 5);
+    expect(home.categories.length, 6);
     expect(home.recipes.length, 4);
     expect(home.fridgeSummary.readyRecipeCount, 2);
   });

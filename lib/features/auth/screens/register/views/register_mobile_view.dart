@@ -4,6 +4,8 @@ import 'package:app_bep_xinh/core/widgets/widgets.dart';
 import 'package:app_bep_xinh/features/auth/widgets/register_form.dart';
 import 'package:flutter/material.dart';
 
+import '../../../widgets/auth_content_width.dart';
+
 class RegisterMobileView extends StatelessWidget {
   const RegisterMobileView({super.key});
 
@@ -20,7 +22,9 @@ class RegisterMobileView extends StatelessWidget {
               horizontal: size.space16.w(context),
               vertical: size.space16.w(context),
             ),
-            sliver: const SliverToBoxAdapter(child: RegisterForm()),
+            sliver: const SliverToBoxAdapter(
+              child: AuthContentWidth(child: RegisterForm()),
+            ),
           ),
         ],
       ),

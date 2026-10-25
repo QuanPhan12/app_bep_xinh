@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../colors/app_colors.dart';
 import '../text_styles/app_text_styles.dart';
 import 'app_tap.dart';
+import 'app_feature_theme.dart';
 
 /// AppBar phẳng dùng chung cho các màn chi tiết/form của app.
 class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -30,7 +31,9 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
     title: Text(title, style: AppTextStyles.titleLarge),
     centerTitle: false,
     automaticallyImplyLeading: false,
-    backgroundColor: AppColors.surface,
+    backgroundColor: AppFeatureTheme.isActive(context)
+        ? AppFeatureTheme.canvas
+        : AppColors.surface,
     surfaceTintColor: Colors.transparent,
     elevation: 0,
     scrolledUnderElevation: 0,
@@ -58,9 +61,11 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
     actions: actions,
-    bottom: const PreferredSize(
-      preferredSize: Size.fromHeight(1),
-      child: Divider(height: 1, color: AppColors.border),
-    ),
+    bottom: AppFeatureTheme.isActive(context)
+        ? null
+        : const PreferredSize(
+            preferredSize: Size.fromHeight(1),
+            child: Divider(height: 1, color: AppColors.border),
+          ),
   );
 }

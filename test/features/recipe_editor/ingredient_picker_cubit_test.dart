@@ -39,7 +39,7 @@ void main() {
       service.onFetch = () => loading.future;
       final cubit = IngredientPickerCubit(
         service: service,
-        initial: validRecipeDraft().ingredients.single,
+        initial: validRecipeDraft().ingredients.single.inGroup('seasoning'),
       );
       addTearDown(cubit.close);
       final task = cubit.load();
@@ -53,7 +53,7 @@ void main() {
       expect(cubit.state.selected!.id, 'egg');
       expect(
         cubit.confirm()!.toJson(),
-        validRecipeDraft().ingredients.single.toJson(),
+        validRecipeDraft().ingredients.single.inGroup('seasoning').toJson(),
       );
     },
   );
@@ -80,6 +80,7 @@ void main() {
       'unitId': 'kg',
       'toTaste': false,
       'note': 'thái mỏng',
+      'groupId': 'main',
     });
     cubit.changeAmount('1,2,3');
     expect(cubit.confirm(), isNull);

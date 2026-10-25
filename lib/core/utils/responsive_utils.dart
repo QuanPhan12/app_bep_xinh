@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_framework/responsive_framework.dart';
+
+import 'app_layout.dart';
 
 /// Tiện ích hỗ trợ responsive toàn diện cho ứng dụng Bếp Xinh
 class ResponsiveUtils {
@@ -7,14 +8,7 @@ class ResponsiveUtils {
 
   /// Kiểm tra thiết bị hiện tại có phải là Tablet không (hoặc màn hình lớn >= 600px)
   static bool isTablet(BuildContext context) {
-    try {
-      final isResponsiveTablet = ResponsiveBreakpoints.of(context).isTablet ||
-          ResponsiveBreakpoints.of(context).isDesktop;
-      if (isResponsiveTablet) return true;
-    } catch (_) {
-      // Fallback nếu widget nằm ngoài cây ResponsiveBreakpoints
-    }
-    return MediaQuery.of(context).size.width >= 600;
+    return AppLayout.isTablet(context);
   }
 
   /// Kiểm tra thiết bị hiện tại có phải là Mobile không (< 600px)

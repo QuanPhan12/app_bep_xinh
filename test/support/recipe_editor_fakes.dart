@@ -32,6 +32,49 @@ RecipeDraft validRecipeDraft() => RecipeDraft(
   ],
 );
 
+RecipeDraft richRecipeDraft() => validRecipeDraft().copyWith(
+  title: 'Trứng chiên sốt gia vị',
+  description: 'Món ngon cho bữa cơm gia đình.',
+  preparationMinutes: '20',
+  cookingMinutes: '35',
+  difficulty: RecipeDifficulty.medium,
+  meals: {RecipeMeal.lunch, RecipeMeal.weekend},
+  categories: {RecipeCategory.vegetarian},
+  storageNotes: 'Dùng nóng. Để riêng phần sốt.',
+  ingredientGroups: const [
+    RecipeIngredientGroup(id: 'sauce', name: 'Phần sốt'),
+    RecipeIngredientGroup(id: 'main', name: 'Nguyên liệu chính'),
+  ],
+  ingredients: [
+    validRecipeDraft().ingredients.first,
+    const RecipeIngredientDraft(
+      id: 'spice_0',
+      name: 'Gia vị rang',
+      toTaste: true,
+      groupId: 'sauce',
+      note: 'Nêm sau cùng',
+    ),
+  ],
+  steps: [
+    RecipeStepDraft(
+      id: 'step_later',
+      title: 'Chuẩn bị trứng',
+      instruction: 'Đánh trứng với hành.',
+      minutes: '5',
+      tip: 'Đánh nhẹ tay.',
+      photo: recipeCoverFixture(id: 'prep_photo'),
+    ),
+    RecipeStepDraft(
+      id: 'step_0',
+      title: 'Chiên và thêm sốt',
+      instruction: 'Chiên trứng chín rồi thêm phần sốt.',
+      minutes: '15',
+      tip: 'Giữ lửa vừa.',
+      photo: recipeCoverFixture(id: 'finish_photo'),
+    ),
+  ],
+);
+
 class StubRecipeEditorService implements RecipeEditorService {
   RecipeDraft? saved;
   RecipeDraft? submitted;

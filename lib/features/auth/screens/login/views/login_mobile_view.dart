@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../../../core/colors/app_colors.dart';
 import '../../../../../core/dimensions/dimensions.dart';
 import '../../../widgets/login_form.dart';
+import '../../../widgets/auth_content_width.dart';
 
 class LoginMobileView extends StatelessWidget {
   const LoginMobileView({super.key});
@@ -21,16 +22,18 @@ class LoginMobileView extends StatelessWidget {
               horizontal: size.space16.w(context),
               vertical: size.space16.w(context),
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Logo & Tiêu đề
-                const LoginLogo(),
-                SizedBox(height: 28.h(context)),
-                // Form đăng nhập dùng chung
-                const LoginForm(),
-              ],
+            child: AuthContentWidth(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Logo & Tiêu đề
+                  const LoginLogo(),
+                  SizedBox(height: 28.h(context)),
+                  // Form đăng nhập dùng chung
+                  const LoginForm(),
+                ],
+              ),
             ),
           ),
         ),

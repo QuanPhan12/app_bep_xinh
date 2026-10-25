@@ -47,6 +47,7 @@ class RegisterForm extends StatelessWidget {
           // 1. Tên hiển thị
           LoginTextField(
             label: 'Tên hiển thị',
+            initialValue: context.read<RegisterCubit>().state.name,
             prefixIcon: Icons.person_outline_rounded,
             keyboardType: TextInputType.text,
             height: 50.h(context),
@@ -57,6 +58,7 @@ class RegisterForm extends StatelessWidget {
           // 2. Email
           LoginTextField(
             label: 'Email',
+            initialValue: context.read<RegisterCubit>().state.email,
             prefixIcon: Icons.email_outlined,
             keyboardType: TextInputType.emailAddress,
             height: 50.h(context),
@@ -70,6 +72,7 @@ class RegisterForm extends StatelessWidget {
             builder: (context, isObscured) {
               return LoginTextField(
                 label: 'Mật khẩu',
+                initialValue: context.read<RegisterCubit>().state.password,
                 prefixIcon: Icons.lock_outline_rounded,
                 suffixIcon: isObscured
                     ? Icons.visibility_off_outlined
@@ -90,6 +93,10 @@ class RegisterForm extends StatelessWidget {
             builder: (context, isObscured) {
               return LoginTextField(
                 label: 'Xác nhận mật khẩu',
+                initialValue: context
+                    .read<RegisterCubit>()
+                    .state
+                    .confirmPassword,
                 prefixIcon: Icons.lock_outline_rounded,
                 suffixIcon: isObscured
                     ? Icons.visibility_off_outlined
@@ -132,8 +139,9 @@ class RegisterForm extends StatelessWidget {
           // 6. Đã có tài khoản -> Chuyển sang màn Đăng nhập
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              runSpacing: 8,
               children: [
                 Text('Đã có tài khoản? ', style: AppTextStyles.labelMedium),
                 AppTap(

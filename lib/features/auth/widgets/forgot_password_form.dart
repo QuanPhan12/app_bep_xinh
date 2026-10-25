@@ -76,6 +76,7 @@ class ForgotPasswordForm extends StatelessWidget {
         // Ô nhập Email
         LoginTextField(
           label: 'Email đã đăng ký',
+          initialValue: state.email,
           prefixIcon: Icons.email_outlined,
           keyboardType: TextInputType.emailAddress,
           height: 50.h(context),
@@ -104,8 +105,10 @@ class ForgotPasswordForm extends StatelessWidget {
         SizedBox(height: size.space20.h(context)),
 
         // Quay lại đăng nhập
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          runSpacing: 8,
           children: [
             Text(
               'Nhớ mật khẩu? ',
@@ -199,8 +202,10 @@ class ForgotPasswordForm extends StatelessWidget {
         SizedBox(height: size.space16.h(context)),
 
         // Tùy chọn gửi lại
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          runSpacing: 8,
           children: [
             Text(
               'Chưa nhận được email? ',

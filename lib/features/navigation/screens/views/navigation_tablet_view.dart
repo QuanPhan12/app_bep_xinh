@@ -1,5 +1,6 @@
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
 import 'package:app_bep_xinh/core/router/app_router.dart';
+import 'package:app_bep_xinh/core/utils/app_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,7 +12,7 @@ class NavigationTabletView extends StatelessWidget {
 
   const NavigationTabletView({super.key, required this.navigationShell});
 
-  static const double _maxTabletContentWidth = 680.0;
+  static const double _maxTabletContentWidth = AppLayout.formMaxWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +20,7 @@ class NavigationTabletView extends StatelessWidget {
       backgroundColor: AppColors.background,
       body: navigationShell,
       bottomNavigationBar: Center(
+        heightFactor: 1,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: _maxTabletContentWidth),
           child: AppBottomNavBar(

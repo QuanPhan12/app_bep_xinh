@@ -21,6 +21,10 @@ import 'package:app_bep_xinh/features/fridge/services/fridge_service.dart';
 
 import '../../support/mock_services.dart';
 import '../../support/recipe_detail_fakes.dart';
+import '../../support/recipe_editor_fakes.dart';
+
+import 'package:app_bep_xinh/features/recipes/widgets/recipe_image_view.dart';
+
 import '../../support/test_text_styles.dart';
 
 void main() {
@@ -95,6 +99,7 @@ void main() {
     AppTapHandler.resetLock();
     await tester.pump();
     await tester.ensureVisible(finder);
+    await tester.pumpAndSettle();
     await tester.tap(finder);
     await tester.pumpAndSettle();
   }
@@ -206,6 +211,75 @@ void main() {
       await tap(tester, find.text('Bắt đầu nấu'));
       expect(tester.takeException(), isNull);
       await tap(tester, find.text('Bước tiếp theo'));
+      expect(tester.takeException(), isNull);
+    });
+  }
+  for (final width in [320.0, 800.0, 1024.0]) {
+    testWidgets('authored data renders in detail and cooking at width $width', (
+      tester,
+    ) async {
+      final draft = richRecipeDraft();
+      service.onFetch = (id) async => RecipeDetailData(
+        recipe: RecipeDetail(
+          id: id,
+          author: const RecipeAuthor.legacy(name: 'Tác giả'),
+          content: RecipeContent.fromJson(
+            draft.toRecipeContent().toJson(),
+            catalogFixture(),
+          ),
+        ),
+        isFavorite: false,
+        availableIngredientIds: {'egg'},
+      );
+      await open(tester, router(), width: width, height: 1000, scale: 1.5);
+      expect(find.text(draft.description), findsOneWidget);
+      expect(find.text('Bữa trưa · Cuối tuần'), findsOneWidget);
+      expect(find.text('Phần sốt'), findsOneWidget);
+      expect(find.text('Vừa đủ'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.text('Phần sốt')).dy,
+        lessThan(tester.getTopLeft(find.text('Nguyên liệu chính')).dy),
+      );
+      await tap(tester, find.text('Cách nấu (2)'));
+      expect(find.text('Đánh nhẹ tay.'), findsOneWidget);
+      expect(find.text(draft.storageNotes), findsOneWidget);
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is RecipeImageView && widget.image.id == 'prep_photo',
+        ),
+        findsOneWidget,
+      );
+      await tap(tester, find.text('Bắt đầu nấu'));
+      expect(find.text('Bước 1 / 2'), findsOneWidget);
+      expect(find.text('Đánh trứng với hành.'), findsOneWidget);
+      expect(find.text('Chiên trứng chín rồi thêm phần sốt.'), findsNothing);
+      await tap(tester, find.text('Bước tiếp theo'));
+      expect(find.text('Bước 2 / 2'), findsOneWidget);
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is RecipeImageView && widget.image.id == 'finish_photo',
+        ),
+        findsOneWidget,
+      );
+      await tap(tester, find.text('Nguyên liệu (2)'));
+      expect(find.text('Vừa đủ'), findsOneWidget);
+      await tap(tester, find.text('Tiếp tục nấu'));
+      expect(find.text('Bước 2 / 2'), findsOneWidget);
+      await tap(tester, find.byTooltip('Quay lại'));
+      expect(find.text('Chi tiết món ăn'), findsOneWidget);
+      expect(find.text('Tiếp tục nấu'), findsOneWidget);
+      await tap(tester, find.text('Tiếp tục nấu'));
+      expect(find.text('Bước 2 / 2'), findsOneWidget);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.text('Chi tiết món ăn'), findsOneWidget);
+      await tap(tester, find.text('Tiếp tục nấu'));
+      await tap(tester, find.text('Hoàn tất'));
+      expect(find.text('Nấu lại'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
     });
   }

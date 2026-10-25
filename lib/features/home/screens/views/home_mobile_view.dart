@@ -1,3 +1,4 @@
+import 'package:app_bep_xinh/features/recipe_search/models/recipe_search_request.dart';
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
 import 'package:app_bep_xinh/core/dimensions/app_size.dart';
 import 'package:app_bep_xinh/core/router/app_router.dart';
@@ -12,7 +13,7 @@ import '../../widgets/home_categories.dart';
 
 import 'package:app_bep_xinh/core/widgets/app_section_header.dart';
 import 'package:app_bep_xinh/core/widgets/app_text_action.dart';
-import 'package:app_bep_xinh/core/constants/app_constants.dart';
+import 'package:app_bep_xinh/core/utils/app_layout.dart';
 
 import 'package:app_bep_xinh/features/product/widgets/product_grid.dart';
 
@@ -39,6 +40,7 @@ class HomeMobileView extends StatelessWidget {
           color: AppColors.primary,
           onRefresh: () => context.read<HomeCubit>().refreshHome(),
           child: CustomScrollView(
+            key: const PageStorageKey('home_content'),
             physics: const AlwaysScrollableScrollPhysics(
               parent: BouncingScrollPhysics(),
             ),
@@ -51,6 +53,9 @@ class HomeMobileView extends StatelessWidget {
                 child: AppSearchBar(
                   hintText: 'Hôm nay nấu gì?',
                   actionName: 'home_search_bar_tap',
+                  onTap: () {
+                    context.push(PathRouter.recipeSearch());
+                  },
                   padding: EdgeInsets.symmetric(horizontal: 16.w(context)),
                 ),
               ),
@@ -72,7 +77,11 @@ class HomeMobileView extends StatelessWidget {
                 child: HomeCategories(
                   categories: categories,
                   onSelectCategory: (categoryId) {
-                    context.read<HomeCubit>().selectCategory(categoryId);
+                    context.push(
+                      PathRouter.recipeSearch(
+                        filter: RecipeSearchFilter.fromHome(categoryId),
+                      ),
+                    );
                   },
                 ),
               ),
@@ -97,8 +106,11 @@ class HomeMobileView extends StatelessWidget {
                   title: 'Món ăn thịnh hành',
                   titleMaxLines: 1,
                   padding: EdgeInsets.symmetric(horizontal: 16.w(context)),
-                  maxWidth: AppConstants.maxContentWidth,
-                  action: const AppTextAction(
+                  maxWidth: AppLayout.pageWidth(context),
+                  action: AppTextAction(
+                    onTap: () {
+                      context.push(PathRouter.recipeSearch());
+                    },
                     label: 'Xem tất cả',
                     trailingIcon: Icons.arrow_forward_ios_rounded,
                   ),

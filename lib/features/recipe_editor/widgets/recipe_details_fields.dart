@@ -1,7 +1,9 @@
-import 'package:app_bep_xinh/core/colors/app_colors.dart';
+import 'package:app_bep_xinh/core/widgets/app_selection_controls.dart';
 import 'package:app_bep_xinh/core/tap/tap_extension.dart';
 import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
 import 'package:app_bep_xinh/core/widgets/app_serving_selector.dart';
+import 'package:app_bep_xinh/core/widgets/app_card.dart';
+import 'package:app_bep_xinh/core/widgets/app_section_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -12,6 +14,7 @@ import '../validation/recipe_editor_validation.dart';
 import 'package:app_bep_xinh/core/widgets/app_text_field.dart';
 
 import 'recipe_editor_section.dart';
+import 'recipe_editor_labels.dart';
 
 class RecipeTitleField extends StatelessWidget {
   const RecipeTitleField({super.key});
@@ -54,7 +57,7 @@ class RecipeDetailsFields extends StatelessWidget {
         builder: (context, state) {
           final cubit = context.read<RecipeEditorCubit>();
           return RecipeEditorSection(
-            title: 'Thông tin món',
+            title: 'Thông số chế biến',
 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,31 +110,9 @@ class RecipeDetailsFields extends StatelessWidget {
                   spacing: 8,
                   children: [
                     for (final difficulty in RecipeDifficulty.values)
-                      ChoiceChip(
-                        label: Text(switch (difficulty) {
-                          RecipeDifficulty.easy => 'Dễ',
-                          RecipeDifficulty.medium => 'Vừa',
-                          RecipeDifficulty.hard => 'Khó',
-                        }),
-                        labelStyle: AppTextStyles.labelMedium.copyWith(
-                          color: state.draft.difficulty == difficulty
-                              ? AppColors.primary800
-                              : AppColors.textSecondary,
-                        ),
+                      AppChoiceChip(
+                        label: difficulty.label,
                         selected: state.draft.difficulty == difficulty,
-                        selectedColor: AppColors.primary50,
-                        showCheckmark: false,
-                        side: BorderSide(
-                          color: state.draft.difficulty == difficulty
-                              ? AppColors.primary100
-                              : AppColors.border,
-                        ),
-                        backgroundColor: AppColors.surfaceVariant,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        visualDensity: VisualDensity.compact,
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         onSelected: state.isSubmitting
                             ? null
                             : (_) => context
@@ -148,5 +129,111 @@ class RecipeDetailsFields extends StatelessWidget {
             ),
           );
         },
+      );
+}
+
+class RecipeDescriptionField extends StatelessWidget {
+  const RecipeDescriptionField({super.key});
+  @override
+  Widget build(BuildContext context) =>
+      BlocSelector<
+        RecipeEditorCubit,
+        RecipeEditorState,
+        (String, String?, bool)
+      >(
+        selector: (state) => (
+          state.draft.description,
+          state.errors['description'],
+          state.isSubmitting,
+        ),
+        builder: (context, value) => AppTextField(
+          fieldId: 'recipe_description',
+          initialValue: value.$1,
+          label: 'Mô tả & cảm hứng',
+          hint: 'Điều gì khiến món ăn này đặc biệt với bạn?',
+          maxLength: RecipeEditorLimits.descriptionLength,
+          minLines: 3,
+          maxLines: 5,
+          error: value.$2,
+          enabled: !value.$3,
+          onChanged: context.read<RecipeEditorCubit>().changeDescription,
+        ),
+      );
+}
+
+class RecipeMealFields extends StatelessWidget {
+  const RecipeMealFields({super.key});
+  @override
+  Widget build(BuildContext context) =>
+      BlocSelector<
+        RecipeEditorCubit,
+        RecipeEditorState,
+        (Set<RecipeMeal>, bool)
+      >(
+        selector: (state) => (state.draft.meals, state.isSubmitting),
+        builder: (context, value) => AppCard(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const AppSectionHeader(title: 'Thích hợp cho bữa ăn'),
+              const SizedBox(height: 4),
+              Text('Có thể chọn nhiều mục', style: AppTextStyles.bodySmall),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  for (final meal in RecipeMeal.values)
+                    AppFilterChip(
+                      label: meal.label,
+                      selected: value.$1.contains(meal),
+                      onSelected: value.$2
+                          ? null
+                          : (_) => context
+                                .onAppTap(
+                                  () => context
+                                      .read<RecipeEditorCubit>()
+                                      .toggleMeal(meal),
+                                  actionName: 'recipe_meal_${meal.name}',
+                                )
+                                ?.call(),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+}
+
+class RecipeStorageNotesField extends StatelessWidget {
+  const RecipeStorageNotesField({super.key});
+  @override
+  Widget build(BuildContext context) =>
+      BlocSelector<
+        RecipeEditorCubit,
+        RecipeEditorState,
+        (String, String?, bool)
+      >(
+        selector: (state) => (
+          state.draft.storageNotes,
+          state.errors['storageNotes'],
+          state.isSubmitting,
+        ),
+        builder: (context, value) => RecipeEditorSection(
+          title: 'Lưu ý & bí quyết bảo quản',
+          child: AppTextField(
+            fieldId: 'recipe_storage_notes',
+            initialValue: value.$1,
+            hint: 'Mẹo chọn nguyên liệu, cách bảo quản hoặc hâm nóng món ăn…',
+            maxLength: RecipeEditorLimits.noteLength,
+            minLines: 3,
+            maxLines: 5,
+            error: value.$2,
+            enabled: !value.$3,
+            onChanged: context.read<RecipeEditorCubit>().changeStorageNotes,
+          ),
+        ),
       );
 }

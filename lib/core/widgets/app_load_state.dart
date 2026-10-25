@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../text_styles/app_text_styles.dart';
 import 'app_button.dart';
 import 'app_skeleton.dart';
+import 'app_feature_theme.dart';
 
 /// Trạng thái tải/lỗi/rỗng dùng chung, giữ callback để có thể thử lại.
 class AppLoadState extends StatelessWidget {
@@ -30,6 +31,24 @@ class AppLoadState extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (AppFeatureTheme.isActive(context)) ...[
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: const BoxDecoration(
+                      color: AppFeatureTheme.herbWash,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      onRetry == null
+                          ? Icons.restaurant_menu_rounded
+                          : Icons.refresh_rounded,
+                      size: 30,
+                      color: AppFeatureTheme.herb,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
                 Text(
                   message ?? 'Chưa có dữ liệu.',
                   style: AppTextStyles.bodyMedium,

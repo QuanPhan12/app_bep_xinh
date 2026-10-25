@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/app_layout.dart';
+
 /// Lớp trung tâm tính toán và cung cấp kích thước tự động thích ứng (Responsive Sizing)
 /// cho mọi widget trong toàn ứng dụng Bếp Xinh.
 ///
@@ -42,13 +44,14 @@ class AppSize {
   // ==========================================
 
   /// Điện thoại nhỏ hoặc bị bật Screen Zoom lớn (chiều ngang hẹp < 360dp)
-  bool get isSmallMobile => shortestSide < 360;
+  bool get isSmallMobile => screenWidth < 360;
 
   /// Điện thoại tiêu chuẩn (360dp <= shortestSide < 600dp)
-  bool get isStandardMobile => shortestSide >= 360 && shortestSide < 600;
+  bool get isStandardMobile =>
+      screenWidth >= 360 && screenWidth < AppLayout.tabletBreakpoint;
 
   /// Máy tính bảng hoặc màn hình lớn (>= 600dp)
-  bool get isTablet => shortestSide >= 600;
+  bool get isTablet => screenWidth >= AppLayout.tabletBreakpoint;
 
   // ==========================================
   // HỆ SỐ CO GIÃN THÔNG MINH (DAMPED SCALE FACTOR)

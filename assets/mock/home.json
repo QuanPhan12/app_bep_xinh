@@ -1,6 +1,11 @@
 {
   "categories": [
     {
+      "id": "cat_all",
+      "title": "Tất cả",
+      "icon": "all"
+    },
+    {
       "id": "cat_new",
       "title": "Món mới",
       "icon": "new"
@@ -78,7 +83,7 @@
     {
       "id": "ca_hoi_ap_chao",
       "title": "Cá hồi áp chảo bơ tỏi",
-      "image": "assets/images/ca_hoi.png",
+      "image": "assets/images/ca_hoi_ap_chao.png",
       "rating": 5,
       "cookTimeMinutes": 25,
       "tag": "Nhanh gọn",

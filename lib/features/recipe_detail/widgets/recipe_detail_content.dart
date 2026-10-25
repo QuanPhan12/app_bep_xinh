@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
+import 'package:app_bep_xinh/core/widgets/app_adaptive_columns.dart';
+import 'package:app_bep_xinh/features/recipes/widgets/recipe_notes.dart';
 
 import '../cubits/recipe_detail/recipe_detail_cubit.dart';
 import 'recipe_detail_overview.dart';
 import 'recipe_detail_ingredients.dart';
 import 'recipe_detail_steps.dart';
+import 'recipe_detail_tabs.dart';
+import 'recipe_cooking_content.dart';
 
 class RecipeDetailContent extends StatelessWidget {
   const RecipeDetailContent({super.key});
@@ -17,51 +20,31 @@ class RecipeDetailContent extends StatelessWidget {
             a.tab != b.tab ||
             (a.cookingStep == null) != (b.cookingStep == null),
         builder: (context, state) {
+          if (state.cookingStep != null) return const RecipeCookingContent();
           final recipe = state.recipe!;
-          final cooking = state.cookingStep != null;
           return SingleChildScrollView(
-            key: PageStorageKey('detail_${recipe.id}_$cooking'),
+            key: PageStorageKey('detail_${recipe.id}_false'),
             padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (!cooking)
-                  RecipeDetailOverview(recipe: recipe)
-                else ...[
-                  Text(recipe.title, style: AppTextStyles.titleLarge),
+            child: AppAdaptiveColumns(
+              primary: RecipeDetailOverview(recipe: recipe),
+              secondary: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const RecipeDetailTabs(),
                   const SizedBox(height: 20),
-                ],
-                SegmentedButton<RecipeDetailTab>(
-                  showSelectedIcon: false,
-                  expandedInsets: EdgeInsets.zero,
-                  segments: [
-                    ButtonSegment(
-                      value: RecipeDetailTab.ingredients,
-                      label: Text(
-                        'Nguyên liệu (${recipe.ingredients.length})',
-                        style: AppTextStyles.labelMedium,
-                      ),
-                    ),
-                    ButtonSegment(
-                      value: RecipeDetailTab.steps,
-                      label: Text(
-                        'Cách nấu (${recipe.steps.length})',
-                        style: AppTextStyles.labelMedium,
-                      ),
+                  if (state.tab == RecipeDetailTab.ingredients)
+                    const RecipeDetailIngredients()
+                  else
+                    const RecipeDetailSteps(),
+                  if (recipe.storageNotes.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    RecipeNotes(
+                      title: 'Lưu ý & bí quyết bảo quản',
+                      text: recipe.storageNotes,
                     ),
                   ],
-                  selected: {state.tab},
-                  onSelectionChanged: (values) => context
-                      .read<RecipeDetailCubit>()
-                      .selectTab(values.single),
-                ),
-                const SizedBox(height: 24),
-                if (state.tab == RecipeDetailTab.ingredients)
-                  const RecipeDetailIngredients()
-                else
-                  const RecipeDetailSteps(),
-                const SizedBox(height: 16),
-              ],
+                ],
+              ),
             ),
           );
         },

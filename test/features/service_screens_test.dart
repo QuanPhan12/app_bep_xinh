@@ -119,7 +119,7 @@ void main() {
       service.onFetch = null;
       await tester.tap(find.text('Thử lại'));
       await tester.pumpAndSettle();
-      expect(find.byKey(const ValueKey('pick_egg')), findsOneWidget);
+      expect(find.byKey(const ValueKey('fridge_add_ingredients')), findsOneWidget);
       expect(find.text('Trong tủ lạnh (4)'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },

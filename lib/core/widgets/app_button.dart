@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
@@ -8,7 +9,7 @@ import '../text_styles/app_text_styles.dart';
 import '../tap/app_tap_handler.dart';
 import '../tap/tap_config.dart';
 
-enum AppButtonVariant { primary, secondary, outlined, ghost }
+enum AppButtonVariant { primary, secondary, ghost }
 
 /// Nút bấm chuẩn hóa toàn app Bếp Xinh tích hợp sẵn hệ thống kiểm soát onTap tập trung
 /// và tự động tính toán kích thước co giãn thích ứng theo từng dòng máy qua AppSize.
@@ -66,7 +67,10 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDisabled = onPressed == null || isLoading;
-    final effectiveHeight = height ?? context.appSize.buttonHeight;
+    final effectiveHeight = math.max(
+      48.0,
+      height ?? context.appSize.buttonHeight,
+    );
     final effectiveRadius = borderRadius ?? context.r(12);
 
     final resolvedOnPressed = isDisabled
@@ -132,7 +136,7 @@ class AppButton extends StatelessWidget {
                 ? null
                 : [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.28),
+                      color: AppColors.primary.withValues(alpha: .28),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -162,29 +166,6 @@ class AppButton extends StatelessWidget {
               backgroundColor: customColor ?? AppColors.primary50,
               foregroundColor: AppColors.primary,
               elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(effectiveRadius),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-            ),
-            child: content,
-          ),
-        );
-        break;
-
-      case AppButtonVariant.outlined:
-        buttonWidget = SizedBox(
-          height: effectiveHeight,
-          child: OutlinedButton(
-            onPressed: resolvedOnPressed,
-            style: OutlinedButton.styleFrom(
-              foregroundColor: customColor ?? AppColors.primary,
-              side: BorderSide(
-                color: isDisabled
-                    ? AppColors.borderDark
-                    : (customColor ?? AppColors.primary),
-                width: 1.5,
-              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(effectiveRadius),
               ),
@@ -227,7 +208,6 @@ class AppButton extends StatelessWidget {
           fontWeight: FontWeight.w600,
         );
       case AppButtonVariant.secondary:
-      case AppButtonVariant.outlined:
       case AppButtonVariant.ghost:
         return AppTextStyles.labelLarge.copyWith(
           color: customColor ?? AppColors.primary,

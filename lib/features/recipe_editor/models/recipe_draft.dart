@@ -1,28 +1,10 @@
-import 'package:app_bep_xinh/features/ingredients/models/ingredient_quantity.dart';
-
-import 'dart:typed_data';
-
-import 'package:app_bep_xinh/features/ingredients/models/ingredient_catalog.dart';
-
 import 'package:equatable/equatable.dart';
+import 'package:app_bep_xinh/features/ingredients/models/ingredient_catalog.dart';
+import 'package:app_bep_xinh/features/ingredients/models/ingredient_quantity.dart';
+import 'package:app_bep_xinh/features/recipes/models/recipe_content.dart';
 
-enum RecipeDifficulty { easy, medium, hard }
+export 'package:app_bep_xinh/features/recipes/models/recipe_content.dart';
 
-class RecipeCover extends Equatable {
-  final String id;
-  final String name;
-  final Uint8List bytes;
-
-  RecipeCover({required this.id, required this.name, required Uint8List bytes})
-    : bytes = Uint8List.fromList(bytes).asUnmodifiableView();
-
-  // Không so sánh lại toàn bộ ảnh mỗi lần gõ vào form.
-  @override
-  List<Object> get props => [id];
-}
-
-/// id nhận diện dòng form; ingredientId nhận diện nguyên liệu trong danh mục.
-/// Tên/nhãn đơn vị là snapshot hiển thị, đối chiếu dùng ID.
 class RecipeIngredientDraft extends Equatable {
   final String id;
   final String? ingredientId;
@@ -31,6 +13,7 @@ class RecipeIngredientDraft extends Equatable {
   final IngredientUnit? unit;
   final bool toTaste;
   final String note;
+  final String groupId;
   const RecipeIngredientDraft({
     required this.id,
     this.ingredientId,
@@ -39,6 +22,7 @@ class RecipeIngredientDraft extends Equatable {
     this.unit,
     this.toTaste = false,
     this.note = '',
+    this.groupId = 'main',
   });
 
   String? get unitId => unit?.id;
@@ -53,6 +37,18 @@ class RecipeIngredientDraft extends Equatable {
     unit: unit,
     toTaste: toTaste,
     note: note,
+    groupId: groupId,
+  );
+
+  RecipeIngredientDraft inGroup(String value) => RecipeIngredientDraft(
+    id: id,
+    ingredientId: ingredientId,
+    name: name,
+    amount: amount,
+    unit: unit,
+    toTaste: toTaste,
+    note: note,
+    groupId: value,
   );
 
   RecipeIngredientDraft normalized() => RecipeIngredientDraft(
@@ -63,6 +59,7 @@ class RecipeIngredientDraft extends Equatable {
     unit: toTaste ? null : unit,
     toTaste: toTaste,
     note: note.trim(),
+    groupId: groupId,
   );
 
   Map<String, dynamic> toJson() => {
@@ -72,6 +69,7 @@ class RecipeIngredientDraft extends Equatable {
     'unitId': toTaste ? null : unitId,
     'toTaste': toTaste,
     'note': note.trim(),
+    'groupId': groupId,
   };
 
   @override
@@ -83,19 +81,55 @@ class RecipeIngredientDraft extends Equatable {
     unit,
     toTaste,
     note,
+    groupId,
   ];
 }
 
 class RecipeStepDraft extends Equatable {
   final String id;
   final String instruction;
-  const RecipeStepDraft({required this.id, this.instruction = ''});
+  final String title;
+  final String minutes;
+  final String tip;
+  final RecipeCover? photo;
+  const RecipeStepDraft({
+    required this.id,
+    this.instruction = '',
+    this.title = '',
+    this.minutes = '',
+    this.tip = '',
+    this.photo,
+  });
 
-  RecipeStepDraft withInstruction(String value) =>
-      RecipeStepDraft(id: id, instruction: value);
+  RecipeStepDraft copyWith({
+    String? instruction,
+    String? title,
+    String? minutes,
+    String? tip,
+    RecipeCover? photo,
+    bool removePhoto = false,
+  }) => RecipeStepDraft(
+    id: id,
+    instruction: instruction ?? this.instruction,
+    title: title ?? this.title,
+    minutes: minutes ?? this.minutes,
+    tip: tip ?? this.tip,
+    photo: removePhoto ? null : photo ?? this.photo,
+  );
+
+  RecipeStepDraft withInstruction(String value) => copyWith(instruction: value);
+
+  RecipeStep toRecipeStep() => RecipeStep(
+    id: id,
+    title: title.trim(),
+    instruction: instruction.trim(),
+    minutes: minutes.trim().isEmpty ? null : int.parse(minutes),
+    tip: tip.trim(),
+    photo: photo,
+  );
 
   @override
-  List<Object> get props => [id, instruction];
+  List<Object?> get props => [id, instruction, title, minutes, tip, photo];
 }
 
 class RecipeDraft extends Equatable {
@@ -107,6 +141,11 @@ class RecipeDraft extends Equatable {
   final RecipeDifficulty difficulty;
   final List<RecipeIngredientDraft> ingredients;
   final List<RecipeStepDraft> steps;
+  final String description;
+  final String storageNotes;
+  final Set<RecipeMeal> meals;
+  final Set<RecipeCategory> categories;
+  final List<RecipeIngredientGroup> ingredientGroups;
 
   RecipeDraft({
     this.title = '',
@@ -115,9 +154,20 @@ class RecipeDraft extends Equatable {
     this.cookingMinutes = '20',
     this.servings = 2,
     this.difficulty = RecipeDifficulty.easy,
+    this.description = '',
+    this.storageNotes = '',
+    Set<RecipeMeal> meals = const {},
+    Set<RecipeCategory> categories = const {},
+    List<RecipeIngredientGroup> ingredientGroups = const [
+      RecipeIngredientGroup(id: 'main', name: 'Nguyên liệu chính'),
+      RecipeIngredientGroup(id: 'seasoning', name: 'Gia vị & nước sốt'),
+    ],
     List<RecipeIngredientDraft> ingredients = const [],
     List<RecipeStepDraft> steps = const [RecipeStepDraft(id: 'step_0')],
   }) : ingredients = List.unmodifiable(ingredients),
+       meals = Set.unmodifiable(meals),
+       categories = Set.unmodifiable(categories),
+       ingredientGroups = List.unmodifiable(ingredientGroups),
        steps = List.unmodifiable(steps);
 
   RecipeDraft copyWith({
@@ -130,6 +180,11 @@ class RecipeDraft extends Equatable {
     RecipeDifficulty? difficulty,
     List<RecipeIngredientDraft>? ingredients,
     List<RecipeStepDraft>? steps,
+    String? description,
+    String? storageNotes,
+    Set<RecipeMeal>? meals,
+    Set<RecipeCategory>? categories,
+    List<RecipeIngredientGroup>? ingredientGroups,
   }) => RecipeDraft(
     title: title ?? this.title,
     cover: removeCover ? null : cover ?? this.cover,
@@ -139,17 +194,70 @@ class RecipeDraft extends Equatable {
     difficulty: difficulty ?? this.difficulty,
     ingredients: ingredients ?? this.ingredients,
     steps: steps ?? this.steps,
+    description: description ?? this.description,
+    storageNotes: storageNotes ?? this.storageNotes,
+    meals: meals ?? this.meals,
+    categories: categories ?? this.categories,
+    ingredientGroups: ingredientGroups ?? this.ingredientGroups,
   );
 
   RecipeDraft normalized() => copyWith(
     title: title.trim(),
     preparationMinutes: preparationMinutes.trim(),
     cookingMinutes: cookingMinutes.trim(),
+    description: description.trim(),
+    storageNotes: storageNotes.trim(),
+    ingredientGroups: ingredientGroups
+        .map(
+          (group) =>
+              RecipeIngredientGroup(id: group.id, name: group.name.trim()),
+        )
+        .toList(),
     ingredients: ingredients.map((item) => item.normalized()).toList(),
     steps: steps
-        .map((item) => item.withInstruction(item.instruction.trim()))
+        .map(
+          (item) => item.copyWith(
+            instruction: item.instruction.trim(),
+            title: item.title.trim(),
+            minutes: item.minutes.trim(),
+            tip: item.tip.trim(),
+          ),
+        )
         .toList(),
   );
+
+  /// Convert a completed form to the same content used by detail and cooking.
+  RecipeContent toRecipeContent() {
+    final value = normalized();
+    return RecipeContent(
+      title: value.title,
+      description: value.description,
+      cover: value.cover,
+      preparationMinutes: int.parse(value.preparationMinutes),
+      cookingMinutes: int.parse(value.cookingMinutes),
+      servings: value.servings,
+      difficulty: value.difficulty,
+      meals: value.meals,
+      categories: value.categories,
+      storageNotes: value.storageNotes,
+      ingredientGroups: value.ingredientGroups,
+      ingredients: value.ingredients
+          .map(
+            (item) => RecipeIngredient(
+              id: item.id,
+              ingredientId: item.ingredientId,
+              name: item.name,
+              amount: item.amount,
+              unit: item.unit,
+              toTaste: item.toTaste,
+              note: item.note,
+              groupId: item.groupId,
+            ),
+          )
+          .toList(),
+      steps: value.steps.map((step) => step.toRecipeStep()).toList(),
+    );
+  }
 
   @override
   List<Object?> get props => [
@@ -161,5 +269,10 @@ class RecipeDraft extends Equatable {
     difficulty,
     ingredients,
     steps,
+    description,
+    storageNotes,
+    meals,
+    categories,
+    ingredientGroups,
   ];
 }

@@ -1,12 +1,13 @@
 import 'package:app_bep_xinh/features/ingredients/models/ingredient_catalog.dart';
 import 'package:app_bep_xinh/features/ingredients/services/ingredient_catalog_service.dart';
-import 'package:app_bep_xinh/core/colors/app_colors.dart';
+import 'package:app_bep_xinh/core/themes/app_theme.dart';
 import 'package:app_bep_xinh/core/router/app_router.dart';
 import 'package:app_bep_xinh/core/tap/tap.dart';
 import 'package:app_bep_xinh/core/widgets/app_messenger.dart';
 import 'package:app_bep_xinh/features/fridge/services/fridge_service.dart';
 import 'package:app_bep_xinh/features/home/services/home_service.dart';
 import 'package:app_bep_xinh/features/recipe_editor/screens/recipe_editor_screen.dart';
+import 'package:app_bep_xinh/features/recipe_editor/models/recipe_draft.dart';
 import 'package:app_bep_xinh/features/recipe_editor/services/recipe_cover_picker.dart';
 import 'package:app_bep_xinh/features/recipe_editor/services/recipe_editor_service.dart';
 import 'package:flutter/material.dart';
@@ -55,7 +56,7 @@ void main() {
     ],
     child: MaterialApp.router(
       routerConfig: router,
-      theme: ThemeData(colorScheme: AppColors.lightColorScheme),
+      theme: AppTheme.lightTheme,
       builder: (context, child) => ResponsiveBreakpoints.builder(
         breakpoints: const [
           Breakpoint(start: 0, end: 599, name: MOBILE),
@@ -94,9 +95,49 @@ void main() {
     AppTapHandler.resetLock();
     await tester.pump();
     await tester.ensureVisible(finder);
+    await tester.pumpAndSettle();
     await tester.tap(finder);
     await tester.pumpAndSettle();
   }
+
+  testWidgets(
+    'author classifications save and restore through editor controls',
+    (tester) async {
+      service.saved = validRecipeDraft();
+      final router = createRouter();
+      await open(tester, router, width: 800, scale: 1.5);
+      for (final category in RecipeCategory.values) {
+        await tap(
+          tester,
+          find.byKey(ValueKey('recipe_category_${category.id}')),
+        );
+      }
+      await tap(tester, find.byKey(const ValueKey('recipe_category_quick')));
+      expect(
+        tester
+            .widget<FilterChip>(
+              find.byKey(const ValueKey('recipe_category_quick')),
+            )
+            .selected,
+        isFalse,
+      );
+      await tap(tester, find.byKey(const ValueKey('recipe_category_quick')));
+      await tap(tester, find.text('Lưu nháp'));
+      expect(service.saved!.categories, RecipeCategory.values.toSet());
+      await tester.pump(const Duration(seconds: 4));
+      router.pop();
+      await tester.pumpAndSettle();
+      router.push(PathRouter.recipeEditorScreen);
+      await tester.pumpAndSettle();
+      for (final category in RecipeCategory.values) {
+        final chip = find.byKey(ValueKey('recipe_category_${category.id}'));
+        await tester.ensureVisible(chip);
+        await tester.pumpAndSettle();
+        expect(tester.widget<FilterChip>(chip).selected, isTrue);
+      }
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   Future<void> addIngredient(
     WidgetTester tester,
@@ -104,7 +145,7 @@ void main() {
     String id,
     String amount,
   ) async {
-    await tap(tester, find.text('Thêm'));
+    await tap(tester, find.byKey(const ValueKey('recipe_add_ingredient_main')));
     await tester.enterText(
       find.byKey(const ValueKey('ingredient_search')),
       query,
@@ -119,15 +160,26 @@ void main() {
     await tap(tester, find.byKey(const ValueKey('ingredient_confirm')));
   }
 
+  Future<void> goIngredients(WidgetTester tester) async {
+    picker.onPick = () async => recipeCoverFixture();
+    await tap(tester, find.byKey(const ValueKey('recipe_cover_picker')));
+    await tester.enterText(
+      find.byKey(const ValueKey('recipe_title')),
+      'Trứng chiên hành',
+    );
+    await tap(tester, find.byKey(const ValueKey('recipe_continue')));
+  }
+
   testWidgets(
-    'single author form validates, selects photo and submits through service',
+    'four stage author flow validates each stage, previews real data and submits',
     (tester) async {
       final router = createRouter();
       await open(tester, router);
       expect(find.text('Đăng món'), findsOneWidget);
       expect(find.textContaining('Admin'), findsNothing);
       expect(find.byType(TabBar), findsNothing);
-      await tap(tester, find.text('Gửi duyệt'));
+      expect(find.byKey(const ValueKey('recipe_step_step_0')), findsNothing);
+      await tap(tester, find.byKey(const ValueKey('recipe_continue')));
       expect(service.submitCalls, 0);
       expect(find.text('Thêm ảnh bìa cho món ăn.'), findsOneWidget);
       await tester.enterText(
@@ -141,18 +193,49 @@ void main() {
         find.byKey(const ValueKey('recipe_title')),
         'Trứng chiên hành',
       );
-      await addIngredient(tester, 'trung', 'egg', '2');
       await tester.enterText(
-        find.byKey(const ValueKey('recipe_step_step_0')),
-        'Chiên trứng đến khi chín.',
+        find.byKey(const ValueKey('recipe_description')),
+        'Món ngon cho bữa sáng.',
       );
       picker.onPick = () async => recipeCoverFixture();
       await tap(tester, find.byKey(const ValueKey('recipe_cover_picker')));
       expect(picker.pickCalls, 1);
-      await tap(tester, find.text('Gửi duyệt'));
+      await tap(tester, find.byKey(const ValueKey('recipe_continue')));
+      expect(find.byKey(const ValueKey('recipe_title')), findsNothing);
+      await tap(tester, find.byKey(const ValueKey('recipe_continue')));
+      expect(find.text('Thêm từ 1 đến 30 nguyên liệu.'), findsOneWidget);
+      await addIngredient(tester, 'trung', 'egg', '2');
+      await tap(tester, find.byKey(const ValueKey('recipe_continue')));
+      await tap(tester, find.byKey(const ValueKey('recipe_continue')));
+      expect(find.text('Mô tả cách thực hiện bước này.'), findsOneWidget);
+      await tester.enterText(
+        find.byKey(const ValueKey('recipe_step_step_0')),
+        'Chiên trứng đến khi chín.',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('recipe_step_title_step_0')),
+        'Chiên trứng',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('recipe_step_minutes_step_0')),
+        '10',
+      );
+      await tap(tester, find.byKey(const ValueKey('recipe_continue')));
+      expect(find.text('Trứng chiên hành'), findsOneWidget);
+      expect(find.text('Món ngon cho bữa sáng.'), findsOneWidget);
+      expect(find.text('Trứng gà'), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.text('Chiên trứng đến khi chín.'),
+        250,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('Chiên trứng đến khi chín.'), findsOneWidget);
+      await tap(tester, find.byKey(const ValueKey('recipe_continue')));
       expect(service.submitCalls, 1);
       expect(service.submitted!.title, 'Trứng chiên hành');
       expect(service.submitted!.cover, isNotNull);
+      expect(service.submitted!.description, 'Món ngon cho bữa sáng.');
+      expect(service.submitted!.steps.single.minutes, '10');
       expect(find.text('Trang trước'), findsOneWidget);
       expect(find.text('Đã gửi công thức chờ duyệt.'), findsOneWidget);
       expect(find.text('Thành công'), findsOneWidget);
@@ -169,6 +252,7 @@ void main() {
     (tester) async {
       final router = createRouter();
       await open(tester, router);
+      await goIngredients(tester);
       await addIngredient(tester, 'trung', 'egg', '2');
       await addIngredient(tester, 'ca chua', 'tomato', '0,5');
       await tap(tester, find.text('Cà chua'));
@@ -198,7 +282,11 @@ void main() {
     (tester) async {
       final router = createRouter();
       await open(tester, router);
-      await tap(tester, find.text('Thêm'));
+      await goIngredients(tester);
+      await tap(
+        tester,
+        find.byKey(const ValueKey('recipe_add_ingredient_main')),
+      );
       await tester.enterText(
         find.byKey(const ValueKey('ingredient_search')),
         'Lá mắc mật',
@@ -219,9 +307,13 @@ void main() {
       expect(item.toTaste, isTrue);
       expect(item.amount, isNull);
       expect(item.unitId, isNull);
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pumpAndSettle();
+      await tap(tester, find.byTooltip('Quay lại'));
       await tap(tester, find.byTooltip('Quay lại'));
       router.push(PathRouter.recipeEditorScreen);
       await tester.pumpAndSettle();
+      await tap(tester, find.byKey(const ValueKey('recipe_continue')));
       expect(find.text('Lá mắc mật'), findsOneWidget);
       expect(find.text('Vừa đủ · Rửa sạch'), findsOneWidget);
       await tester.pump(const Duration(seconds: 4));
@@ -279,17 +371,73 @@ void main() {
 
   for (final width in [320.0, 800.0]) {
     testWidgets(
+      'steps reorder with their fields and review can edit at width $width',
+      (tester) async {
+        service.saved = validRecipeDraft();
+        await open(tester, createRouter(), width: width, scale: 1.5);
+        tester.view.physicalSize = Size(width, 844);
+        await tester.pumpAndSettle();
+        await tap(tester, find.byKey(const ValueKey('recipe_continue')));
+        await tap(tester, find.byKey(const ValueKey('recipe_continue')));
+        final firstTitle = find.byKey(
+          const ValueKey('recipe_step_title_step_0'),
+        );
+        await tester.ensureVisible(firstTitle);
+        await tester.enterText(firstTitle, 'Chuẩn bị');
+        await tap(tester, find.text('Thêm bước'));
+        final secondInstruction = find.byKey(
+          const ValueKey('recipe_step_step_1'),
+        );
+        await tester.ensureVisible(secondInstruction);
+        await tester.enterText(secondInstruction, 'Chiên vàng hai mặt.');
+        await tap(tester, find.byTooltip('Tùy chọn bước 2'));
+        await tap(tester, find.text('Chuyển bước 2 lên'));
+        expect(
+          tester.widget<TextFormField>(secondInstruction).initialValue,
+          'Chiên vàng hai mặt.',
+        );
+        await tap(tester, find.byKey(const ValueKey('recipe_continue')));
+        await tester.scrollUntilVisible(
+          find.byKey(const ValueKey('recipe_review_edit_instructions')),
+          250,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tap(
+          tester,
+          find.byKey(const ValueKey('recipe_review_edit_instructions')),
+        );
+        await tester.ensureVisible(firstTitle);
+        expect(
+          tester.widget<TextFormField>(firstTitle).initialValue,
+          'Chuẩn bị',
+        );
+        expect(
+          tester.widget<TextFormField>(secondInstruction).initialValue,
+          'Chiên vàng hai mặt.',
+        );
+        await tap(tester, find.byTooltip('Quay lại'));
+        expect(find.text('Nguyên liệu & định lượng'), findsOneWidget);
+        expect(find.text('Rời màn hình?'), findsNothing);
+        expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets(
       'ingredient sheet supports keyboard, units and large text at width $width',
       (tester) async {
         await open(tester, createRouter(), width: width, scale: 1.5);
+        await goIngredients(tester);
         tester.view.physicalSize = Size(width, 820);
         await tester.pumpAndSettle();
         await tester.scrollUntilVisible(
-          find.text('Thêm'),
+          find.byKey(const ValueKey('recipe_add_ingredient_main')),
           240,
           scrollable: find.byType(Scrollable).first,
         );
-        await tap(tester, find.text('Thêm'));
+        await tap(
+          tester,
+          find.byKey(const ValueKey('recipe_add_ingredient_main')),
+        );
         await tester.enterText(
           find.byKey(const ValueKey('ingredient_search')),
           'thit bo',
@@ -321,7 +469,7 @@ void main() {
       tester,
     ) async {
       await open(tester, createRouter(), width: width, scale: 1.5);
-      await tap(tester, find.text('Gửi duyệt'));
+      await tap(tester, find.byKey(const ValueKey('recipe_continue')));
       for (var i = 0; i < 5; i++) {
         await tester.drag(find.byType(ListView), const Offset(0, -300));
         await tester.pumpAndSettle();

@@ -2,6 +2,8 @@ import 'package:app_bep_xinh/core/widgets/app_text_action.dart';
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
 import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
 import 'package:app_bep_xinh/core/widgets/app_tap.dart';
+import 'package:app_bep_xinh/core/widgets/app_text_field.dart';
+import 'package:app_bep_xinh/core/widgets/app_serving_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -10,17 +12,23 @@ import '../models/recipe_draft.dart';
 import '../validation/recipe_editor_validation.dart';
 import 'recipe_editor_section.dart';
 import 'recipe_ingredient_sheet.dart';
+import 'recipe_editor_menu.dart';
+
+import 'package:app_bep_xinh/core/widgets/app_card.dart';
 
 class RecipeIngredientsFields extends StatelessWidget {
   const RecipeIngredientsFields({super.key});
 
   Future<void> _edit(
-    BuildContext context, [
+    BuildContext context,
+    String groupId, [
     RecipeIngredientDraft? item,
   ]) async {
     final cubit = context.read<RecipeEditorCubit>();
     final result = await showRecipeIngredientSheet(context, initial: item);
-    if (result != null && !cubit.isClosed) cubit.upsertIngredient(result);
+    if (result != null && !cubit.isClosed) {
+      cubit.upsertIngredient(result, groupId: groupId);
+    }
   }
 
   @override
@@ -28,56 +36,179 @@ class RecipeIngredientsFields extends StatelessWidget {
       BlocSelector<
         RecipeEditorCubit,
         RecipeEditorState,
-        (List<RecipeIngredientDraft>, Map<String, String>, bool)
+        (
+          List<RecipeIngredientDraft>,
+          List<RecipeIngredientGroup>,
+          Map<String, String>,
+          bool,
+        )
       >(
-        selector: (state) =>
-            (state.draft.ingredients, state.errors, state.isSubmitting),
-        builder: (context, value) => RecipeEditorSection(
-          title: 'Nguyên liệu',
+        selector: (state) => (
+          state.draft.ingredients,
+          state.draft.ingredientGroups,
+          state.errors,
+          state.isBusy,
+        ),
+        builder: (context, value) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (value.$3['ingredients'] ?? value.$3['groups'] case final error?)
+              Text(
+                error,
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.error),
+              ),
+            for (final group in value.$2) ...[
+              RecipeEditorSection(
+                title: group.name,
+                action: RecipeEditorMenu(
+                  label: 'Tùy chọn ${group.name}',
+                  enabled: !value.$4,
+                  actions: [
+                    (
+                      label: 'Đổi tên nhóm',
+                      onTap: () => _renameGroup(context, group),
+                    ),
+                    if (value.$2.length > 1)
+                      (
+                        label: 'Xóa nhóm',
+                        onTap: () => context
+                            .read<RecipeEditorCubit>()
+                            .removeIngredientGroup(group.id),
+                      ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (value.$3['group.${group.id}'] case final error?)
+                      Text(
+                        error,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.error,
+                        ),
+                      ),
+                    if (!value.$1.any((item) => item.groupId == group.id))
+                      Text(
+                        'Chưa có nguyên liệu trong nhóm này.',
+                        style: AppTextStyles.bodySmall,
+                      ),
+                    for (final item in value.$1.where(
+                      (item) => item.groupId == group.id,
+                    ))
+                      Padding(
+                        key: ValueKey('recipe_ingredient_${item.id}'),
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: _IngredientRow(
+                          item: item,
+                          error:
+                              value.$3[RecipeEditorValidation.ingredientError(
+                                item.id,
+                              )],
+                          onEdit: value.$4
+                              ? null
+                              : () => _edit(context, group.id, item),
+                          onRemove: value.$4
+                              ? null
+                              : () => context
+                                    .read<RecipeEditorCubit>()
+                                    .removeIngredient(item.id),
+                        ),
+                      ),
+                    AppTextAction(
+                      key: ValueKey('recipe_add_ingredient_${group.id}'),
+                      label: 'Thêm nguyên liệu',
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      actionName: 'recipe_add_ingredient',
+                      onTap:
+                          value.$4 ||
+                              value.$1.length >= RecipeEditorLimits.ingredients
+                          ? null
+                          : () => _edit(context, group.id),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+            AppTextAction(
+              label: 'Thêm nhóm nguyên liệu',
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              actionName: 'recipe_add_group',
+              onTap: value.$4 || value.$2.length >= RecipeEditorLimits.groups
+                  ? null
+                  : context.read<RecipeEditorCubit>().addIngredientGroup,
+            ),
+          ],
+        ),
+      );
 
-          action: AppTextAction(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            leadingIcon: Icons.add,
-            label: 'Thêm',
-            actionName: 'recipe_add_ingredient',
-            onTap: value.$3 || value.$1.length >= RecipeEditorLimits.ingredients
-                ? null
-                : () => _edit(context),
+  Future<void> _renameGroup(
+    BuildContext context,
+    RecipeIngredientGroup group,
+  ) async {
+    final cubit = context.read<RecipeEditorCubit>();
+    var name = group.name;
+    final result = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Đổi tên nhóm'),
+        content: AppTextField(
+          fieldId: 'recipe_group_name',
+          initialValue: name,
+          hint: 'Ví dụ: Nước chấm',
+          maxLength: RecipeEditorLimits.groupNameLength,
+          onChanged: (value) => name = value,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Hủy'),
           ),
+          TextButton(
+            onPressed: () {
+              if (name.trim().isNotEmpty) {
+                Navigator.of(dialogContext).pop(name.trim());
+              }
+            },
+            child: const Text('Lưu'),
+          ),
+        ],
+      ),
+    );
+    if (result != null && !cubit.isClosed) {
+      cubit.renameIngredientGroup(group.id, result);
+    }
+  }
+}
+
+class RecipeIngredientSummary extends StatelessWidget {
+  const RecipeIngredientSummary({super.key});
+  @override
+  Widget build(BuildContext context) =>
+      BlocSelector<RecipeEditorCubit, RecipeEditorState, (String, int, bool)>(
+        selector: (state) =>
+            (state.draft.title, state.draft.servings, state.isSubmitting),
+        builder: (context, value) => AppCard(
+          padding: const EdgeInsets.all(16),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (value.$2['ingredients'] case final error?)
-                Text(
-                  error,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.error,
-                  ),
-                ),
-              if (value.$1.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Text(
-                    'Chọn nguyên liệu và lượng dùng cho món ăn.',
-                    style: AppTextStyles.bodySmall,
-                  ),
-                ),
-              for (final item in value.$1)
-                Padding(
-                  key: ValueKey('recipe_ingredient_${item.id}'),
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: _IngredientRow(
-                    item: item,
-                    error: value
-                        .$2[RecipeEditorValidation.ingredientError(item.id)],
-                    onEdit: value.$3 ? null : () => _edit(context, item),
-                    onRemove: value.$3
-                        ? null
-                        : () => context
-                              .read<RecipeEditorCubit>()
-                              .removeIngredient(item.id),
-                  ),
-                ),
+              Text(value.$1, style: AppTextStyles.titleMedium),
+              const SizedBox(height: 16),
+              AppServingSelector(
+                value: value.$2,
+                max: RecipeEditorLimits.maxServings,
+                onChanged: value.$3
+                    ? null
+                    : (servings) => context
+                          .read<RecipeEditorCubit>()
+                          .changeServings(servings - value.$2),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Nhập lượng nguyên liệu cho khẩu phần trên. Thay đổi khẩu phần không tự quy đổi lượng đã nhập.',
+                style: AppTextStyles.bodySmall,
+              ),
             ],
           ),
         ),

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+
 import '../colors/app_colors.dart';
 import '../text_styles/app_text_styles.dart';
+import '../widgets/app_selection_controls.dart';
+import '../widgets/app_card.dart';
 
 /* Hệ thống Theme cho ứng dụng Bếp Xinh */
 class AppTheme {
@@ -43,8 +46,11 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.primary,
-          side: const BorderSide(color: AppColors.primary, width: 1.5),
-          textStyle: AppTextStyles.labelLarge.copyWith(color: AppColors.primary),
+          side: BorderSide.none,
+          backgroundColor: AppColors.primary50,
+          textStyle: AppTextStyles.labelLarge.copyWith(
+            color: AppColors.primary,
+          ),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -56,16 +62,40 @@ class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
-          textStyle: AppTextStyles.labelLarge.copyWith(color: AppColors.primary),
+          textStyle: AppTextStyles.labelLarge.copyWith(
+            color: AppColors.primary,
+          ),
         ),
+      ),
+
+      chipTheme: ChipThemeData(
+        side: BorderSide.none,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        selectedColor: AppColors.primary,
+        backgroundColor: AppColors.surfaceVariant,
+        showCheckmark: false,
+        labelStyle: AppTextStyles.labelMedium.copyWith(
+          color: AppColors.textSecondary,
+        ),
+        secondaryLabelStyle: AppTextStyles.labelMedium.copyWith(
+          color: AppColors.textWhite,
+        ),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: AppSelectionStyles.segmented,
       ),
 
       /* Input Decoration Theme (Ô nhập liệu / Search bar) */
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surfaceVariant,
-        hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textMuted),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        hintStyle: AppTextStyles.bodyMedium.copyWith(
+          color: AppColors.textMuted,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -89,8 +119,8 @@ class AppTheme {
         color: AppColors.surface,
         elevation: 0.5,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.border, width: 0.8),
+          borderRadius: BorderRadius.circular(AppCard.radius),
+          side: BorderSide.none,
         ),
         margin: EdgeInsets.zero,
       ),

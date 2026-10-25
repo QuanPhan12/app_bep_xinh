@@ -1,6 +1,6 @@
 import 'package:app_bep_xinh/core/widgets/app_skeleton.dart';
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
-import 'package:app_bep_xinh/core/constants/app_constants.dart';
+import 'package:app_bep_xinh/core/utils/app_layout.dart';
 import 'package:app_bep_xinh/core/tap/tap_extension.dart';
 import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
 import 'package:app_bep_xinh/core/widgets/app_load_state.dart';
@@ -25,7 +25,7 @@ Future<RecipeIngredientDraft?> showRecipeIngredientSheet(
     useSafeArea: true,
     showDragHandle: true,
     backgroundColor: AppColors.surface,
-    constraints: const BoxConstraints(maxWidth: AppConstants.maxContentWidth),
+    constraints: BoxConstraints(maxWidth: AppLayout.sheetWidth(context)),
     builder: (context) {
       final media = MediaQuery.of(context);
       return Padding(

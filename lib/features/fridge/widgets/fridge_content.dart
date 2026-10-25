@@ -1,10 +1,13 @@
+import 'dart:async';
+
 import 'package:app_bep_xinh/core/dimensions/app_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:app_bep_xinh/core/widgets/app_adaptive_columns.dart';
 
 import '../cubits/fridge/fridge_cubit.dart';
 
-import 'fridge_ingredient_picker.dart';
+import 'fridge_ingredient_sheet.dart';
 import 'fridge_intro.dart';
 import 'fridge_inventory_card.dart';
 import 'fridge_recipe_suggestions.dart';
@@ -28,11 +31,14 @@ class FridgeContent extends StatelessWidget {
         children: [
           const FridgeIntro(),
           SizedBox(height: 20.h(context)),
-          const FridgeInventoryCard(),
-          SizedBox(height: 20.h(context)),
-          const FridgeIngredientPicker(),
-          SizedBox(height: 24.h(context)),
-          const FridgeRecipeSuggestions(),
+          AppAdaptiveColumns(
+            primary: FridgeInventoryCard(
+              onAddIngredients: () {
+                unawaited(showFridgeIngredientSheet(context));
+              },
+            ),
+            secondary: const FridgeRecipeSuggestions(),
+          ),
           SizedBox(height: 16.h(context)),
         ],
       ),

@@ -1,3 +1,5 @@
+import 'package:app_bep_xinh/core/widgets/app_selection_controls.dart';
+import 'package:app_bep_xinh/core/widgets/app_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_bep_xinh/core/router/app_router.dart';
 import 'package:app_bep_xinh/core/widgets/app_section_header.dart';
@@ -34,30 +36,12 @@ class FridgeRecipeSuggestions extends StatelessWidget {
               runSpacing: 4,
               children: [
                 for (final filter in FridgeRecipeFilter.values)
-                  ChoiceChip(
-                    showCheckmark: false,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    side: BorderSide(
-                      color: state.filter == filter
-                          ? AppColors.primary100
-                          : AppColors.border,
-                    ),
-                    visualDensity: VisualDensity.compact,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    label: Text(switch (filter) {
+                  AppChoiceChip(
+                    label: switch (filter) {
                       FridgeRecipeFilter.all => 'Tất cả',
                       FridgeRecipeFilter.quick => '≤ 15 phút',
                       FridgeRecipeFilter.vegetarian => 'Món chay',
-                    }),
-                    labelStyle: AppTextStyles.labelMedium.copyWith(
-                      color: state.filter == filter
-                          ? AppColors.primary800
-                          : AppColors.textSecondary,
-                    ),
-                    selectedColor: AppColors.primary50,
-                    backgroundColor: AppColors.surface,
+                    },
                     selected: state.filter == filter,
                     onSelected: (_) => context
                         .onAppTap(
@@ -76,7 +60,7 @@ class FridgeRecipeSuggestions extends StatelessWidget {
                 padding: EdgeInsets.all(20.w(context)),
                 decoration: BoxDecoration(
                   color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(16.r(context)),
+                  borderRadius: BorderRadius.circular(AppCard.radius),
                 ),
                 child: Text(
                   state.selectedIds.isEmpty
@@ -98,8 +82,9 @@ class FridgeRecipeSuggestions extends StatelessWidget {
                   padding: EdgeInsets.only(bottom: 10.h(context)),
                   child: FridgeRecipeCard(
                     recipe: recipe,
-                    onTap: () =>
-                        context.push(PathRouter.recipeDetail(recipe.id)),
+                    onTap: () {
+                      context.push(PathRouter.recipeDetail(recipe.id));
+                    },
                     missingNames: const [],
                   ),
                 ),
@@ -116,8 +101,9 @@ class FridgeRecipeSuggestions extends StatelessWidget {
                   padding: EdgeInsets.only(bottom: 10.h(context)),
                   child: FridgeRecipeCard(
                     recipe: recipe,
-                    onTap: () =>
-                        context.push(PathRouter.recipeDetail(recipe.id)),
+                    onTap: () {
+                      context.push(PathRouter.recipeDetail(recipe.id));
+                    },
                     missingNames: recipe
                         .missingIngredients(state.selectedIds)
                         .map(state.ingredientName)

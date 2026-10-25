@@ -1,5 +1,8 @@
+import 'features/recipe_search/services/recipe_search_service.dart';
 import 'features/recipe_detail/services/recipe_detail_service.dart';
 import 'features/recipes/services/recipe_favorites_service.dart';
+import 'features/profile/services/profile_service.dart';
+import 'features/profile/services/public_profile_service.dart';
 import 'features/ingredients/services/ingredient_catalog_service.dart';
 
 import 'dart:async';
@@ -37,7 +40,7 @@ class AppBepXinh extends StatelessWidget {
             context.read<IngredientCatalogService>(),
           ),
           dispose: (service) => unawaited(service.dispose()),
-        ),
+        ), 
         RepositoryProvider<RecipeFavoritesService>(
           create: (context) =>
               MockRecipeFavoritesService(context.read<MockApiClient>()),
@@ -48,6 +51,26 @@ class AppBepXinh extends StatelessWidget {
             context.read<MockApiClient>(),
             context.read<IngredientCatalogService>(),
             context.read<FridgeService>(),
+            context.read<RecipeFavoritesService>(),
+          ),
+        ),
+        RepositoryProvider<MockProfileService>(
+          create: (context) => MockProfileService(
+            context.read<MockApiClient>(),
+            context.read<RecipeFavoritesService>(),
+          ),
+          dispose: (service) => unawaited(service.dispose()),
+        ),
+        RepositoryProvider<ProfileService>(
+          create: (context) => context.read<MockProfileService>(),
+        ),
+        RepositoryProvider<PublicProfileService>(
+          create: (context) => context.read<MockProfileService>(),
+        ),
+        RepositoryProvider<RecipeSearchService>(
+          create: (context) => MockRecipeSearchService(
+            context.read<MockApiClient>(),
+            context.read<IngredientCatalogService>(),
             context.read<RecipeFavoritesService>(),
           ),
         ),

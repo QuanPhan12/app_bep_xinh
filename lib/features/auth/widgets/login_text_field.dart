@@ -6,6 +6,7 @@ import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
 
 class LoginTextField extends StatelessWidget {
   final TextEditingController? controller;
+  final String initialValue;
   final ValueChanged<String>? onChanged;
   final String label;
   final IconData prefixIcon;
@@ -19,6 +20,7 @@ class LoginTextField extends StatelessWidget {
   const LoginTextField({
     super.key,
     this.controller,
+    this.initialValue = '',
     this.onChanged,
     required this.label,
     required this.prefixIcon,
@@ -37,10 +39,12 @@ class LoginTextField extends StatelessWidget {
     // Tính verticalPadding động để khung viền (border) và màu nền phình to đúng bằng effectiveHeight
     final verticalPadding = ((effectiveHeight - 22) / 2).clamp(10.0, 45.0);
 
-    return SizedBox(
-      height: effectiveHeight,
-      child: TextField(
+    return ConstrainedBox(
+      constraints: BoxConstraints(minHeight: effectiveHeight),
+      child: TextFormField(
         controller: controller,
+        initialValue: controller == null ? initialValue : null,
+        style: AppTextStyles.bodyMedium,
         onChanged: onChanged,
         obscureText: obscureText,
         keyboardType: keyboardType,

@@ -31,6 +31,12 @@ hợp đồng; không đưa request hoặc fixture trở lại widget/state.
 
 ## Ownership và UI
 
+Thanh điều hướng lấy mục đang chọn từ StatefulNavigationShell. Nút “+” là hành
+động mở Đăng món, không đổi mục chọn. ConvexAppBar chuyển thao tác qua
+onTabNotify và không tự cập nhật index; chỉ khi router đổi nhánh, currentIndex
+mới cập nhật giao diện. Vì vậy đóng form, chọn lại tab hoặc thao tác bị chặn
+không để lại trạng thái sáng sai trên thanh điều hướng.
+
 DI hủy service stream khi app dispose; HomeCubit hủy subscription của mình. Future
 đang chạy không giữ màn hình sống và không emit vào Cubit đã đóng. Widget dùng
 selector theo phần dữ liệu để thay favorite không dựng lại toàn bộ feed.
@@ -53,9 +59,20 @@ và `AppTextField` theo theme. Chi tiết ownership nằm trong `shared_ui.md`.
 Home và Tủ lạnh có skeleton riêng theo bố cục (`HomeSkeleton`, `FridgeSkeleton`).
 `AppLoadState` nhận skeleton cho lần tải đầu; refresh vẫn giữ nội dung hiện có.
 `AppSkeleton` tôn trọng giảm chuyển động, TickerMode và vòng đời ứng dụng. Tủ lạnh
-dùng tiêu đề thường, card tồn kho viền mảnh và danh sách nguyên liệu không có
-khung bao ngoài. Chip giữ kích thước gọn, món chưa có ảnh không tạo ảnh giả hay
-icon lớn thay thế.
+dùng tiêu đề gọn, card tồn kho và gợi ý món ngay bên dưới trên mobile; tablet
+rộng đặt tồn kho cạnh gợi ý. Card hiển thị tối đa sáu nguyên liệu để kết quả
+không bị đẩy quá sâu; liên kết phần còn lại mở bảng chọn đầy đủ.
+
+Nút “Thêm nguyên liệu” mở bottom sheet trên root navigator, phủ thanh điều hướng.
+Sheet dùng lại FridgeCubit qua BlocProvider.value; mở/đóng không tạo hoặc hủy
+Cubit mới. Tìm kiếm có nút xóa, hỗ trợ nhập lại và bắt đầu với từ khóa rỗng mỗi
+lần mở. Chọn/bỏ cập nhật tồn kho qua luồng ghi có sẵn; lỗi khôi phục lựa chọn
+đã lưu và có thể thử lại. “Xem gợi ý” đóng sheet sau khi thao tác lưu hoàn tất;
+không có bước xác nhận thứ hai. Controller chỉ thuộc widget nhập tìm kiếm.
+
+Sheet giới hạn chiều rộng theo AppLayout, cuộn nội dung và chừa chỗ cho bàn
+phím. Chip có vùng chạm tối thiểu 44px và chữ 13px. Món chưa có ảnh không tạo
+ảnh giả hay icon lớn thay thế.
 
 ## Kiểm tra
 

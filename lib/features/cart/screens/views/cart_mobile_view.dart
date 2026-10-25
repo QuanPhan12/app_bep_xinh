@@ -1,8 +1,10 @@
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
-import 'package:app_bep_xinh/core/constants/app_constants.dart';
+import 'package:app_bep_xinh/core/utils/app_layout.dart';
+import 'package:app_bep_xinh/core/widgets/app_adaptive_columns.dart';
 import 'package:app_bep_xinh/core/dimensions/app_size.dart';
 import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
 import 'package:app_bep_xinh/core/widgets/app_button.dart';
+import 'package:app_bep_xinh/core/widgets/app_card.dart';
 import 'package:app_bep_xinh/core/widgets/app_tap.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,11 +14,7 @@ class _CartItem {
   final String amount;
   bool isChecked;
 
-  _CartItem({
-    required this.name,
-    required this.amount,
-    this.isChecked = false,
-  });
+  _CartItem({required this.name, required this.amount, this.isChecked = false});
 }
 
 /// Giao diện Giỏ đi chợ & Mua nguyên liệu (Mobile View)
@@ -44,7 +42,8 @@ class _CartMobileViewState extends State<CartMobileView> {
 
   @override
   Widget build(BuildContext context) {
-    final checkedCount = _itemsM1.where((i) => i.isChecked).length +
+    final checkedCount =
+        _itemsM1.where((i) => i.isChecked).length +
         _itemsM2.where((i) => i.isChecked).length;
     final totalCount = _itemsM1.length + _itemsM2.length;
 
@@ -55,11 +54,13 @@ class _CartMobileViewState extends State<CartMobileView> {
           children: [
             const Icon(CupertinoIcons.cart_fill, color: AppColors.primary),
             SizedBox(width: 8.w(context)),
-            Text(
-              'Giỏ đi chợ & Nguyên liệu',
-              style: AppTextStyles.titleLarge.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+            Expanded(
+              child: Text(
+                'Giỏ đi chợ & Nguyên liệu',
+                style: AppTextStyles.titleLarge.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
               ),
             ),
           ],
@@ -69,7 +70,10 @@ class _CartMobileViewState extends State<CartMobileView> {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.share_outlined, color: AppColors.textSecondary),
+            icon: const Icon(
+              Icons.share_outlined,
+              color: AppColors.textSecondary,
+            ),
             onPressed: () {},
           ),
           SizedBox(width: 8.w(context)),
@@ -82,9 +86,7 @@ class _CartMobileViewState extends State<CartMobileView> {
         ),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: AppConstants.maxContentWidth,
-            ),
+            constraints: BoxConstraints(maxWidth: AppLayout.pageWidth(context)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -93,8 +95,7 @@ class _CartMobileViewState extends State<CartMobileView> {
                   padding: EdgeInsets.all(16.w(context)),
                   decoration: BoxDecoration(
                     color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(16.r(context)),
-                    border: Border.all(color: AppColors.border),
+                    borderRadius: BorderRadius.circular(AppCard.radius),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.03),
@@ -136,9 +137,13 @@ class _CartMobileViewState extends State<CartMobileView> {
                             ),
                             SizedBox(height: 4.h(context)),
                             LinearProgressIndicator(
-                              value: totalCount > 0 ? checkedCount / totalCount : 0,
+                              value: totalCount > 0
+                                  ? checkedCount / totalCount
+                                  : 0,
                               backgroundColor: AppColors.surfaceVariant,
-                              valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                              valueColor: const AlwaysStoppedAnimation(
+                                AppColors.primary,
+                              ),
                               minHeight: 6,
                               borderRadius: BorderRadius.circular(3),
                             ),
@@ -151,16 +156,19 @@ class _CartMobileViewState extends State<CartMobileView> {
                 SizedBox(height: 20.h(context)),
 
                 // Nhóm 1: Canh sườn hầm rau củ
-                _buildRecipeGroup(
-                  title: 'Canh sườn hầm rau củ',
-                  items: _itemsM1,
-                ),
-                SizedBox(height: 18.h(context)),
+                AppAdaptiveColumns(
+                  breakpoint: 760,
+                  spacing: 18,
+                  primary: _buildRecipeGroup(
+                    title: 'Canh sườn hầm rau củ',
+                    items: _itemsM1,
+                  ),
 
-                // Nhóm 2: Bò né sốt tiêu đen
-                _buildRecipeGroup(
-                  title: 'Bò né sốt tiêu đen bánh mì',
-                  items: _itemsM2,
+                  // Nhóm 2: Bò né sốt tiêu đen
+                  secondary: _buildRecipeGroup(
+                    title: 'Bò né sốt tiêu đen bánh mì',
+                    items: _itemsM2,
+                  ),
                 ),
                 SizedBox(height: 24.h(context)),
 
@@ -185,8 +193,7 @@ class _CartMobileViewState extends State<CartMobileView> {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16.r(context)),
-        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(AppCard.radius),
       ),
       padding: EdgeInsets.all(14.w(context)),
       child: Column(
@@ -194,14 +201,19 @@ class _CartMobileViewState extends State<CartMobileView> {
         children: [
           Row(
             children: [
-              const Icon(Icons.soup_kitchen_rounded,
-                  color: AppColors.primary, size: 18),
+              const Icon(
+                Icons.soup_kitchen_rounded,
+                color: AppColors.primary,
+                size: 18,
+              ),
               SizedBox(width: 8.w(context)),
-              Text(
-                title,
-                style: AppTextStyles.titleSmall.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+              Expanded(
+                child: Text(
+                  title,
+                  style: AppTextStyles.titleSmall.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
               ),
             ],

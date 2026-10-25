@@ -176,6 +176,7 @@ class IngredientPickerCubit extends Cubit<IngredientPickerState> {
         unit: value.unit,
         toTaste: value.toTaste,
         note: value.note.trim(),
+        groupId: initial?.groupId ?? 'main',
       ).normalized();
 
   Map<String, String> _errors(IngredientPickerState value) =>

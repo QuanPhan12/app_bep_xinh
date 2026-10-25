@@ -16,6 +16,8 @@ class RecipeDetailState extends Equatable {
   final Set<String> checkedIngredients;
   final RecipeDetailTab tab;
   final int? cookingStep;
+  final int? pausedCookingStep;
+  final bool completedCooking;
   final String? message;
   final int noticeId;
   final AppNotificationType noticeType;
@@ -28,6 +30,8 @@ class RecipeDetailState extends Equatable {
     this.checkedIngredients = const {},
     this.tab = RecipeDetailTab.ingredients,
     this.cookingStep,
+    this.pausedCookingStep,
+    this.completedCooking = false,
     this.message,
     this.noticeId = 0,
     this.noticeType = AppNotificationType.info,
@@ -43,6 +47,9 @@ class RecipeDetailState extends Equatable {
     RecipeDetailTab? tab,
     int? cookingStep,
     bool stopCooking = false,
+    int? pausedCookingStep,
+    bool clearPausedCookingStep = false,
+    bool? completedCooking,
     String? message,
     int? noticeId,
     AppNotificationType? noticeType,
@@ -57,6 +64,10 @@ class RecipeDetailState extends Equatable {
         : Set.unmodifiable(checkedIngredients),
     tab: tab ?? this.tab,
     cookingStep: stopCooking ? null : cookingStep ?? this.cookingStep,
+    pausedCookingStep: clearPausedCookingStep
+        ? null
+        : pausedCookingStep ?? this.pausedCookingStep,
+    completedCooking: completedCooking ?? this.completedCooking,
     message: message,
     noticeId: noticeId ?? this.noticeId,
     noticeType: noticeType ?? this.noticeType,
@@ -71,6 +82,8 @@ class RecipeDetailState extends Equatable {
     checkedIngredients,
     tab,
     cookingStep,
+    pausedCookingStep,
+    completedCooking,
     message,
     noticeId,
     noticeType,

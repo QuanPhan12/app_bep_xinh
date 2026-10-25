@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:app_bep_xinh/core/utils/app_layout.dart';
 
 import '../../home/models/recipe_item.dart';
 import 'product_card.dart';
@@ -9,7 +10,7 @@ import 'product_card.dart';
 /// Một cách tính tile dùng chung cho Home mobile/tablet, kể cả chữ lớn.
 class ProductGrid extends StatelessWidget {
   final List<RecipeItem> recipes;
-  final int columns;
+  final int? columns;
   final double spacing;
   final double runSpacing;
   final double aspectRatio;
@@ -19,7 +20,7 @@ class ProductGrid extends StatelessWidget {
   const ProductGrid({
     super.key,
     required this.recipes,
-    required this.columns,
+    this.columns,
     required this.spacing,
     required this.runSpacing,
     required this.aspectRatio,
@@ -30,6 +31,9 @@ class ProductGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SliverLayoutBuilder(
     builder: (context, constraints) {
+      final columns =
+          this.columns ??
+          AppLayout.gridColumns(constraints.crossAxisExtent, spacing: spacing);
       final width =
           (constraints.crossAxisExtent - spacing * (columns - 1)) / columns;
       final height = math.max(

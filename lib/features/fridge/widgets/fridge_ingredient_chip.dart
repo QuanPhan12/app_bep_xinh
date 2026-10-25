@@ -32,14 +32,11 @@ class FridgeIngredientChip extends StatelessWidget {
             'fridge_${removable ? 'remove' : 'toggle'}_${ingredient.id}',
         onTap: onTap,
         child: Container(
-          constraints: const BoxConstraints(minHeight: 32),
+          constraints: const BoxConstraints(minHeight: 44),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: selected ? AppColors.primary50 : AppColors.surface,
+            color: selected ? AppColors.primary : AppColors.surfaceVariant,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: selected ? AppColors.primary100 : AppColors.border,
-            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -48,8 +45,9 @@ class FridgeIngredientChip extends StatelessWidget {
                 child: Text(
                   ingredient.name,
                   style: AppTextStyles.labelMedium.copyWith(
+                    fontSize: 13,
                     color: selected
-                        ? AppColors.primary700
+                        ? AppColors.textWhite
                         : AppColors.textSecondary,
                   ),
                 ),
@@ -62,7 +60,7 @@ class FridgeIngredientChip extends StatelessWidget {
                     ? CupertinoIcons.check_mark
                     : CupertinoIcons.plus,
                 size: 11,
-                color: selected ? AppColors.primary : AppColors.textTertiary,
+                color: selected ? AppColors.textWhite : AppColors.textTertiary,
               ),
             ],
           ),

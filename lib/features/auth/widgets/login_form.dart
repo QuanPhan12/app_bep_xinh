@@ -49,6 +49,7 @@ class LoginForm extends StatelessWidget {
           //email
           LoginTextField(
             label: 'Email',
+            initialValue: context.read<LoginCubit>().state.email,
             prefixIcon: Icons.email_outlined,
             keyboardType: TextInputType.emailAddress,
             height: 50.h(context),
@@ -61,6 +62,7 @@ class LoginForm extends StatelessWidget {
             builder: (context, isObscured) {
               return LoginTextField(
                 label: 'Mật khẩu',
+                initialValue: context.read<LoginCubit>().state.password,
                 prefixIcon: Icons.lock_outline_rounded,
                 suffixIcon: isObscured
                     ? Icons.visibility_off_outlined
@@ -115,8 +117,9 @@ class LoginForm extends StatelessWidget {
           // 5. Chưa có tài khoản -> Chuyển sang màn Đăng ký
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              runSpacing: 8,
               children: [
                 Text('Chưa có tài khoản? ', style: AppTextStyles.labelMedium),
                 AppTap(

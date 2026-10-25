@@ -1,5 +1,5 @@
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
-import 'package:app_bep_xinh/core/constants/app_constants.dart';
+import 'package:app_bep_xinh/core/utils/app_layout.dart';
 import 'package:app_bep_xinh/core/dimensions/app_size.dart';
 import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
 import 'package:app_bep_xinh/core/widgets/app_tap.dart';
@@ -25,9 +25,7 @@ class FridgeCard extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w(context)),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: AppConstants.maxContentWidth,
-          ),
+          constraints: BoxConstraints(maxWidth: AppLayout.pageWidth(context)),
           child: Container(
             decoration: BoxDecoration(
               color: AppColors.primary,

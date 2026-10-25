@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../colors/app_colors.dart';
 import '../dimensions/app_size.dart';
 import '../text_styles/app_text_styles.dart';
+import 'app_feature_theme.dart';
 
 /// Tiêu đề mục tách từ HomeLabelAction; feature chỉ truyền nội dung/hành động.
 class AppSectionHeader extends StatelessWidget {
@@ -35,7 +36,10 @@ class AppSectionHeader extends StatelessWidget {
               style: AppTextStyles.titleMedium.copyWith(
                 fontWeight: FontWeight.bold,
                 fontSize: 16.sp(context),
-                color: AppColors.textPrimary,
+                color: AppFeatureTheme.isActive(context)
+                    ? AppFeatureTheme.ink
+                    : AppColors.textPrimary,
+                letterSpacing: AppFeatureTheme.isActive(context) ? -.3 : null,
               ),
             ),
           ),

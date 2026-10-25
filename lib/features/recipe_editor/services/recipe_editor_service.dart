@@ -17,6 +17,10 @@ class MockRecipeEditorService implements RecipeEditorService {
   final IngredientCatalogService catalogService;
   final _writes = AsyncSerialQueue();
   RecipeDraft? _draft;
+  RecipeContent? _lastSubmittedContent;
+
+  /// Pending snapshot for the mock review queue; it is not a published recipe.
+  RecipeContent? get lastSubmittedContent => _lastSubmittedContent;
 
   MockRecipeEditorService(this.api, this.catalogService);
 
@@ -40,21 +44,12 @@ class MockRecipeEditorService implements RecipeEditorService {
       throw const FormatException('Invalid recipe');
     }
     final catalog = await catalogService.fetchCatalog();
-    for (final item in normalized.ingredients) {
-      final ingredient = item.ingredientId == null
-          ? null
-          : catalog.byId[item.ingredientId];
-      if (item.ingredientId != null && ingredient == null) {
-        throw const FormatException('Unknown ingredient');
-      }
-      if (!item.toTaste &&
-          (!catalog.unitsById.containsKey(item.unitId) ||
-              (ingredient != null &&
-                  !ingredient.unitIds.contains(item.unitId)))) {
-        throw const FormatException('Invalid ingredient unit');
-      }
-    }
+    final content = RecipeContent.fromJson(
+      normalized.toRecipeContent().toJson(),
+      catalog,
+    );
     await api.simulateWrite();
+    _lastSubmittedContent = content;
     _draft = null;
   });
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
-import 'package:app_bep_xinh/core/widgets/app_section_header.dart';
+import 'package:app_bep_xinh/features/recipes/widgets/recipe_step_content.dart';
 
 import '../cubits/recipe_detail/recipe_detail_cubit.dart';
 
@@ -19,36 +18,16 @@ class RecipeDetailSteps extends StatelessWidget {
               ? List.generate(steps.length, (i) => i)
               : [active];
           return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               for (final index in indexes)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppSectionHeader(
-                        title: active == null
-                            ? 'Bước ${index + 1}'
-                            : 'Bước ${index + 1} / ${steps.length}',
-                        action: steps[index].minutes == null
-                            ? null
-                            : Text(
-                                '${steps[index].minutes} phút',
-                                style: AppTextStyles.bodySmall,
-                              ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        steps[index].instruction,
-                        style: AppTextStyles.bodyMedium,
-                      ),
-                      if (active == null && index < steps.length - 1)
-                        const Padding(
-                          padding: EdgeInsets.only(top: 24),
-                          child: Divider(height: 1),
-                        ),
-                    ],
+                  key: ValueKey('detail_step_${steps[index].id}'),
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: RecipeStepContent(
+                    step: steps[index],
+                    number: index + 1,
+                    total: active == null ? null : steps.length,
                   ),
                 ),
             ],

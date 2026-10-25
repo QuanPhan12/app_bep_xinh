@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
-import 'package:app_bep_xinh/core/constants/app_constants.dart';
+import 'package:app_bep_xinh/core/utils/app_layout.dart';
 import 'package:app_bep_xinh/core/dimensions/app_size.dart';
 import 'package:app_bep_xinh/core/tap/app_tap_handler.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -26,7 +26,7 @@ class HomeBanner extends StatefulWidget {
   });
 
   static double heightOf(BuildContext context) =>
-      160.h(context) +
+      (AppLayout.isTablet(context) ? 240 : 160).h(context) +
       (MediaQuery.textScalerOf(context).scale(18) - 18).clamp(0, 72) * 4;
 
   @override
@@ -128,9 +128,7 @@ class _HomeBannerState extends State<HomeBanner> with WidgetsBindingObserver {
       padding: EdgeInsets.symmetric(horizontal: 16.w(context)),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: AppConstants.maxContentWidth,
-          ),
+          constraints: BoxConstraints(maxWidth: AppLayout.pageWidth(context)),
           child: Listener(
             onPointerDown: _pointerDown,
             onPointerUp: _pointerUp,

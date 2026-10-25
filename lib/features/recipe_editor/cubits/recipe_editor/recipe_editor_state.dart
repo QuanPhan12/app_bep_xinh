@@ -5,7 +5,15 @@ import '../../models/recipe_draft.dart';
 
 enum RecipeEditorStatus { initial, loading, ready, loadFailure, submitted }
 
-enum RecipeEditorOperation { idle, pickingCover, savingDraft, submitting }
+enum RecipeEditorOperation {
+  idle,
+  pickingCover,
+  pickingStepPhoto,
+  savingDraft,
+  submitting,
+}
+
+enum RecipeEditorStep { details, ingredients, instructions, review }
 
 class RecipeEditorState extends Equatable {
   final RecipeEditorStatus status;
@@ -18,6 +26,9 @@ class RecipeEditorState extends Equatable {
   final int noticeId;
   final AppNotificationType noticeType;
   final bool allowExit;
+  final RecipeEditorStep step;
+  final int furthestStep;
+  final bool hasSavedDraft;
 
   RecipeEditorState({
     this.status = RecipeEditorStatus.initial,
@@ -30,6 +41,9 @@ class RecipeEditorState extends Equatable {
     this.noticeId = 0,
     this.noticeType = AppNotificationType.info,
     this.allowExit = false,
+    this.step = RecipeEditorStep.details,
+    this.furthestStep = 0,
+    this.hasSavedDraft = false,
   }) : draft = draft ?? RecipeDraft(),
        savedDraft = savedDraft ?? RecipeDraft(),
        errors = Map.unmodifiable(errors);
@@ -50,6 +64,9 @@ class RecipeEditorState extends Equatable {
     int? noticeId,
     AppNotificationType? noticeType,
     bool? allowExit,
+    RecipeEditorStep? step,
+    int? furthestStep,
+    bool? hasSavedDraft,
   }) => RecipeEditorState(
     status: status ?? this.status,
     operation: operation ?? this.operation,
@@ -61,6 +78,9 @@ class RecipeEditorState extends Equatable {
     noticeId: noticeId ?? this.noticeId,
     noticeType: noticeType ?? this.noticeType,
     allowExit: allowExit ?? this.allowExit,
+    step: step ?? this.step,
+    furthestStep: furthestStep ?? this.furthestStep,
+    hasSavedDraft: hasSavedDraft ?? this.hasSavedDraft,
   );
 
   @override
@@ -75,5 +95,8 @@ class RecipeEditorState extends Equatable {
     noticeId,
     noticeType,
     allowExit,
+    step,
+    furthestStep,
+    hasSavedDraft,
   ];
 }

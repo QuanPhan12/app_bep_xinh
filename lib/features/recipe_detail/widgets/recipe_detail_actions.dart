@@ -10,7 +10,11 @@ class RecipeDetailActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) =>
       BlocBuilder<RecipeDetailCubit, RecipeDetailState>(
-        buildWhen: (a, b) => a.cookingStep != b.cookingStep || a.tab != b.tab,
+        buildWhen: (a, b) =>
+            a.cookingStep != b.cookingStep ||
+            a.tab != b.tab ||
+            a.pausedCookingStep != b.pausedCookingStep ||
+            a.completedCooking != b.completedCooking,
         builder: (context, state) {
           final cubit = context.read<RecipeDetailCubit>();
           final active = state.cookingStep;
@@ -33,7 +37,11 @@ class RecipeDetailActions extends StatelessWidget {
                   flex: 2,
                   child: AppButton(
                     text: active == null
-                        ? 'Bắt đầu nấu'
+                        ? state.pausedCookingStep == null
+                              ? state.completedCooking
+                                    ? 'Nấu lại'
+                                    : 'Bắt đầu nấu'
+                              : 'Tiếp tục nấu'
                         : !inSteps
                         ? 'Tiếp tục nấu'
                         : active == state.recipe!.steps.length - 1

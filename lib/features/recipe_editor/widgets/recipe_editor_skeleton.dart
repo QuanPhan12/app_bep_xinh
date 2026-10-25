@@ -8,6 +8,18 @@ class RecipeEditorSkeleton extends StatelessWidget {
     child: ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        const Row(
+          children: [
+            Expanded(child: SkeletonBlock(height: 52, radius: 8)),
+            SizedBox(width: 8),
+            Expanded(child: SkeletonBlock(height: 52, radius: 8)),
+            SizedBox(width: 8),
+            Expanded(child: SkeletonBlock(height: 52, radius: 8)),
+            SizedBox(width: 8),
+            Expanded(child: SkeletonBlock(height: 52, radius: 8)),
+          ],
+        ),
+        const SizedBox(height: 24),
         const Align(
           alignment: Alignment.centerLeft,
           child: SkeletonBlock(height: 12, width: 100),

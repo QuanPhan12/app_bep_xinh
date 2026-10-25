@@ -5,11 +5,15 @@ import '../colors/app_colors.dart';
 import '../dimensions/app_size.dart';
 import '../text_styles/app_text_styles.dart';
 import 'app_tap.dart';
+import 'app_feature_theme.dart';
 
 /// Thanh tìm kiếm của Home, dùng chung cho dạng mở trang và nhập trực tiếp.
 class AppSearchBar extends StatelessWidget {
   final String hintText;
   final String initialValue;
+  final TextEditingController? controller;
+  final VoidCallback? onClear;
+  final VoidCallback? onSubmitted;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onTap;
   final Key? fieldKey;
@@ -20,6 +24,9 @@ class AppSearchBar extends StatelessWidget {
     super.key,
     required this.hintText,
     this.initialValue = '',
+    this.controller,
+    this.onClear,
+    this.onSubmitted,
     this.onChanged,
     this.onTap,
     this.fieldKey,
@@ -32,9 +39,12 @@ class AppSearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = AppTextStyles.bodyMedium.copyWith(fontSize: 13.sp(context));
     final content = Container(
-      height: 48.h(context),
+      constraints: BoxConstraints(minHeight: 48.h(context)),
       decoration: BoxDecoration(
         color: AppColors.surface,
+        border: AppFeatureTheme.isActive(context)
+            ? Border.all(color: AppFeatureTheme.line)
+            : null,
         borderRadius: BorderRadius.circular(14.r(context)),
         boxShadow: [
           BoxShadow(
@@ -49,7 +59,9 @@ class AppSearchBar extends StatelessWidget {
         children: [
           Icon(
             CupertinoIcons.search,
-            color: AppColors.textTertiary,
+            color: AppFeatureTheme.isActive(context)
+                ? AppFeatureTheme.herb
+                : AppColors.textTertiary,
             size: 20.sp(context),
           ),
           SizedBox(width: 10.w(context)),
@@ -63,12 +75,16 @@ class AppSearchBar extends StatelessWidget {
                   )
                 : TextFormField(
                     key: fieldKey,
-                    initialValue: initialValue,
+                    controller: controller,
+                    initialValue: controller == null ? initialValue : null,
                     onChanged: onChanged,
                     maxLength: maxLength,
                     style: style.copyWith(color: AppColors.textPrimary),
                     textInputAction: TextInputAction.search,
-                    onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
+                    onFieldSubmitted: (_) {
+                      FocusScope.of(context).unfocus();
+                      onSubmitted?.call();
+                    },
                     decoration: InputDecoration(
                       hintText: hintText,
                       hintStyle: style.copyWith(color: AppColors.textTertiary),
@@ -82,6 +98,13 @@ class AppSearchBar extends StatelessWidget {
                     ),
                   ),
           ),
+          if (onClear != null)
+            IconButton(
+              tooltip: 'Xóa tìm kiếm',
+              onPressed: onClear,
+              icon: const Icon(Icons.close_rounded, size: 20),
+              color: AppColors.textSecondary,
+            ),
         ],
       ),
     );

@@ -1,0 +1,26 @@
+{
+  "users": [
+    {
+      "id": "mai_anh",
+      "name": "Mai Anh",
+      "handle": "maianh_cooking",
+      "bio": "Một góc bếp nhỏ, những bữa cơm ngon. Mình chia sẻ các món dễ nấu cho cả nhà.",
+      "showBio": true
+    },
+    {
+      "id": "bep_xinh",
+      "name": "Bếp Xinh",
+      "handle": "bepxinh",
+      "bio": "Cùng vào bếp và chia sẻ những món ngon mỗi ngày.",
+      "avatarAsset": "assets/images/logo.png",
+      "showBio": true
+    },
+    {
+      "id": "linh_nguyen",
+      "name": "Linh Nguyễn",
+      "handle": "linh.vao.bep",
+      "bio": "Thích những món đơn giản, nhiều rau và dễ nấu cho bữa cơm nhà.",
+      "showBio": true
+    }
+  ]
+}

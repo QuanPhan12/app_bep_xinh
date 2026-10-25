@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:app_bep_xinh/core/constants/app_constants.dart';
+import 'package:app_bep_xinh/core/utils/app_layout.dart';
 import 'package:app_bep_xinh/core/widgets/app_skeleton.dart';
 import 'package:app_bep_xinh/core/widgets/app_card.dart';
 
@@ -8,7 +8,7 @@ class HomeSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
     child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: AppConstants.maxContentWidth),
+      constraints: BoxConstraints(maxWidth: AppLayout.pageWidth(context)),
       child: AppSkeleton(
         child: ListView(
           padding: const EdgeInsets.all(16),

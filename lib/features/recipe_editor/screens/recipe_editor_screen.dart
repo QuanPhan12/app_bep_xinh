@@ -1,8 +1,8 @@
-import 'package:app_bep_xinh/core/colors/app_colors.dart';
+import 'package:app_bep_xinh/core/widgets/app_feature_theme.dart';
 
 import '../widgets/recipe_editor_skeleton.dart';
 
-import 'package:app_bep_xinh/core/constants/app_constants.dart';
+import 'package:app_bep_xinh/core/utils/app_layout.dart';
 import 'package:app_bep_xinh/core/router/app_router.dart';
 import 'package:app_bep_xinh/core/tap/tap_extension.dart';
 import 'package:app_bep_xinh/core/widgets/app_app_bar.dart';
@@ -27,7 +27,7 @@ class RecipeEditorScreen extends StatelessWidget {
       service: context.read<RecipeEditorService>(),
       coverPicker: context.read<RecipeCoverPicker>(),
     )..loadDraft(),
-    child: const _RecipeEditorPage(),
+    child: const AppFeatureTheme(child: _RecipeEditorPage()),
   );
 }
 
@@ -35,6 +35,13 @@ class _RecipeEditorPage extends StatelessWidget {
   const _RecipeEditorPage();
 
   Future<void> _leave(BuildContext context) async {
+    final cubit = context.read<RecipeEditorCubit>();
+    if (cubit.state.isBusy) return;
+    if (cubit.state.step != RecipeEditorStep.details) {
+      FocusScope.of(context).unfocus();
+      cubit.previousStep();
+      return;
+    }
     final approved = await context.read<RecipeEditorCubit>().requestExit(
       () async =>
           await showDialog<bool>(
@@ -101,6 +108,7 @@ class _RecipeEditorPage extends StatelessWidget {
       if (submitted) _pop(context);
     },
     buildWhen: (previous, current) =>
+        previous.step != current.step ||
         previous.status != current.status ||
         previous.canLeave != current.canLeave ||
         previous.isBusy != current.isBusy,
@@ -109,12 +117,14 @@ class _RecipeEditorPage extends StatelessWidget {
           state.status == RecipeEditorStatus.ready ||
           state.status == RecipeEditorStatus.submitted;
       return PopScope(
-        canPop: state.canLeave,
+        canPop:
+            state.allowExit ||
+            (state.step == RecipeEditorStep.details && state.canLeave),
         onPopInvokedWithResult: (didPop, _) {
           if (!didPop) _leave(context);
         },
         child: Scaffold(
-          backgroundColor: AppColors.surface,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           appBar: AppAppBar(
             title: 'Đăng món',
             backEnabled: !state.isBusy,
@@ -125,8 +135,8 @@ class _RecipeEditorPage extends StatelessWidget {
             bottom: false,
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxWidth: AppConstants.maxContentWidth,
+                constraints: BoxConstraints(
+                  maxWidth: AppLayout.pageWidth(context),
                 ),
                 child: ready
                     ? const RecipeEditorForm()

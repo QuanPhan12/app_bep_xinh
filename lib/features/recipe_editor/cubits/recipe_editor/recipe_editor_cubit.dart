@@ -31,7 +31,8 @@ class RecipeEditorCubit extends Cubit<RecipeEditorState> {
   Future<void> _loadDraft() async {
     emit(state.copyWith(status: RecipeEditorStatus.loading));
     try {
-      final draft = await service.loadDraft() ?? RecipeDraft();
+      final savedDraft = await service.loadDraft();
+      final draft = savedDraft ?? RecipeDraft();
       if (isClosed) return;
       // Form chỉ được dựng sau load, tránh ghi đè dữ liệu người dùng đang nhập.
       emit(
@@ -39,6 +40,7 @@ class RecipeEditorCubit extends Cubit<RecipeEditorState> {
           status: RecipeEditorStatus.ready,
           draft: draft,
           savedDraft: draft,
+          hasSavedDraft: savedDraft != null,
         ),
       );
     } catch (error, stack) {
@@ -77,13 +79,139 @@ class RecipeEditorCubit extends Cubit<RecipeEditorState> {
       state.copyWith(
         draft: draft,
         errors: state.showErrors
-            ? RecipeEditorValidation.validate(draft)
+            ? Map.fromEntries(
+                RecipeEditorValidation.validate(draft).entries.where(
+                  (entry) =>
+                      RecipeEditorValidation.stageForError(entry.key) <=
+                      state.step.index,
+                ),
+              )
             : const {},
       ),
     );
   }
 
   void changeTitle(String value) => _update(state.draft.copyWith(title: value));
+  void changeDescription(String value) =>
+      _update(state.draft.copyWith(description: value));
+  void changeStorageNotes(String value) =>
+      _update(state.draft.copyWith(storageNotes: value));
+  void toggleCategory(RecipeCategory category) {
+    final categories = {...state.draft.categories};
+    if (!categories.add(category)) categories.remove(category);
+    _update(state.draft.copyWith(categories: categories));
+  }
+
+  void toggleMeal(RecipeMeal meal) {
+    final meals = {...state.draft.meals};
+    if (!meals.add(meal)) meals.remove(meal);
+    _update(state.draft.copyWith(meals: meals));
+  }
+
+  void previousStep() {
+    if (!_canOperate || state.step.index == 0) return;
+    emit(
+      state.copyWith(
+        step: RecipeEditorStep.values[state.step.index - 1],
+        errors: const {},
+        showErrors: false,
+      ),
+    );
+  }
+
+  void nextStep() {
+    if (state.step == RecipeEditorStep.review) return;
+    goToStep(RecipeEditorStep.values[state.step.index + 1]);
+  }
+
+  void goToStep(RecipeEditorStep target) {
+    if (!_canOperate ||
+        target == state.step ||
+        target.index > state.furthestStep &&
+            target.index > state.step.index + 1) {
+      return;
+    }
+    if (target.index > state.step.index) {
+      final errors = RecipeEditorValidation.validate(state.draft);
+      final blocking = errors.entries.where(
+        (entry) =>
+            RecipeEditorValidation.stageForError(entry.key) < target.index,
+      );
+      if (blocking.isNotEmpty) {
+        final firstStage = blocking
+            .map((entry) => RecipeEditorValidation.stageForError(entry.key))
+            .reduce((a, b) => a < b ? a : b);
+        emit(
+          state.copyWith(
+            errors: Map.fromEntries(blocking),
+            showErrors: true,
+            step: RecipeEditorStep.values[firstStage],
+          ),
+        );
+        return;
+      }
+    }
+    emit(
+      state.copyWith(
+        step: target,
+        furthestStep: target.index > state.furthestStep
+            ? target.index
+            : state.furthestStep,
+        errors: const {},
+        showErrors: false,
+      ),
+    );
+  }
+
+  void addIngredientGroup() {
+    if (!_canOperate ||
+        state.draft.ingredientGroups.length >= RecipeEditorLimits.groups) {
+      return;
+    }
+    String id;
+    do {
+      id = 'group_${_nextId++}';
+    } while (state.draft.ingredientGroups.any((group) => group.id == id));
+    _update(
+      state.draft.copyWith(
+        ingredientGroups: [
+          ...state.draft.ingredientGroups,
+          RecipeIngredientGroup(id: id, name: 'Nhóm nguyên liệu mới'),
+        ],
+      ),
+    );
+  }
+
+  void renameIngredientGroup(String id, String name) => _update(
+    state.draft.copyWith(
+      ingredientGroups: state.draft.ingredientGroups
+          .map(
+            (group) => group.id == id
+                ? RecipeIngredientGroup(id: id, name: name)
+                : group,
+          )
+          .toList(),
+    ),
+  );
+
+  void removeIngredientGroup(String id) {
+    if (!_canOperate || state.draft.ingredientGroups.length <= 1) return;
+    final groups = state.draft.ingredientGroups
+        .where((group) => group.id != id)
+        .toList();
+    _update(
+      state.draft.copyWith(
+        ingredientGroups: groups,
+        ingredients: state.draft.ingredients
+            .map(
+              (item) =>
+                  item.groupId == id ? item.inGroup(groups.first.id) : item,
+            )
+            .toList(),
+      ),
+    );
+  }
+
   void changePreparation(String value) =>
       _update(state.draft.copyWith(preparationMinutes: value));
   void changeCooking(String value) =>
@@ -103,9 +231,15 @@ class RecipeEditorCubit extends Cubit<RecipeEditorState> {
     _update(state.draft.copyWith(removeCover: true));
   }
 
-  void upsertIngredient(RecipeIngredientDraft value) {
+  void upsertIngredient(RecipeIngredientDraft value, {String? groupId}) {
     if (state.isSubmitting || state.status != RecipeEditorStatus.ready) return;
-    final item = value.normalized();
+    final item = (groupId == null ? value : value.inGroup(groupId))
+        .normalized();
+    if (!state.draft.ingredientGroups.any(
+      (group) => group.id == item.groupId,
+    )) {
+      return;
+    }
     if (RecipeEditorValidation.validateIngredient(item).isNotEmpty) return;
     final items = state.draft.ingredients;
     final existing = items.indexWhere((row) => row.id == item.id);
@@ -154,6 +288,63 @@ class RecipeEditorCubit extends Cubit<RecipeEditorState> {
           .toList(),
     ),
   );
+
+  void updateStep(
+    String id, {
+    String? title,
+    String? minutes,
+    String? tip,
+    RecipeCover? photo,
+    bool removePhoto = false,
+  }) => _update(
+    state.draft.copyWith(
+      steps: state.draft.steps
+          .map(
+            (item) => item.id == id
+                ? item.copyWith(
+                    title: title,
+                    minutes: minutes,
+                    tip: tip,
+                    photo: photo,
+                    removePhoto: removePhoto,
+                  )
+                : item,
+          )
+          .toList(),
+    ),
+  );
+
+  void moveStep(String id, int offset) {
+    if (!_canOperate) return;
+    final items = [...state.draft.steps];
+    final index = items.indexWhere((item) => item.id == id);
+    final target = index + offset;
+    if (index < 0 || target < 0 || target >= items.length) return;
+    items.insert(target, items.removeAt(index));
+    _update(state.draft.copyWith(steps: items));
+  }
+
+  Future<void> pickStepPhoto(String id) async {
+    if (!_canOperate || !state.draft.steps.any((step) => step.id == id)) return;
+    emit(state.copyWith(operation: RecipeEditorOperation.pickingStepPhoto));
+    try {
+      final photo = await coverPicker.pickCover();
+      if (!isClosed && photo != null) updateStep(id, photo: photo);
+    } catch (error, stack) {
+      if (!isClosed) {
+        addError(error, stack);
+        _notice(
+          error is RecipeCoverException
+              ? error.message
+              : 'Không chọn được ảnh. Vui lòng thử lại.',
+        );
+      }
+    } finally {
+      if (!isClosed) {
+        emit(state.copyWith(operation: RecipeEditorOperation.idle));
+      }
+    }
+  }
 
   void addStep() {
     if (state.draft.steps.length >= RecipeEditorLimits.steps) return;
@@ -216,7 +407,7 @@ class RecipeEditorCubit extends Cubit<RecipeEditorState> {
       await service.saveDraft(snapshot);
       if (isClosed) return;
       // Nếu người dùng tiếp tục gõ lúc lưu, phần mới vẫn được coi là chưa lưu.
-      emit(state.copyWith(savedDraft: snapshot));
+      emit(state.copyWith(savedDraft: snapshot, hasSavedDraft: true));
       _notice('Đã lưu bản nháp.', type: AppNotificationType.success);
     } catch (error, stack) {
       if (!isClosed) {
@@ -234,7 +425,13 @@ class RecipeEditorCubit extends Cubit<RecipeEditorState> {
     if (!_canOperate) return;
     final errors = RecipeEditorValidation.validate(state.draft);
     emit(state.copyWith(errors: errors, showErrors: true));
-    if (errors.isNotEmpty) return;
+    if (errors.isNotEmpty) {
+      final index = errors.keys
+          .map(RecipeEditorValidation.stageForError)
+          .reduce((a, b) => a < b ? a : b);
+      emit(state.copyWith(step: RecipeEditorStep.values[index]));
+      return;
+    }
     final snapshot = state.draft.normalized();
     emit(state.copyWith(operation: RecipeEditorOperation.submitting));
     try {

@@ -6,6 +6,7 @@ import 'package:app_bep_xinh/features/recipe_detail/models/recipe_detail.dart';
 import 'package:app_bep_xinh/features/recipe_detail/services/recipe_detail_service.dart';
 
 import '../../support/recipe_detail_fakes.dart';
+import '../../support/recipe_editor_fakes.dart';
 
 void main() {
   late StubRecipeDetailService service;
@@ -49,6 +50,58 @@ void main() {
     await other.close();
     lateResult.complete(detailDataFixture());
     await expectLater(loading, completes);
+  });
+
+  test('cooking reads the authored step order, pauses, resumes, switches ingredients and restarts after completion', () async {
+    final content = richRecipeDraft().toRecipeContent();
+    service.onFetch = (id) async => RecipeDetailData(
+      recipe: RecipeDetail(
+        id: id,
+        author: const RecipeAuthor.legacy(name: 'Tác giả'),
+        content: content,
+      ),
+      isFavorite: false,
+      availableIngredientIds: {'egg'},
+    );
+    await cubit.load();
+    cubit.changeServings(3);
+    cubit.startCooking();
+    expect(
+      cubit.state.recipe!.steps[cubit.state.cookingStep!].id,
+      'step_later',
+    );
+    cubit.goToCookingStep(1);
+    expect(
+      cubit.state.recipe!.steps[cubit.state.cookingStep!].photo!.id,
+      'finish_photo',
+    );
+    cubit.pauseCooking();
+    expect(cubit.state.cookingStep, isNull);
+    expect(cubit.state.pausedCookingStep, 1);
+    cubit.startCooking();
+    expect(cubit.state.cookingStep, 1);
+    cubit.selectTab(RecipeDetailTab.ingredients);
+    expect(cubit.state.servings, 3);
+    expect(cubit.state.checkedIngredients, {'ingredient_0'});
+    expect(
+      cubit.state.recipe!.ingredients.first.quantity(cubit.state.quantityRatio),
+      '3 quả',
+    );
+    expect(
+      cubit.state.recipe!.ingredients.last.quantity(cubit.state.quantityRatio),
+      'Vừa đủ',
+    );
+    cubit.startCooking();
+    cubit.goToCookingStep(-1);
+    cubit.goToCookingStep(100);
+    expect(cubit.state.cookingStep, 1);
+    cubit.nextStep();
+    expect(cubit.state.completedCooking, isTrue);
+    expect(cubit.state.pausedCookingStep, isNull);
+    expect(cubit.state.recipe!.storageNotes, content.storageNotes);
+    cubit.startCooking();
+    expect(cubit.state.cookingStep, 0);
+    expect(cubit.state.completedCooking, isFalse);
   });
   test(
     'unknown id has its own state, without falling back to another dish',

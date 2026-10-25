@@ -8,6 +8,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubits/recipe_editor/recipe_editor_cubit.dart';
 import 'recipe_editor_section.dart';
 
+import 'package:app_bep_xinh/core/widgets/app_feature_theme.dart';
+
 class RecipeCoverField extends StatelessWidget {
   const RecipeCoverField({super.key});
   @override
@@ -47,7 +49,7 @@ class RecipeCoverField extends StatelessWidget {
               child: Container(
                 clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
-                  color: AppColors.background,
+                  color: AppFeatureTheme.herbWash,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: state.errors['cover'] == null
@@ -64,10 +66,17 @@ class RecipeCoverField extends StatelessWidget {
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(
-                              Icons.add_photo_alternate_outlined,
-                              size: 28,
-                              color: AppColors.textTertiary,
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.add_photo_alternate_outlined,
+                                size: 24,
+                                color: AppFeatureTheme.herb,
+                              ),
                             ),
                             const SizedBox(height: 10),
                             Text(

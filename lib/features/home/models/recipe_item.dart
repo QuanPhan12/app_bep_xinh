@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:app_bep_xinh/core/services/json_reader.dart';
+import 'package:app_bep_xinh/features/recipes/models/recipe_content.dart';
+import 'package:app_bep_xinh/features/recipes/presentation/recipe_labels.dart';
 
 /// Model đại diện cho một món ăn trên màn hình Trang chủ & Khám phá
 class RecipeItem extends Equatable {
@@ -60,6 +62,35 @@ class RecipeItem extends Equatable {
     calories: JsonReader(json).optionalInteger('calories'),
     isFavorite: JsonReader(json).boolean('isFavorite'),
   );
+
+  factory RecipeItem.fromRecipeJson(
+    Map<String, dynamic> json, {
+    required bool isFavorite,
+  }) {
+    final reader = JsonReader(json);
+    final cover = json['cover'];
+    if (cover != null && cover is! Map<String, dynamic>) {
+      throw const FormatException('Invalid recipe cover');
+    }
+    final image = cover == null
+        ? reader.optionalString('image')
+        : RecipeImage.fromJson(cover as Map<String, dynamic>).assetPath;
+    final difficulty = RecipeDifficulty.parse(reader.string('difficulty'))
+        .label;
+    return RecipeItem(
+      id: reader.string('id'),
+      title: reader.string('title'),
+      image: image ?? '',
+      rating: json['rating'] == null ? 0 : reader.number('rating', max: 5),
+      cookTimeMinutes:
+          reader.integer('preparationMinutes') +
+          reader.integer('cookingMinutes', min: 1),
+      tag: difficulty,
+      difficulty: difficulty,
+      calories: reader.optionalInteger('calories'),
+      isFavorite: isFavorite,
+    );
+  }
 
   @override
   List<Object?> get props => [

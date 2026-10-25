@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../colors/app_colors.dart';
-import '../dimensions/app_size.dart';
 
 /// Khung card tách từ ProductCard đang dùng ở Home.
 class AppCard extends StatelessWidget {
+  static const radius = 12.0;
   final Widget child;
   final EdgeInsetsGeometry padding;
   const AppCard({
@@ -18,8 +18,7 @@ class AppCard extends StatelessWidget {
     padding: padding,
     decoration: BoxDecoration(
       color: AppColors.surface,
-      borderRadius: BorderRadius.circular(16.r(context)),
-      border: Border.all(color: AppColors.border, width: .8),
+      borderRadius: BorderRadius.circular(radius),
       boxShadow: [
         BoxShadow(
           color: Colors.black.withValues(alpha: .04),

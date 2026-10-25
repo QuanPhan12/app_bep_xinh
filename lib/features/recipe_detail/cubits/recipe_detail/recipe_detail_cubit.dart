@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_bep_xinh/features/recipes/services/recipe_favorites_service.dart';
 
 import '../../services/recipe_detail_service.dart';
+import '../../models/recipe_detail.dart' show RecipeLimits;
 import 'recipe_detail_state.dart';
 export 'recipe_detail_state.dart';
 
@@ -79,7 +80,7 @@ class RecipeDetailCubit extends Cubit<RecipeDetailState> {
 
   void changeServings(int value) {
     if (!isClosed && state.recipe != null) {
-      emit(state.copyWith(servings: value.clamp(1, 50)));
+      emit(state.copyWith(servings: value.clamp(1, RecipeLimits.maxServings)));
     }
   }
 
@@ -138,7 +139,8 @@ class RecipeDetailCubit extends Cubit<RecipeDetailState> {
       emit(
         state.copyWith(
           tab: RecipeDetailTab.steps,
-          cookingStep: state.cookingStep ?? 0,
+          cookingStep: state.cookingStep ?? state.pausedCookingStep ?? 0,
+          completedCooking: false,
         ),
       );
     }
@@ -150,12 +152,32 @@ class RecipeDetailCubit extends Cubit<RecipeDetailState> {
     }
   }
 
+  void pauseCooking() {
+    if (isClosed || state.cookingStep == null) return;
+    emit(
+      state.copyWith(pausedCookingStep: state.cookingStep, stopCooking: true),
+    );
+  }
+
+  void goToCookingStep(int index) {
+    if (isClosed ||
+        state.recipe == null ||
+        state.cookingStep == null ||
+        index < 0 ||
+        index >= state.recipe!.steps.length) {
+      return;
+    }
+    emit(state.copyWith(cookingStep: index, tab: RecipeDetailTab.steps));
+  }
+
   void nextStep() {
     if (isClosed || state.recipe == null || state.cookingStep == null) return;
     if (state.cookingStep == state.recipe!.steps.length - 1) {
       emit(
         state.copyWith(
           stopCooking: true,
+          clearPausedCookingStep: true,
+          completedCooking: true,
           message: 'Bạn đã hoàn thành món ăn.',
           noticeType: AppNotificationType.success,
           noticeId: state.noticeId + 1,

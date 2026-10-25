@@ -22,6 +22,164 @@ void main() {
   tearDown(() => cubit.close());
 
   test(
+    'all four classifications can be toggled, restored and submitted',
+    () async {
+      service.saved = validRecipeDraft();
+      await cubit.loadDraft();
+      for (final category in RecipeCategory.values) {
+        cubit.toggleCategory(category);
+      }
+      cubit.toggleCategory(RecipeCategory.quick);
+      expect(
+        cubit.state.draft.categories,
+        isNot(contains(RecipeCategory.quick)),
+      );
+      cubit.toggleCategory(RecipeCategory.quick);
+      await cubit.saveDraft();
+      final restored = RecipeEditorCubit(service: service, coverPicker: picker);
+      addTearDown(restored.close);
+      await restored.loadDraft();
+      expect(restored.state.draft.categories, RecipeCategory.values.toSet());
+      expect(restored.state.hasUnsavedChanges, isFalse);
+      await restored.submit();
+      expect(
+        service.submitted!.toRecipeContent().categories,
+        RecipeCategory.values.toSet(),
+      );
+    },
+  );
+
+  test('wizard validates stages, rejects skipped stages and rechecks edited data before review', () async {
+    await cubit.loadDraft();
+    cubit.goToStep(RecipeEditorStep.review);
+    expect(cubit.state.step, RecipeEditorStep.details);
+    cubit.nextStep();
+    expect(cubit.state.errors.keys.toSet(), {'title', 'cover'});
+    cubit.changeTitle('Trứng chiên');
+    picker.onPick = () async => recipeCoverFixture();
+    await cubit.pickCover();
+    expect(cubit.state.errors, isEmpty);
+    cubit.nextStep();
+    expect(cubit.state.step, RecipeEditorStep.ingredients);
+    cubit.nextStep();
+    expect(cubit.state.errors.keys, ['ingredients']);
+    cubit.upsertIngredient(validRecipeDraft().ingredients.first.withId(''));
+    expect(cubit.state.errors, isEmpty);
+    cubit.nextStep();
+    expect(cubit.state.step, RecipeEditorStep.instructions);
+    cubit.changeStep('step_0', 'Chiên chín.');
+    cubit.updateStep('step_0', minutes: '0');
+    cubit.nextStep();
+    expect(cubit.state.step, RecipeEditorStep.instructions);
+    expect(cubit.state.errors['stepMinutes.step_0'], isNotNull);
+    cubit.updateStep('step_0', minutes: '10');
+    cubit.nextStep();
+    expect(cubit.state.step, RecipeEditorStep.review);
+    expect(service.submitCalls, 0);
+    cubit.goToStep(RecipeEditorStep.details);
+    cubit.changeTitle('');
+    cubit.goToStep(RecipeEditorStep.review);
+    expect(cubit.state.step, RecipeEditorStep.details);
+    expect(cubit.state.errors['title'], isNotNull);
+    expect(cubit.state.draft.steps.single.minutes, '10');
+    expect(cubit.state.draft.ingredients, hasLength(1));
+  });
+
+  test('groups, occasions and step media survive save and removing a group preserves its ingredients', () async {
+    await cubit.loadDraft();
+    cubit.changeDescription('  Món nhà nấu  ');
+    cubit.changeStorageNotes('  Giữ lạnh  ');
+    cubit.toggleMeal(RecipeMeal.dinner);
+    cubit.toggleMeal(RecipeMeal.lunch);
+    cubit.toggleMeal(RecipeMeal.lunch);
+    cubit.addIngredientGroup();
+    final groupId = cubit.state.draft.ingredientGroups.last.id;
+    cubit.renameIngredientGroup(groupId, 'Nước chấm');
+    cubit.upsertIngredient(
+      validRecipeDraft().ingredients.first.withId(''),
+      groupId: groupId,
+    );
+    final ingredient = cubit.state.draft.ingredients.single;
+    picker.onPick = () async => recipeCoverFixture(id: 'step_photo');
+    await cubit.pickStepPhoto('step_0');
+    cubit.updateStep(
+      'step_0',
+      title: '  Sơ chế  ',
+      minutes: '5',
+      tip: '  Rửa sạch  ',
+    );
+    await cubit.saveDraft();
+    final restored = RecipeEditorCubit(service: service, coverPicker: picker);
+    addTearDown(restored.close);
+    await restored.loadDraft();
+    expect(restored.state.draft, cubit.state.draft);
+    expect(restored.state.hasUnsavedChanges, isFalse);
+    expect(restored.state.hasSavedDraft, isTrue);
+    expect(restored.state.draft.meals, {RecipeMeal.dinner});
+    final normalized = restored.state.draft.normalized();
+    expect(normalized.description, 'Món nhà nấu');
+    expect(normalized.steps.single.title, 'Sơ chế');
+    expect(normalized.steps.single.photo!.id, 'step_photo');
+    restored.removeIngredientGroup(groupId);
+    expect(restored.state.draft.ingredients.single.id, ingredient.id);
+    expect(restored.state.draft.ingredients.single.groupId, 'main');
+    expect(restored.state.hasUnsavedChanges, isTrue);
+  });
+
+  test('reordering and deleting steps keep instructions, metadata and photos on their own ids', () async {
+    service.saved = validRecipeDraft();
+    await cubit.loadDraft();
+    final firstId = cubit.state.draft.steps.first.id;
+    cubit.updateStep(
+      firstId,
+      title: 'Sơ chế',
+      minutes: '5',
+      tip: 'Rửa sạch',
+      photo: recipeCoverFixture(),
+    );
+    cubit.addStep();
+    final secondId = cubit.state.draft.steps.last.id;
+    cubit.changeStep(secondId, 'Nấu chín');
+    cubit.moveStep(firstId, 1);
+    expect(cubit.state.draft.steps.first.id, secondId);
+    expect(cubit.state.draft.steps.last.title, 'Sơ chế');
+    expect(cubit.state.draft.steps.last.photo, isNotNull);
+    cubit.removeStep(secondId);
+    expect(cubit.state.draft.steps.single.id, firstId);
+    picker.onPick = () async => null;
+    await cubit.pickStepPhoto(firstId);
+    expect(cubit.state.draft.steps.single.photo, isNotNull);
+    picker.onPick = () =>
+        Future.error(const RecipeCoverException('Ảnh không hợp lệ.'));
+    await cubit.pickStepPhoto(firstId);
+    expect(cubit.state.isBusy, isFalse);
+    expect(cubit.state.draft.steps.single.photo, isNotNull);
+    expect(cubit.state.message, 'Ảnh không hợp lệ.');
+  });
+
+  test('step navigation does not dirty saved data and cannot run during submission', () async {
+    service.saved = validRecipeDraft();
+    await cubit.loadDraft();
+    cubit.nextStep();
+    cubit.nextStep();
+    cubit.nextStep();
+    expect(cubit.state.step, RecipeEditorStep.review);
+    expect(cubit.state.hasUnsavedChanges, isFalse);
+    final pending = Completer<void>();
+    service.onSubmit = (_) => pending.future;
+    final submitting = cubit.submit();
+    cubit.previousStep();
+    cubit.goToStep(RecipeEditorStep.details);
+    expect(cubit.state.step, RecipeEditorStep.review);
+    pending.completeError(StateError('offline'));
+    await submitting;
+    expect(cubit.state.step, RecipeEditorStep.review);
+    expect(cubit.state.status, RecipeEditorStatus.ready);
+    expect(cubit.state.draft, service.saved);
+    expect(cubit.state.message, contains('Chưa gửi'));
+  });
+
+  test(
     'load is deduplicated, failure retries and restores saved draft',
     () async {
       final pending = Completer<RecipeDraft?>();

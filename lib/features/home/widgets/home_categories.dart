@@ -1,5 +1,5 @@
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
-import 'package:app_bep_xinh/core/constants/app_constants.dart';
+import 'package:app_bep_xinh/core/utils/app_layout.dart';
 import 'package:app_bep_xinh/core/dimensions/app_size.dart';
 import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
 import 'package:app_bep_xinh/core/widgets/app_tap.dart';
@@ -56,60 +56,67 @@ class HomeCategories extends StatelessWidget {
     if (categories.isEmpty) return const SizedBox.shrink();
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: AppConstants.maxContentWidth,
-        ),
+        constraints: BoxConstraints(maxWidth: AppLayout.pageWidth(context)),
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w(context)),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: categories.map((category) {
-              final (icon, background, foreground) = _appearance(category.icon);
-              return Flexible(
-                child: AppTap(
-                  actionName: 'home_category_${category.id}',
-                  onTap: onSelectCategory == null
-                      ? null
-                      : () => onSelectCategory!(category.id),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 52.w(context),
-                        height: 52.w(context),
-                        decoration: BoxDecoration(
-                          color: background,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: foreground.withValues(alpha: 0.12),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
+          child: LayoutBuilder(
+            builder: (context, constraints) => Wrap(
+              spacing: 8,
+              runSpacing: 16,
+              children: categories.map((category) {
+                final (icon, background, foreground) = _appearance(
+                  category.icon,
+                );
+                final columns = constraints.maxWidth < 500 ? 3 : 6;
+                return SizedBox(
+                  width: (constraints.maxWidth - 8 * (columns - 1)) / columns,
+                  child: AppTap(
+                    key: ValueKey('home_category_${category.id}'),
+                    actionName: 'home_category_${category.id}',
+                    onTap: onSelectCategory == null
+                        ? null
+                        : () => onSelectCategory!(category.id),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 52.w(context),
+                          height: 52.w(context),
+                          decoration: BoxDecoration(
+                            color: background,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: foreground.withValues(alpha: 0.12),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            icon,
+                            color: foreground,
+                            size: 24.sp(context),
+                          ),
                         ),
-                        child: Icon(
-                          icon,
-                          color: foreground,
-                          size: 24.sp(context),
+                        SizedBox(height: 6.h(context)),
+                        Text(
+                          category.title,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.labelMedium.copyWith(
+                            fontSize: 12.sp(context),
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 6.h(context)),
-                      Text(
-                        category.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.labelMedium.copyWith(
-                          fontSize: 12.sp(context),
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            }).toList(),
+                );
+              }).toList(),
+            ),
           ),
         ),
       ),

@@ -1,3 +1,5 @@
+import 'package:app_bep_xinh/features/recipe_search/models/recipe_search_request.dart';
+import 'package:app_bep_xinh/features/recipe_search/routes/recipe_search_routes.dart';
 import 'package:app_bep_xinh/features/auth/screens/forgot_password/forgot_password_screen.dart';
 import 'package:app_bep_xinh/features/auth/screens/login/login_screen.dart';
 import 'package:app_bep_xinh/features/auth/screens/register/register_screen.dart';
@@ -5,7 +7,8 @@ import 'package:app_bep_xinh/features/cart/screens/cart_screen.dart';
 import 'package:app_bep_xinh/features/fridge/screens/fridge_screen.dart';
 import 'package:app_bep_xinh/features/home/screens/home_screen.dart';
 import 'package:app_bep_xinh/features/navigation/screens/navigation_screen.dart';
-import 'package:app_bep_xinh/features/profile/screens/profile_screen.dart';
+import 'package:app_bep_xinh/features/profile/routes/profile_routes.dart';
+import 'package:app_bep_xinh/features/settings/routes/settings_routes.dart';
 import 'package:app_bep_xinh/features/recipe_detail/screens/recipe_detail_screen.dart';
 import 'package:app_bep_xinh/features/recipe_editor/screens/recipe_editor_screen.dart';
 import 'package:go_router/go_router.dart';
@@ -19,10 +22,27 @@ class PathRouter {
   static const fridgeScreen = "/fridge";
   static const cartScreen = "/cart";
   static const profileScreen = "/profile";
+  static const publicProfileScreen = '/users/:userId';
+  static const settingsScreen = '/settings';
   static const recipeDetailScreen = "/recipe/:id";
+  static const recipeSearchScreen = '/recipes/search';
   static const recipeEditorScreen = '/recipes/new';
 
+  static String recipeSearch({
+    RecipeSearchFilter filter = RecipeSearchFilter.all,
+    String query = '',
+  }) => filter == RecipeSearchFilter.all && query.isEmpty
+      ? recipeSearchScreen
+      : Uri(
+          path: recipeSearchScreen,
+          queryParameters: {
+            if (filter != RecipeSearchFilter.all) 'filter': filter.id,
+            if (query.isNotEmpty) 'q': query,
+          },
+        ).toString();
+
   static String recipeDetail(String id) => '/recipe/${Uri.encodeComponent(id)}';
+  static String publicProfile(String id) => '/users/${Uri.encodeComponent(id)}';
 }
 
 class NameRouter {
@@ -34,13 +54,19 @@ class NameRouter {
   static const fridgeScreen = "fridge_screen";
   static const cartScreen = "cart_screen";
   static const profileScreen = "profile_screen";
+  static const publicProfileScreen = 'public_profile_screen';
+  static const settingsScreen = 'settings_screen';
   static const recipeDetailScreen = "recipe_detail_screen";
+  static const recipeSearchScreen = 'recipe_search_screen';
   static const recipeEditorScreen = 'recipe_editor_screen';
 }
 
 final appRouter = GoRouter(
   initialLocation: PathRouter.loginScreen,
   routes: [
+    recipeSearchRoute(),
+    settingsRoute(),
+    publicProfileRoute(),
     GoRoute(
       path: PathRouter.loginScreen,
       name: NameRouter.loginScreen,
@@ -110,15 +136,7 @@ final appRouter = GoRouter(
         ),
 
         // Branch 3: Cá nhân
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: PathRouter.profileScreen,
-              name: NameRouter.profileScreen,
-              builder: (context, state) => const ProfileScreen(),
-            ),
-          ],
-        ),
+        StatefulShellBranch(routes: [profileRoute()]),
       ],
     ),
   ],

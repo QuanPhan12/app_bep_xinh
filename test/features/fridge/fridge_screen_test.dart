@@ -1,5 +1,7 @@
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
 import 'package:app_bep_xinh/core/tap/tap.dart';
+import 'package:app_bep_xinh/core/widgets/app_messenger.dart';
+import 'package:app_bep_xinh/features/fridge/widgets/fridge_ingredient_chip.dart';
 
 import '../../support/test_text_styles.dart';
 
@@ -22,9 +24,9 @@ void main() {
 
   setUp(AppTapHandler.resetLock);
 
-  Widget host(Widget child, {double textScale = 1}) =>
+  Widget host(Widget child, {double textScale = 1, FridgeService? service}) =>
       RepositoryProvider<FridgeService>(
-        create: (_) => createMockFridgeService(),
+        create: (_) => service ?? createMockFridgeService(),
         child: MaterialApp(
           theme: ThemeData(colorScheme: AppColors.lightColorScheme),
           builder: (context, child) => ResponsiveBreakpoints.builder(
@@ -42,10 +44,18 @@ void main() {
         ),
       );
 
+  Future<void> tap(WidgetTester tester, Finder finder) async {
+    AppTapHandler.resetLock();
+    await tester.ensureVisible(finder);
+    await tester.pumpAndSettle();
+    await tester.tap(finder);
+    await tester.pumpAndSettle();
+  }
+
   testWidgets('search, clear, retype, add, remove and clear inventory', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(390, 1800);
+    tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -55,32 +65,32 @@ void main() {
         .element(find.byType(FridgeContent))
         .read<FridgeCubit>();
     final search = find.byKey(const ValueKey('fridge_ingredient_search'));
+    expect(search, findsNothing);
+    final firstRecipe = find.text('Đậu hũ sốt cà chua');
+    expect(tester.getBottomLeft(firstRecipe).dy, lessThan(760));
+    await tap(tester, find.byKey(const ValueKey('fridge_add_ingredients')));
 
     await tester.enterText(search, 'thit bo');
     await tester.pump();
     expect(find.byKey(const ValueKey('pick_beef')), findsOneWidget);
     expect(find.byKey(const ValueKey('pick_egg')), findsNothing);
 
-    await tester.enterText(search, '');
-    await tester.pump();
+    await tap(tester, find.byTooltip('Xóa tìm kiếm'));
     expect(find.byKey(const ValueKey('pick_egg')), findsOneWidget);
     await tester.enterText(search, 'thịt bò');
     await tester.pump();
-    await tester.tap(find.byKey(const ValueKey('pick_beef')));
-    await tester.pumpAndSettle();
+    await tap(tester, find.byKey(const ValueKey('pick_beef')));
     expect(cubit.state.selectedIds, contains('beef'));
+    await tap(tester, find.text('Xem gợi ý'));
+    expect(find.byKey(const ValueKey('fridge_ingredient_sheet')), findsNothing);
     expect(find.text('Nấu được ngay · 3 món'), findsOneWidget);
 
     // Throttle uses wall time; isolate successive interaction assertions.
-    AppTapHandler.resetLock();
-    await tester.tap(find.byKey(const ValueKey('remove_beef')));
-    await tester.pumpAndSettle();
+    await tap(tester, find.byKey(const ValueKey('remove_beef')));
     expect(cubit.state.selectedIds, isNot(contains('beef')));
     expect(find.text('Nấu được ngay · 2 món'), findsOneWidget);
 
-    AppTapHandler.resetLock();
-    await tester.tap(find.text('Xóa hết'));
-    await tester.pumpAndSettle();
+    await tap(tester, find.text('Xóa hết'));
     expect(cubit.state.selectedIds, isEmpty);
     expect(find.text('Trong tủ lạnh (0)'), findsOneWidget);
     expect(
@@ -89,6 +99,95 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('sheet reopens with a fresh query and keeps saved selections', (
+    tester,
+  ) async {
+    await tester.pumpWidget(host(const FridgeScreen()));
+    await tester.pumpAndSettle();
+    await tap(tester, find.byKey(const ValueKey('fridge_add_ingredients')));
+    final search = find.byKey(const ValueKey('fridge_ingredient_search'));
+    await tester.enterText(search, 'thit bo');
+    await tester.pumpAndSettle();
+    await tap(tester, find.byKey(const ValueKey('pick_beef')));
+    await tap(tester, find.byTooltip('Đóng bảng nguyên liệu'));
+    expect(find.byKey(const ValueKey('remove_beef')), findsOneWidget);
+    await tap(tester, find.byKey(const ValueKey('fridge_add_ingredients')));
+    expect(tester.widget<TextFormField>(search).controller!.text, '');
+    expect(
+      tester
+          .widget<FridgeIngredientChip>(find.byKey(const ValueKey('pick_beef')))
+          .selected,
+      isTrue,
+    );
+    await tap(tester, find.byKey(const ValueKey('pick_beef')));
+    await tap(tester, find.text('Xem gợi ý'));
+    expect(find.byKey(const ValueKey('remove_beef')), findsNothing);
+    expect(find.text('Nấu được ngay · 2 món'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('failed selection rolls back in the sheet and can be retried', (
+    tester,
+  ) async {
+    final service = StubFridgeService()
+      ..onSave = (_) async => throw StateError('offline');
+    await tester.pumpWidget(host(const FridgeScreen(), service: service));
+    await tester.pumpAndSettle();
+    await tap(tester, find.byKey(const ValueKey('fridge_add_ingredients')));
+    await tap(tester, find.byKey(const ValueKey('pick_beef')));
+    expect(
+      tester
+          .widget<FridgeIngredientChip>(find.byKey(const ValueKey('pick_beef')))
+          .selected,
+      isFalse,
+    );
+    expect(
+      find.text('Chưa lưu được nguyên liệu. Vui lòng thử lại.'),
+      findsOneWidget,
+    );
+    service.onSave = null;
+    await tap(tester, find.byKey(const ValueKey('pick_beef')));
+    await tap(tester, find.text('Xem gợi ý'));
+    expect(find.byKey(const ValueKey('remove_beef')), findsOneWidget);
+    await tester.pump(const Duration(seconds: 4));
+    AppMessenger.hide();
+    expect(tester.takeException(), isNull);
+  });
+
+  for (final size in [
+    const Size(320, 700),
+    const Size(800, 1024),
+    const Size(1024, 768),
+  ]) {
+    testWidgets('ingredient sheet fits $size, large text and keyboard', (
+      tester,
+    ) async {
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(host(const FridgeScreen(), textScale: 1.5));
+      await tester.pumpAndSettle();
+      await tap(tester, find.byKey(const ValueKey('fridge_add_ingredients')));
+      tester.view.viewInsets = const FakeViewPadding(bottom: 280);
+      addTearDown(tester.view.resetViewInsets);
+      await tester.pumpAndSettle();
+      final search = find.byKey(const ValueKey('fridge_ingredient_search'));
+      await tester.ensureVisible(search);
+      await tester.enterText(search, 'thit bo');
+      await tester.pumpAndSettle();
+      await tap(tester, find.byKey(const ValueKey('pick_beef')));
+      expect(tester.takeException(), isNull);
+      tester.view.resetViewInsets();
+      tester.view.physicalSize = Size(size.height, size.width);
+      await tester.pumpAndSettle();
+      expect(tester.widget<TextFormField>(search).controller!.text, 'thit bo');
+      await tap(tester, find.text('Xem gợi ý'));
+      expect(find.byKey(const ValueKey('remove_beef')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   testWidgets('recipe filter updates displayed results', (tester) async {
     final cubit = FridgeCubit(service: createMockFridgeService());

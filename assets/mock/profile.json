@@ -1,0 +1,11 @@
+{
+  "account": {
+    "id": "mai_anh",
+    "name": "Mai Anh",
+    "handle": "maianh_cooking",
+    "bio": "Một góc bếp nhỏ, những bữa cơm ngon. Mình chia sẻ các món dễ nấu cho cả nhà.",
+    "cookedCount": 24,
+    "showBio": true
+  },
+  "recipeIds": ["bo_ne_tieu_den", "ca_hoi_ap_chao", "canh_suon_ham_rau_cu"]
+}

@@ -4,6 +4,7 @@ import '../../../../../core/colors/app_colors.dart';
 import '../../../../../core/dimensions/dimensions.dart';
 import '../../../../../core/widgets/widgets.dart';
 import '../../../widgets/forgot_password_form.dart';
+import '../../../widgets/auth_content_width.dart';
 
 class ForgotPasswordMobileView extends StatelessWidget {
   const ForgotPasswordMobileView({super.key});
@@ -22,7 +23,9 @@ class ForgotPasswordMobileView extends StatelessWidget {
               horizontal: size.space16.w(context),
               vertical: size.space16.h(context),
             ),
-            sliver: const SliverToBoxAdapter(child: ForgotPasswordForm()),
+            sliver: const SliverToBoxAdapter(
+              child: AuthContentWidth(child: ForgotPasswordForm()),
+            ),
           ),
         ],
       ),

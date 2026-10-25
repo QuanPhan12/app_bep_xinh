@@ -43,12 +43,14 @@ class AppTextAction extends StatelessWidget {
               Icon(leadingIcon, color: AppColors.primary, size: 13.sp(context)),
               SizedBox(width: 4.w(context)),
             ],
-            Text(
-              label,
-              style: AppTextStyles.labelMedium.copyWith(
-                color: AppColors.primary,
-                fontWeight: FontWeight.w600,
-                fontSize: 12.sp(context),
+            Flexible(
+              child: Text(
+                label,
+                style: AppTextStyles.labelMedium.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12.sp(context),
+                ),
               ),
             ),
             if (trailingIcon != null) ...[

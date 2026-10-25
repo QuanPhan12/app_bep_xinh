@@ -165,32 +165,34 @@ class ProductCard extends StatelessWidget {
                     runSpacing: 4,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.star_rounded,
-                            color: AppColors.accent,
-                            size: 15,
-                          ),
-                          SizedBox(width: 3.w(context)),
-                          Text(
-                            recipe.rating.toStringAsFixed(1),
-                            style: AppTextStyles.labelSmall.copyWith(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 11,
+                      if (recipe.rating > 0)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.star_rounded,
+                              color: AppColors.accent,
+                              size: 15,
                             ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        '•',
-                        style: TextStyle(
-                          color: AppColors.textTertiary,
-                          fontSize: 10,
+                            SizedBox(width: 3.w(context)),
+                            Text(
+                              recipe.rating.toStringAsFixed(1),
+                              style: AppTextStyles.labelSmall.copyWith(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
+                      if (recipe.rating > 0)
+                        Text(
+                          '•',
+                          style: TextStyle(
+                            color: AppColors.textTertiary,
+                            fontSize: 10,
+                          ),
+                        ),
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [

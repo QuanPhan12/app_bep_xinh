@@ -8,7 +8,7 @@ class FridgeTabletView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Trên Tablet kế thừa bố cục đã được ConstrainedBox của FridgeMobileView
+    // Khung chung dùng AppLayout; nội dung tự chia cột theo chiều rộng thực tế.
     return const FridgeMobileView();
   }
 }

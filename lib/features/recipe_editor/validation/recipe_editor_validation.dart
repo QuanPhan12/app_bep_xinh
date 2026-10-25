@@ -1,17 +1,6 @@
 import '../models/recipe_draft.dart';
 
-class RecipeEditorLimits {
-  const RecipeEditorLimits._();
-  static const titleLength = 80;
-  static const ingredientNameLength = 80;
-  static const ingredientNoteLength = 160;
-  static const maxIngredientAmount = 100000;
-  static const instructionLength = 2000;
-  static const ingredients = 30;
-  static const steps = 20;
-  static const maxServings = 50;
-  static const maxCoverBytes = 8 * 1024 * 1024;
-}
+typedef RecipeEditorLimits = RecipeLimits;
 
 class RecipeEditorValidation {
   const RecipeEditorValidation._();
@@ -52,6 +41,24 @@ class RecipeEditorValidation {
       errors['title'] =
           'Tên món ăn tối đa ${RecipeEditorLimits.titleLength} ký tự.';
     }
+    if (draft.description.length > RecipeEditorLimits.descriptionLength) {
+      errors['description'] = 'Mô tả tối đa 500 ký tự.';
+    }
+    if (draft.storageNotes.length > RecipeEditorLimits.noteLength) {
+      errors['storageNotes'] = 'Ghi chú tối đa 500 ký tự.';
+    }
+    final groupIds = draft.ingredientGroups.map((group) => group.id).toSet();
+    if (draft.ingredientGroups.isEmpty ||
+        draft.ingredientGroups.length > RecipeEditorLimits.groups ||
+        groupIds.length != draft.ingredientGroups.length) {
+      errors['groups'] = 'Cần từ 1 đến 8 nhóm nguyên liệu có mã riêng.';
+    }
+    for (final group in draft.ingredientGroups) {
+      if (group.name.trim().isEmpty ||
+          group.name.length > RecipeEditorLimits.groupNameLength) {
+        errors['group.${group.id}'] = 'Tên nhóm từ 1 đến 60 ký tự.';
+      }
+    }
     final preparation = int.tryParse(draft.preparationMinutes);
     if (preparation == null || preparation < 0 || preparation > 240) {
       errors['preparation'] = 'Nhập từ 0 đến 240 phút.';
@@ -69,6 +76,9 @@ class RecipeEditorValidation {
     }
     final seen = <String>{};
     for (final item in draft.ingredients) {
+      if (!groupIds.contains(item.groupId)) {
+        errors[ingredientError(item.id)] = 'Chọn nhóm nguyên liệu hợp lệ.';
+      }
       final itemErrors = validateIngredient(item);
       if (itemErrors.isNotEmpty) {
         errors[ingredientError(item.id)] = itemErrors.values.first;
@@ -84,6 +94,18 @@ class RecipeEditorValidation {
       errors['steps'] = 'Thêm từ 1 đến 20 bước nấu.';
     }
     for (final item in draft.steps) {
+      if (item.title.length > RecipeEditorLimits.stepTitleLength) {
+        errors['stepTitle.${item.id}'] = 'Tên bước tối đa 80 ký tự.';
+      }
+      if (item.tip.length > RecipeEditorLimits.noteLength) {
+        errors['stepTip.${item.id}'] = 'Mẹo tối đa 500 ký tự.';
+      }
+      if (item.minutes.isNotEmpty) {
+        final minutes = int.tryParse(item.minutes);
+        if (minutes == null || minutes < 1 || minutes > 720) {
+          errors['stepMinutes.${item.id}'] = 'Nhập từ 1 đến 720 phút.';
+        }
+      }
       if (item.instruction.trim().isEmpty) {
         errors[stepInstruction(item.id)] = 'Mô tả cách thực hiện bước này.';
       } else if (item.instruction.length >
@@ -92,5 +114,24 @@ class RecipeEditorValidation {
       }
     }
     return Map.unmodifiable(errors);
+  }
+
+  /// Stage indexes belong to the authoring flow, without UI dependencies.
+  static int stageForError(String key) {
+    if (key == 'ingredients' ||
+        key == 'groups' ||
+        key.startsWith('group.') ||
+        key.startsWith('ingredient.')) {
+      return 1;
+    }
+    if (key == 'steps' ||
+        key == 'storageNotes' ||
+        key.startsWith('step.') ||
+        key.startsWith('stepTitle.') ||
+        key.startsWith('stepTip.') ||
+        key.startsWith('stepMinutes.')) {
+      return 2;
+    }
+    return 0;
   }
 }

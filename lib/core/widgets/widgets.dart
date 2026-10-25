@@ -14,3 +14,6 @@ export 'app_tap.dart';
 export 'responsive_layout.dart';
 export 'app_serving_selector.dart';
 export 'app_action_bar.dart';
+export 'app_adaptive_columns.dart';
+export 'app_avatar.dart';
+export 'app_selection_controls.dart';
