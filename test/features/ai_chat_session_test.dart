@@ -6,6 +6,7 @@ import 'package:app_bep_xinh/features/ai_chat/screens/ai_chat_screen.dart';
 import 'package:app_bep_xinh/features/ai_chat/services/ai_chat_repository.dart';
 import 'package:app_bep_xinh/features/ai_chat/widgets/ai_chat_floating_layer.dart';
 import 'package:app_bep_xinh/features/ai_chat/widgets/ai_chat_session_scope.dart';
+import 'package:app_bep_xinh/features/messages/models/chat_history_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,9 +18,9 @@ class _Repository implements AiChatRepository {
   int loads = 0;
   final response = Completer<List<AiMessage>>();
   @override
-  Future<List<AiMessage>> history() async {
+  Future<ChatHistoryPage<AiMessage>> history() async {
     loads++;
-    return [];
+    return const ChatHistoryPage([]);
   }
 
   @override

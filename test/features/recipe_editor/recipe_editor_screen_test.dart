@@ -267,14 +267,14 @@ void main() {
       await open(tester, router);
       await goIngredients(tester);
       await addIngredient(tester, 'trung', 'egg', '2');
-      await addIngredient(tester, 'ca chua', 'tomato', '0,5');
+      await addIngredient(tester, 'ca chua', 'tomato', '1');
       await tap(tester, find.text('Cà chua'));
       await tester.enterText(
         find.byKey(const ValueKey('ingredient_amount')),
         '3',
       );
       await tap(tester, find.byTooltip('Đóng'));
-      expect(find.text('0,5 quả'), findsOneWidget);
+      expect(find.text('1 quả'), findsOneWidget);
       await tap(tester, find.text('Cà chua'));
       await tester.enterText(
         find.byKey(const ValueKey('ingredient_amount')),
@@ -505,18 +505,24 @@ void main() {
         await tester.pumpAndSettle();
         await tap(tester, find.byKey(const ValueKey('ingredient_confirm')));
         expect(
-          find.text('Nhập lượng dùng lớn hơn 0, tối đa 100.000.'),
+          find.text('Nhập lượng dùng là số nguyên từ 1 đến 100.000.'),
           findsOneWidget,
         );
         final amount = find.byKey(const ValueKey('ingredient_amount'));
         await tester.ensureVisible(amount);
         await tester.enterText(amount, '0,5');
+        await tap(tester, find.byKey(const ValueKey('ingredient_confirm')));
+        expect(
+          find.text('Nhập lượng dùng là số nguyên từ 1 đến 100.000.'),
+          findsOneWidget,
+        );
+        await tester.enterText(amount, '1');
         await tap(tester, find.byType(DropdownButtonFormField<IngredientUnit>));
         await tap(tester, find.text('kg').last);
         await tap(tester, find.byKey(const ValueKey('ingredient_confirm')));
         tester.view.resetViewInsets();
         await tester.pumpAndSettle();
-        expect(find.text('0,5 kg'), findsOneWidget);
+        expect(find.text('1 kg'), findsOneWidget);
         expect(tester.takeException(), isNull);
       },
     );

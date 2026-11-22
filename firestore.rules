@@ -1,4 +1,5 @@
 rules_version = '2';
+// users/{uid}/chat_deletions/{conversationId}: through (Timestamp), owned by uid.
 service cloud.firestore {
   match /databases/{database}/documents {
     function owner(uid) {
@@ -107,6 +108,19 @@ service cloud.firestore {
     function chatMember(data) {
       return request.auth != null && activeAccount(request.auth.uid)
         && request.auth.uid in data.memberIds;
+    }
+    function validChatDeletion(conversationId) {
+      let d = request.resource.data;
+      let thread = get(/databases/$(database)/documents/conversations/$(conversationId)).data;
+      return d.keys().hasOnly(['through']) && d.get('through', null) is timestamp
+        && request.auth.uid in thread.memberIds && d.through == thread.updatedAt
+        && (resource == null || d.through >= resource.data.through);
+    }
+    match /users/{uid}/chat_deletions/{conversationId} {
+      allow read: if activeAccount(uid);
+      allow create, update: if activeAccount(uid) && conversationId.matches('[a-f0-9]{64}')
+        && validChatDeletion(conversationId);
+      allow delete: if false;
     }
     function chatCreate() {
       let d = request.resource.data;

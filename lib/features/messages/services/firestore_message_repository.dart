@@ -1,5 +1,6 @@
 import '../models/chat_recipe.dart';
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,6 +12,7 @@ import '../../../core/utils/inbox_time_label.dart';
 import '../../recipes/services/published_recipe_source.dart';
 import '../../recipes/models/recipe_image.dart';
 import '../models/conversation.dart';
+import '../models/chat_history_page.dart';
 import 'message_repository.dart';
 
 class FirestoreMessageRepository implements MessageRepository {
@@ -19,6 +21,8 @@ class FirestoreMessageRepository implements MessageRepository {
   FirestoreMessageRepository({required this.store, required this.published});
   CollectionReference<Map<String, dynamic>> get _threads =>
       store.firestore.collection('conversations');
+  CollectionReference<Map<String, dynamic>> get _deletions =>
+      store.account.collection('chat_deletions');
 
   void _checkId(String id) {
     if (!RegExp(r'^[a-f0-9]{64}$').hasMatch(id)) {
@@ -31,6 +35,8 @@ class FirestoreMessageRepository implements MessageRepository {
     String id,
     Map<String, dynamic> data, {
     List<ChatMessage>? messages,
+    LoadOlderMessages<ChatMessage>? loadOlder,
+    Timestamp? deletedThrough,
   }) {
     final members = JsonReader(data).strings('memberIds', allowEmpty: false);
     if (members.length != 2 || !members.contains(store.uid)) {
@@ -47,10 +53,13 @@ class FirestoreMessageRepository implements MessageRepository {
       id: id,
       name: name,
       subtitle: 'Cùng chia sẻ chuyện vào bếp',
+      loadOlder: loadOlder,
       unreadCount:
           data['lastSenderId'] != null &&
               data['lastSenderId'] != store.uid &&
               updatedAt != null &&
+              (deletedThrough == null ||
+                  updatedAt.compareTo(deletedThrough) > 0) &&
               (readAt == null || updatedAt.compareTo(readAt) > 0)
           ? 1
           : 0,
@@ -72,61 +81,199 @@ class FirestoreMessageRepository implements MessageRepository {
   @override
   Stream<List<Conversation>> watchInbox() {
     store.checkSession();
-    return _threads
+    final inbox = _threads
         .where('memberIds', arrayContains: store.uid)
         .orderBy('updatedAt', descending: true)
         .limit(50)
-        .snapshots()
-        .map((snapshot) {
+        .snapshots();
+    return Stream.multi((sink) {
+      List<QueryDocumentSnapshot<Map<String, dynamic>>>? threads;
+      Map<String, Timestamp>? deletedThrough;
+      void publish() {
+        final current = threads;
+        final cutoffs = deletedThrough;
+        if (current == null || cutoffs == null) return;
+        try {
           store.checkSession();
-          return [for (final doc in snapshot.docs) _thread(doc.id, doc.data())];
-        });
+          sink.add([
+            for (final doc in current)
+              if (_isVisibleInInbox(doc.data(), cutoffs[doc.id]))
+                _thread(doc.id, doc.data()),
+          ]);
+        } catch (error, stack) {
+          sink.addError(error, stack);
+        }
+      }
+
+      final inboxSubscription = inbox.listen((snapshot) {
+        threads = snapshot.docs;
+        publish();
+      }, onError: sink.addError);
+      final deletionSubscription = _deletions
+          .snapshots(includeMetadataChanges: true)
+          .listen((snapshot) {
+            // Đợi đồng bộ dấu xóa trước khi hiện hộp thư trên thiết bị mới.
+            if (deletedThrough == null && snapshot.metadata.isFromCache) return;
+            deletedThrough = {
+              for (final doc in snapshot.docs)
+                if (doc.data()['through'] case final Timestamp through)
+                  doc.id: through,
+            };
+            publish();
+          }, onError: sink.addError);
+      sink.onCancel = () async {
+        await Future.wait([
+          inboxSubscription.cancel(),
+          deletionSubscription.cancel(),
+        ]);
+      };
+    });
+  }
+
+  bool _isVisibleInInbox(Map<String, dynamic> thread, Timestamp? through) {
+    if (through == null) return true;
+    final updatedAt = thread['updatedAt'];
+    return updatedAt is Timestamp && updatedAt.compareTo(through) > 0;
+  }
+
+  @override
+  Future<void> deleteConversation(String id) async {
+    _checkId(id);
+    final reference = _threads.doc(id);
+    final deletion = _deletions.doc(id);
+    await store.firestore.runTransaction((transaction) async {
+      store.checkSession();
+      final snapshot = await transaction.get(reference);
+      final data = snapshot.data();
+      if (data == null || data['updatedAt'] is! Timestamp) {
+        throw StateError('Conversation not found');
+      }
+      _thread(id, data);
+      transaction.set(deletion, {'through': data['updatedAt']});
+    });
+    store.checkSession();
   }
 
   @override
   Stream<Conversation> watchConversation(String id) async* {
     _checkId(id);
     final reference = _threads.doc(id);
-    final snapshot = await reference.get();
+    const server = GetOptions(source: Source.server);
+    final (snapshot, deletion) = await (
+      reference.get(server),
+      _deletions.doc(id).get(server),
+    ).wait;
     store.checkSession();
     if (!snapshot.exists) throw StateError('Conversation not found');
     final data = snapshot.data()!;
     _thread(id, data);
-    yield* reference
+    final through = deletion.data()?['through'] as Timestamp?;
+    var messages = reference
         .collection('messages')
-        .orderBy('createdAt', descending: true)
-        .limit(100)
-        .snapshots()
-        .asyncMap((snapshot) async {
-          store.checkSession();
-          final messages = [
-            for (final doc in snapshot.docs.reversed)
-              ChatMessage(
-                id: doc.id,
-                text: JsonReader(doc.data()).string('text', allowEmpty: true),
-                recipe: doc.data()['recipe'] == null
-                    ? null
-                    : ChatRecipe.fromJson(
-                        Map<String, dynamic>.from(doc.data()['recipe'] as Map),
-                      ),
-                image: doc.data()['image'] == null
-                    ? null
-                    : RecipeImage.fromJson(
-                        Map<String, dynamic>.from(doc.data()['image'] as Map),
-                      ),
-                timeLabel: inboxTimeLabel(
-                  (doc.data()['createdAt'] as Timestamp?)?.toDate(),
-                ),
-                fromMe: doc.data()['senderId'] == store.uid,
-              ),
-          ];
-          // Chỉ xác nhận đã đọc sau snapshot đã commit; tránh pending timestamp
-          // làm một tin đang gửi trông như đã được máy chủ xác nhận.
-          if (!snapshot.metadata.hasPendingWrites) {
-            await _markRead(id);
-          }
-          return _thread(id, data, messages: messages);
-        });
+        .orderBy('createdAt', descending: true);
+    if (through != null)
+      messages = messages.where('createdAt', isGreaterThan: through);
+    final committed = await _fetchMessages(messages);
+    final page = _messagePage(messages, committed);
+    if (committed.isNotEmpty) await _markRead(id);
+    yield _thread(
+      id,
+      data,
+      messages: page.messages,
+      loadOlder: page.loadOlder,
+      deletedThrough: through,
+    );
+
+    // The first page is fixed. The listener only reads messages newer than it,
+    // so new arrivals cannot evict messages or leave gaps in older pages.
+    final live = committed.isEmpty
+        ? messages
+        : messages.endBeforeDocument(committed.first);
+    String? latestReadId = committed.firstOrNull?.id;
+    await for (final update in live.snapshots(includeMetadataChanges: true)) {
+      store.checkSession();
+      final newer = update.docs
+          .where(
+            (doc) =>
+                !doc.metadata.hasPendingWrites &&
+                doc.data()['createdAt'] is Timestamp,
+          )
+          .toList();
+      final latest = newer.firstOrNull;
+      if (latest != null &&
+          latest.id != latestReadId &&
+          !update.metadata.isFromCache) {
+        await _markRead(id);
+        latestReadId = latest.id;
+      }
+      yield _thread(
+        id,
+        data,
+        messages: [...page.messages, ...newer.reversed.map(_message)],
+        loadOlder: page.loadOlder,
+        deletedThrough: through,
+      );
+    }
+  }
+
+  ChatHistoryPage<ChatMessage> _messagePage(
+    Query<Map<String, dynamic>> query,
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  ) => ChatHistoryPage(
+    List.unmodifiable(docs.reversed.map(_message)),
+    loadOlder: docs.length < chatHistoryPageSize
+        ? null
+        : () async {
+            store.checkSession();
+            final older = await _fetchMessages(
+              query.startAfterDocument(docs.last),
+            );
+            return _messagePage(query, older);
+          },
+  );
+
+  Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> _fetchMessages(
+    Query<Map<String, dynamic>> query,
+  ) async {
+    final page = query.limit(chatHistoryPageSize);
+    const server = GetOptions(source: Source.server);
+    var snapshot = await page.get(server);
+    store.checkSession();
+    // A local pending send can occupy a slot without a committed timestamp.
+    // Use committed messages for the cursor so the first page has no gaps.
+    if (snapshot.metadata.hasPendingWrites) {
+      await store.firestore.waitForPendingWrites();
+      store.checkSession();
+      snapshot = await page.get(server);
+      store.checkSession();
+    }
+    return snapshot.docs
+        .where(
+          (doc) =>
+              !doc.metadata.hasPendingWrites &&
+              doc.data()['createdAt'] is Timestamp,
+        )
+        .toList();
+  }
+
+  ChatMessage _message(QueryDocumentSnapshot<Map<String, dynamic>> doc) {
+    final data = doc.data();
+    return ChatMessage(
+      id: doc.id,
+      text: JsonReader(data).string('text', allowEmpty: true),
+      recipe: data['recipe'] == null
+          ? null
+          : ChatRecipe.fromJson(
+              Map<String, dynamic>.from(data['recipe'] as Map),
+            ),
+      image: data['image'] == null
+          ? null
+          : RecipeImage.fromJson(
+              Map<String, dynamic>.from(data['image'] as Map),
+            ),
+      timeLabel: inboxTimeLabel((data['createdAt'] as Timestamp?)?.toDate()),
+      fromMe: data['senderId'] == store.uid,
+    );
   }
 
   Future<void> _markRead(String id) async {

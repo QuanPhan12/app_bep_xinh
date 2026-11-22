@@ -8,7 +8,9 @@ import '../../../core/widgets/widgets.dart';
 import '../../../core/widgets/app_load_state.dart';
 import '../../../sollume/shared/app_text_field.dart' as sollume;
 import '../../messages/widgets/chat_recipe_card.dart';
+import '../../messages/widgets/chat_history_list.dart';
 import '../cubits/ai_chat_cubit.dart';
+import '../models/ai_message.dart';
 import '../widgets/ai_chat_entry.dart';
 
 class AiChatScreen extends StatelessWidget {
@@ -37,7 +39,6 @@ class _AiChatPageState extends State<_AiChatPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       cubit.ensureLoaded();
-      _bottom();
     });
   }
 
@@ -51,7 +52,7 @@ class _AiChatPageState extends State<_AiChatPage> {
   void _bottom() => WidgetsBinding.instance.addPostFrameCallback((_) {
     if (mounted && scroll.hasClients) {
       scroll.animateTo(
-        scroll.position.maxScrollExtent,
+        scroll.position.minScrollExtent,
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
       );
@@ -59,10 +60,10 @@ class _AiChatPageState extends State<_AiChatPage> {
   });
   @override
   Widget build(BuildContext context) => BlocConsumer<AiChatCubit, AiChatState>(
-    listenWhen: (a, b) => a.messages != b.messages || a.sending != b.sending,
+    listenWhen: (a, b) => a.sending != b.sending,
     listener: (context, state) {
       if (!state.sending && state.draft.isEmpty) input.clear();
-      if (state.messages.isNotEmpty || state.sending) _bottom();
+      if (state.sending || state.draft.isEmpty) _bottom();
     },
     builder: (context, state) {
       final cubit = context.read<AiChatCubit>(),
@@ -88,160 +89,20 @@ class _AiChatPageState extends State<_AiChatPage> {
                             message: state.error,
                             onRetry: cubit.load,
                           )
-                        : ListView(
+                        : state.messages.isEmpty && !state.sending
+                        ? _welcome(context, cubit)
+                        : ChatHistoryList(
                             controller: scroll,
-                            padding: const EdgeInsets.all(16),
-                            keyboardDismissBehavior:
-                                ScrollViewKeyboardDismissBehavior.onDrag,
-                            children: [
-                              if (state.messages.isEmpty) ...[
-                                const SizedBox(height: 24),
-                                const Center(
-                                  child: AppAvatar(
-                                    name: 'Bếp Xinh AI',
-                                    assetPath: aiAvatarAsset,
-                                    size: 88,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'Hôm nay mình nấu gì?',
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineSmall,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Hỏi về món ăn, nguyên liệu hoặc cách dùng Bếp Xinh. Tin nhắn trong cuộc trò chuyện này được gửi tới dịch vụ AI do quản trị viên cấu hình.',
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(
-                                        color: colors.onSurfaceVariant,
-                                      ),
-                                ),
-                                const SizedBox(height: 20),
-                                for (final question in [
-                                  'Gợi ý món dễ nấu trong 30 phút',
-                                  'Tôi có trứng và cà chua, nấu món gì?',
-                                  'Làm sao lưu món vào thực đơn?',
-                                ])
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 8),
-                                    child: OutlinedButton(
-                                      onPressed: state.sending
-                                          ? null
-                                          : () {
-                                              input.text = question;
-                                              cubit.change(question);
-                                            },
-                                      child: Text(question),
-                                    ),
-                                  ),
-                                const SizedBox(height: 20),
-                              ],
-                              for (final message in state.messages)
-                                Align(
-                                  alignment: message.fromAi
-                                      ? Alignment.centerLeft
-                                      : Alignment.centerRight,
-                                  child: Container(
-                                    margin: const EdgeInsets.only(bottom: 14),
-                                    padding: const EdgeInsets.all(14),
-                                    constraints: const BoxConstraints(
-                                      maxWidth: 580,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: message.fromAi
-                                          ? colors.surfaceContainerLow
-                                          : colors.primaryContainer,
-                                      borderRadius: BorderRadius.circular(18),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        if (message.fromAi) ...[
-                                          const Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              AppAvatar(
-                                                name: 'Bếp Xinh AI',
-                                                assetPath: aiAvatarAsset,
-                                                size: 26,
-                                              ),
-                                              SizedBox(width: 8),
-                                              Flexible(
-                                                child: Text(
-                                                  'Bếp Xinh AI',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 10),
-                                        ],
-                                        SelectableText(
-                                          message.text,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium
-                                              ?.copyWith(height: 1.6),
-                                        ),
-                                        for (final recipe in message.recipes)
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: 12,
-                                            ),
-                                            child: ChatRecipeCard(
-                                              recipe: recipe,
-                                              onTap: () {
-                                                context.push(
-                                                  '/recipe/${Uri.encodeComponent(recipe.id)}',
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              if (state.sending) ...[
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(14),
-                                    decoration: BoxDecoration(
-                                      color: colors.primaryContainer,
-                                      borderRadius: BorderRadius.circular(18),
-                                    ),
-                                    child: Text(state.draft),
-                                  ),
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 16),
-                                  child: Row(
-                                    children: [
-                                      SizedBox(
-                                        width: 16,
-                                        height: 16,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                        ),
-                                      ),
-                                      SizedBox(width: 10),
-                                      Expanded(
-                                        child: Text(
-                                          'Bếp Xinh AI đang trả lời…',
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ],
+                            messageCount: state.messages.length,
+                            messageBuilder: (context, index) =>
+                                _message(context, state.messages[index]),
+                            pending: state.sending
+                                ? _pending(colors, state.draft)
+                                : null,
+                            hasOlder: state.hasOlder,
+                            loadingOlder: state.loadingOlder,
+                            olderLoadFailed: state.olderLoadFailed,
+                            onLoadOlder: cubit.loadOlder,
                           ),
                   ),
                   if (state.error != null && !state.loadFailed)
@@ -311,5 +172,143 @@ class _AiChatPageState extends State<_AiChatPage> {
         ),
       );
     },
+  );
+
+  Widget _welcome(BuildContext context, AiChatCubit cubit) {
+    final colors = Theme.of(context).colorScheme;
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      children: [
+        const SizedBox(height: 24),
+        const Center(
+          child: AppAvatar(
+            name: 'Bếp Xinh AI',
+            assetPath: aiAvatarAsset,
+            size: 88,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'Hôm nay mình nấu gì?',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Hỏi về món ăn, nguyên liệu hoặc cách dùng Bếp Xinh. Tin nhắn trong cuộc trò chuyện này được gửi tới dịch vụ AI do quản trị viên cấu hình.',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodySmall
+              ?.copyWith(color: colors.onSurfaceVariant),
+        ),
+        const SizedBox(height: 20),
+        for (final question in [
+          'Gợi ý món dễ nấu trong 30 phút',
+          'Tôi có trứng và cà chua, nấu món gì?',
+          'Làm sao lưu món vào thực đơn?',
+        ])
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: OutlinedButton(
+              onPressed: () {
+                input.text = question;
+                cubit.change(question);
+              },
+              child: Text(question),
+            ),
+          ),
+        const SizedBox(height: 20),
+      ],
+    );
+  }
+
+  Widget _message(BuildContext context, AiMessage message) {
+    final colors = Theme.of(context).colorScheme;
+    return Align(
+      key: ValueKey(message.id),
+      alignment: message.fromAi ? Alignment.centerLeft : Alignment.centerRight,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.all(14),
+        constraints: const BoxConstraints(maxWidth: 580),
+        decoration: BoxDecoration(
+          color: message.fromAi
+              ? colors.surfaceContainerLow
+              : colors.primaryContainer,
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (message.fromAi) ...[
+              const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AppAvatar(
+                    name: 'Bếp Xinh AI',
+                    assetPath: aiAvatarAsset,
+                    size: 26,
+                  ),
+                  SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      'Bếp Xinh AI',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+            ],
+            SelectableText(
+              message.text,
+              style: Theme.of(context).textTheme.bodyMedium
+                  ?.copyWith(height: 1.6),
+            ),
+            for (final recipe in message.recipes)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: ChatRecipeCard(
+                  recipe: recipe,
+                  onTap: () {
+                    context.push('/recipe/${Uri.encodeComponent(recipe.id)}');
+                  },
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _pending(ColorScheme colors, String draft) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Align(
+        alignment: Alignment.centerRight,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: colors.primaryContainer,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Text(draft),
+        ),
+      ),
+      const Padding(
+        padding: EdgeInsets.symmetric(vertical: 16),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            SizedBox(width: 10),
+            Expanded(child: Text('Bếp Xinh AI đang trả lời…')),
+          ],
+        ),
+      ),
+    ],
   );
 }

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/ai_message.dart';
+import '../../messages/models/chat_history_page.dart';
 import 'direct_ai_store.dart';
 
 class FirestoreDirectAiStore implements DirectAiStore {
@@ -17,16 +18,39 @@ class FirestoreDirectAiStore implements DirectAiStore {
               .get(const GetOptions(source: Source.server)))
           .data() ??
       {};
+  Query<Map<String, dynamic>> _history(String uid) =>
+      _messages(uid).orderBy('createdAtMillis', descending: true);
+
+  List<AiMessage> _decode(QuerySnapshot<Map<String, dynamic>> rows) =>
+      List.unmodifiable(
+        rows.docs.reversed.map(
+          (doc) => AiMessage.fromJson({...doc.data(), 'id': doc.id}),
+        ),
+      );
+
   @override
-  Future<List<AiMessage>> history(String uid) async {
-    final rows = await _messages(uid)
-        .orderBy('createdAtMillis', descending: true)
-        .limit(40)
-        .get();
-    return rows.docs.reversed
-        .map((d) => AiMessage.fromJson({'id': d.id, ...d.data()}))
-        .toList();
+  Future<ChatHistoryPage<AiMessage>> history(String uid) =>
+      _page(_history(uid));
+
+  Future<ChatHistoryPage<AiMessage>> _page(
+    Query<Map<String, dynamic>> query, [
+    DocumentSnapshot<Map<String, dynamic>>? before,
+  ]) async {
+    final pageQuery = before == null ? query : query.startAfterDocument(before);
+    final rows = await pageQuery
+        .limit(chatHistoryPageSize)
+        .get(const GetOptions(source: Source.server));
+    return ChatHistoryPage(
+      _decode(rows),
+      loadOlder: rows.size == chatHistoryPageSize
+          ? () => _page(query, rows.docs.last)
+          : null,
+    );
   }
+
+  @override
+  Future<List<AiMessage>> recentHistory(String uid) async =>
+      _decode(await _history(uid).limit(8).get());
 
   @override
   Future<List<Map<String, dynamic>>> recipes() async =>

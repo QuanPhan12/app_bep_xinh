@@ -17,6 +17,8 @@ import 'package:app_bep_xinh/features/ai_chat/services/http_ai_chat_repository.d
 import 'package:app_bep_xinh/features/ai_chat/screens/ai_chat_screen.dart';
 import 'package:app_bep_xinh/features/ai_chat/widgets/ai_chat_session_scope.dart';
 import 'package:app_bep_xinh/features/messages/models/chat_recipe.dart';
+import 'package:app_bep_xinh/features/messages/models/chat_history_page.dart';
+import 'package:app_bep_xinh/features/messages/widgets/chat_history_list.dart';
 import 'package:app_bep_xinh/features/recipes/models/recipe_image.dart';
 
 import '../support/auth_fake.dart';
@@ -24,10 +26,12 @@ import '../support/test_text_styles.dart';
 
 class AiFake implements AiChatRepository {
   Future<List<AiMessage>> Function()? onHistory;
+  LoadOlderMessages<AiMessage>? onOlder;
   Future<List<AiMessage>> Function(String, String)? onSend;
   int calls = 0;
   @override
-  Future<List<AiMessage>> history() async => await onHistory?.call() ?? [];
+  Future<ChatHistoryPage<AiMessage>> history() async =>
+      ChatHistoryPage(await onHistory?.call() ?? [], loadOlder: onOlder);
   @override
   Future<List<AiMessage>> send(String message, String requestId) async {
     calls++;
@@ -164,6 +168,64 @@ void main() {
       await expectLater(request, throwsA(isA<AiChatFailure>()));
     },
   );
+  testWidgets('AI loads older messages only after scrolling toward the top', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 450);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetPhysicalSize);
+    List<AiMessage> messages(int start, int length) => List.generate(
+      length,
+      (i) => AiMessage(
+        id: '${start + i}',
+        role: 'user',
+        text: 'Tin nhắn số ${start + i}',
+      ),
+    );
+    var olderCalls = 0;
+    final pending = Completer<ChatHistoryPage<AiMessage>>();
+    final repository = AiFake();
+    repository.onHistory = () async => messages(7, 6);
+    repository.onOlder = () {
+      olderCalls++;
+      return pending.future;
+    };
+    final cubit = AiChatCubit(repository);
+    addTearDown(cubit.close);
+    await tester.pumpWidget(
+      BlocProvider.value(
+        value: cubit,
+        child: const MaterialApp(home: AiChatScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(cubit.state.messages.length, 6);
+    expect(find.text('Tin nhắn số 12'), findsOneWidget);
+    expect(olderCalls, 0);
+    final list = find.byType(ChatHistoryList);
+    await tester.drag(list, const Offset(0, 300));
+    await tester.pump();
+    expect(olderCalls, 1);
+    expect(cubit.state.loadingOlder, true);
+    final scroll = tester.widget<ChatHistoryList>(list).controller!;
+    for (
+      var frame = 0;
+      frame < 20 && scroll.position.isScrollingNotifier.value;
+      frame++
+    ) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    final position = scroll.offset;
+    pending.complete(ChatHistoryPage(messages(1, 6)));
+    await tester.pumpAndSettle();
+    expect(
+      cubit.state.messages.map((m) => m.id),
+      List.generate(12, (i) => '${i + 1}'),
+    );
+    expect(scroll.offset, closeTo(position, 2));
+    expect(cubit.state.hasOlder, false);
+  });
   testWidgets(
     'AI recipe card navigates, and mobile/tablet light/dark fit large text and keyboard',
     (tester) async {

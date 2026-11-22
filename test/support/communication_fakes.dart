@@ -83,11 +83,14 @@ class FakeMessageRepository implements MessageRepository {
   final conversationChanges = StreamController<Conversation>.broadcast();
   Future<void> Function()? onSend;
   Future<void> Function()? onStart;
+  Future<void> Function()? onDelete;
+  final deletedIds = <String>[];
+  bool _deleted = false;
   final requestIds = <String>[];
   int cancellations = 0;
   @override
   Stream<List<Conversation>> watchInbox() => Stream.multi((sink) {
-    sink.add([thread]);
+    sink.add(_deleted ? [] : [thread]);
     final subscription = inboxChanges.stream.listen(
       sink.add,
       onError: sink.addError,
@@ -105,7 +108,7 @@ class FakeMessageRepository implements MessageRepository {
       return;
     }
     thread = thread.copyWith(unreadCount: 0);
-    inboxChanges.add([thread]);
+    inboxChanges.add(_deleted ? [] : [thread]);
     sink.add(thread);
     final subscription = conversationChanges.stream.listen(
       sink.add,
@@ -116,6 +119,16 @@ class FakeMessageRepository implements MessageRepository {
       return subscription.cancel();
     };
   });
+  @override
+  Future<void> deleteConversation(String id) async {
+    if (id != thread.id) throw StateError('not found');
+    await onDelete?.call();
+    deletedIds.add(id);
+    _deleted = true;
+    thread = thread.copyWith(messages: [], unreadCount: 0);
+    inboxChanges.add([]);
+  }
+
   @override
   Future<List<MessageRecipient>> loadRecipients() async => [
     const MessageRecipient(id: 'mai', name: 'Mai', recipeId: 'recipe'),
@@ -166,6 +179,7 @@ class FakeMessageRepository implements MessageRepository {
       recipe: recipe,
     );
     thread = thread.copyWith(messages: [...thread.messages, message]);
+    _deleted = false;
     conversationChanges.add(thread);
     inboxChanges.add([thread]);
     return message;

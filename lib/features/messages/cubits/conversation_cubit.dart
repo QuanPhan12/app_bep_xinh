@@ -7,6 +7,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../models/conversation.dart';
+import '../models/chat_history_page.dart';
 import '../services/message_repository.dart';
 import '../services/chat_image_service.dart';
 import '../../recipes/models/recipe_image.dart';
@@ -22,6 +23,9 @@ class ConversationState extends Equatable {
   final bool pickingRecipe;
   final bool pickingImage;
   final bool uploadingImage;
+  final bool hasOlder;
+  final bool loadingOlder;
+  final bool olderLoadFailed;
   const ConversationState({
     this.conversation,
     this.loading = true,
@@ -33,6 +37,9 @@ class ConversationState extends Equatable {
     this.pickingRecipe = false,
     this.pickingImage = false,
     this.uploadingImage = false,
+    this.hasOlder = false,
+    this.loadingOlder = false,
+    this.olderLoadFailed = false,
   });
   bool get canSend =>
       !loading &&
@@ -55,6 +62,9 @@ class ConversationState extends Equatable {
     bool clearImage = false,
     bool? pickingImage,
     bool? uploadingImage,
+    bool? hasOlder,
+    bool? loadingOlder,
+    bool? olderLoadFailed,
   }) => ConversationState(
     conversation: conversation ?? this.conversation,
     loading: loading ?? this.loading,
@@ -66,6 +76,9 @@ class ConversationState extends Equatable {
     pickingRecipe: pickingRecipe ?? this.pickingRecipe,
     pickingImage: pickingImage ?? this.pickingImage,
     uploadingImage: uploadingImage ?? this.uploadingImage,
+    hasOlder: hasOlder ?? this.hasOlder,
+    loadingOlder: loadingOlder ?? this.loadingOlder,
+    olderLoadFailed: olderLoadFailed ?? this.olderLoadFailed,
   );
   @override
   List<Object?> get props => [
@@ -79,6 +92,9 @@ class ConversationState extends Equatable {
     pickingRecipe,
     pickingImage,
     uploadingImage,
+    hasOlder,
+    loadingOlder,
+    olderLoadFailed,
   ];
 }
 
@@ -91,6 +107,9 @@ class ConversationCubit extends Cubit<ConversationState> {
   Timer? _initialTimeout;
   int _revision = 0;
   String? _pendingRequestId;
+  LoadOlderMessages<ChatMessage>? _loadOlder;
+  List<ChatMessage> _olderMessages = const [];
+  Conversation? _liveConversation;
   ConversationCubit({required this.id, required this.repository, this.images})
     : super(const ConversationState());
 
@@ -100,7 +119,17 @@ class ConversationCubit extends Cubit<ConversationState> {
     _initialTimeout?.cancel();
     await _subscription?.cancel();
     if (isClosed || revision != _revision) return;
-    emit(state.copyWith(loading: true));
+    _loadOlder = null;
+    _olderMessages = const [];
+    _liveConversation = null;
+    emit(
+      state.copyWith(
+        loading: true,
+        hasOlder: false,
+        loadingOlder: false,
+        olderLoadFailed: false,
+      ),
+    );
     void fail() {
       _initialTimeout?.cancel();
       if (!isClosed && revision == _revision) {
@@ -118,11 +147,59 @@ class ConversationCubit extends Cubit<ConversationState> {
       _subscription = repository.watchConversation(id).listen((thread) {
         _initialTimeout?.cancel();
         if (!isClosed && revision == _revision) {
-          emit(state.copyWith(conversation: thread, loading: false));
+          if (_liveConversation == null) _loadOlder = thread.loadOlder;
+          _liveConversation = thread;
+          emit(
+            state.copyWith(
+              conversation: _withOlder(thread),
+              loading: false,
+              hasOlder: _loadOlder != null,
+            ),
+          );
         }
       }, onError: (Object _) => fail());
     } catch (_) {
       fail();
+    }
+  }
+
+  Conversation _withOlder(Conversation thread) {
+    final liveIds = thread.messages.map((message) => message.id).toSet();
+    return thread.copyWith(
+      messages: [
+        ..._olderMessages.where((message) => !liveIds.contains(message.id)),
+        ...thread.messages,
+      ],
+    );
+  }
+
+  Future<void> loadOlder() async {
+    final fetch = _loadOlder;
+    if (isClosed || state.loading || state.loadingOlder || fetch == null) {
+      return;
+    }
+    final revision = _revision;
+    emit(state.copyWith(loadingOlder: true, olderLoadFailed: false));
+    try {
+      final page = await fetch();
+      if (isClosed || revision != _revision) return;
+      final ids = _olderMessages.map((message) => message.id).toSet();
+      _olderMessages = [
+        ...page.messages.where((message) => ids.add(message.id)),
+        ..._olderMessages,
+      ];
+      _loadOlder = page.loadOlder;
+      emit(
+        state.copyWith(
+          conversation: _withOlder(_liveConversation!),
+          loadingOlder: false,
+          hasOlder: _loadOlder != null,
+        ),
+      );
+    } catch (_) {
+      if (!isClosed && revision == _revision) {
+        emit(state.copyWith(loadingOlder: false, olderLoadFailed: true));
+      }
     }
   }
 
@@ -171,7 +248,10 @@ class ConversationCubit extends Cubit<ConversationState> {
   }
 
   void removeImage() {
-    if (isClosed || state.sending || state.pickingImage || state.pickingRecipe) {
+    if (isClosed ||
+        state.sending ||
+        state.pickingImage ||
+        state.pickingRecipe) {
       return;
     }
     _pendingRequestId = null;

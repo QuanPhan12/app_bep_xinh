@@ -48,8 +48,10 @@ class RecipeIngredientAmountFields extends StatelessWidget {
                   fieldId: 'ingredient_amount',
                   initialValue: state.amount,
                   label: 'Lượng dùng',
-                  hint: 'Ví dụ: 200 hoặc 0,5',
-                  decimal: true,
+                  hint: 'Ví dụ: 200',
+                  numeric: true,
+                  // Giữ nguyên chuỗi dán để báo lỗi nếu có dấu thập phân.
+                  inputFormatters: const [],
                   maxLength: 12,
                   error: state.errors['amount'],
                   onChanged: cubit.changeAmount,

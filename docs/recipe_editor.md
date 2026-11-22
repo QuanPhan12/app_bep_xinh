@@ -35,7 +35,7 @@ tục sở hữu riêng trạng thái sheet chọn nguyên liệu.
 
 Nguyên liệu được thêm/sửa qua bottom sheet riêng. `IngredientPickerCubit` quản lý
 tìm kiếm qua service (debounce, bỏ response cũ, lỗi/thử lại), chọn danh mục,
-số lượng thập phân, đơn vị, ghi chú và lựa chọn "Vừa đủ". Hủy sheet không thay
+số lượng nguyên từ 1 đến 100.000, đơn vị, ghi chú và lựa chọn "Vừa đủ". Hủy sheet không thay
 đổi form; xác nhận mới cập nhật một dòng và kiểm tra trùng. Có thể xóa hết dòng,
 nhưng gửi duyệt yêu cầu ít nhất một nguyên liệu.
 

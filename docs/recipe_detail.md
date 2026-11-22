@@ -34,9 +34,10 @@ cách chọn khẩu phần. Không tạo bộ card/header/nút riêng cho Chi ti
 xem trước bài đăng, chi tiết và chế độ nấu; cả ảnh asset lẫn ảnh đã chọn được hiển
 thị qua cùng component. Style lấy từ Home; tablet giữ bố cục hai cột đã có.
 
-Lượng nguyên liệu được tính từ lượng gốc và số khẩu phần, dùng chung formatter
-với Đăng món. Không đổi lượng gốc hoặc quy đổi tự động giữa gram/ml/thìa. Các ô
-nguyên liệu có sẵn được đánh dấu từ tồn kho khi tải; người dùng có thể chỉnh dấu
+Lượng nguyên liệu bằng lượng gốc nhân số khẩu phần đang xem rồi chia cho số khẩu
+phần gốc. Màn chi tiết làm tròn đến số nguyên gần nhất và hiển thị `<1` cho lượng
+dương làm tròn về 0. Các ô nguyên liệu có sẵn được đánh dấu từ tồn kho khi tải;
+người dùng có thể chỉnh dấu
 trong màn chi tiết. Những dấu này không tự ghi lại tồn kho hoặc giỏ đi chợ.
 Các nhóm hiển thị theo thứ tự tác giả nhập. Chọn tất cả áp dụng toàn bộ nhóm;
 đổi khẩu phần chỉ tính lượng hiển thị, giữ nguyên lượng gốc và mục "Vừa đủ".

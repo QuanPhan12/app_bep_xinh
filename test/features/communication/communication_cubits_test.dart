@@ -6,12 +6,67 @@ import 'package:app_bep_xinh/features/notifications/models/inbox_notification.da
 import 'package:app_bep_xinh/features/messages/cubits/messages_cubit.dart';
 import 'package:app_bep_xinh/features/messages/cubits/conversation_cubit.dart';
 import 'package:app_bep_xinh/features/messages/cubits/recipients_cubit.dart';
+import 'package:app_bep_xinh/features/messages/models/chat_history_page.dart';
+import 'package:app_bep_xinh/features/messages/models/conversation.dart';
 
 import '../../support/communication_fakes.dart';
 
 Future<void> flush() => Future<void>.delayed(Duration.zero);
 
 void main() {
+  test(
+    'older messages retry, merge with live messages, and stop at the end',
+    () async {
+      final repository = FakeMessageRepository();
+      addTearDown(repository.dispose);
+      ChatMessage message(int number) =>
+          ChatMessage(id: '$number', text: 'Tin $number', timeLabel: '10:00');
+      var requests = 0;
+      final older = Completer<ChatHistoryPage<ChatMessage>>();
+      repository.thread = Conversation(
+        id: repository.thread.id,
+        name: 'Mai',
+        subtitle: '',
+        messages: [for (var i = 4; i <= 9; i++) message(i)],
+        loadOlder: () async {
+          if (++requests == 1) throw StateError('offline');
+          return older.future;
+        },
+      );
+      final cubit = ConversationCubit(
+        id: repository.thread.id,
+        repository: repository,
+      );
+      addTearDown(cubit.close);
+      List<String> ids() =>
+          cubit.state.conversation!.messages.map((m) => m.id).toList();
+      await cubit.load();
+      await flush();
+      expect(ids(), ['4', '5', '6', '7', '8', '9']);
+      expect(requests, 0);
+
+      await cubit.loadOlder();
+      expect(cubit.state.olderLoadFailed, true);
+      expect(ids().length, 6);
+      final loading = cubit.loadOlder();
+      await cubit.loadOlder();
+      expect(requests, 2);
+      final live = repository.thread.copyWith(
+        messages: [...repository.thread.messages, message(10)],
+      );
+      repository.conversationChanges.add(live);
+      await flush();
+      older.complete(ChatHistoryPage([message(1), message(2), message(3)]));
+      await loading;
+      repository.conversationChanges.add(live);
+      await flush();
+      expect(ids(), List.generate(10, (i) => '${i + 1}'));
+      expect(cubit.state.hasOlder, false);
+      await cubit.loadOlder();
+      expect(requests, 2);
+    },
+  );
+
   test('image preview, remove, upload failure and send retry preserve draft without reupload', () async {
     final repository = FakeMessageRepository();
     final images = FakeChatImageService();

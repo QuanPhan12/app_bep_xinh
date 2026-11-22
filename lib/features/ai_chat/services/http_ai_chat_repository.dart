@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../../auth/services/auth_service.dart';
+import '../../messages/models/chat_history_page.dart';
 import '../models/ai_message.dart';
 import 'ai_chat_repository.dart';
 
@@ -101,15 +102,39 @@ class HttpAiChatRepository implements AiChatRepository {
   }
 
   @override
-  Future<List<AiMessage>> history() async {
-    final result = await _request('history'), messages = result['messages'];
-    if (messages is! List || messages.length > 40) {
+  Future<ChatHistoryPage<AiMessage>> history() => _historyPage();
+
+  Future<ChatHistoryPage<AiMessage>> _historyPage([String? before]) async {
+    final uid = session.userId;
+    final path = Uri(
+      path: 'history',
+      queryParameters: {'page': '1', if (before != null) 'before': before},
+    );
+    final result = await _request(path.toString()),
+        messages = result['messages'];
+    final next = result['olderCursor'];
+    if (messages is! List ||
+        messages.length > chatHistoryPageSize ||
+        (next != null && (next is! String || next == before))) {
       throw const FormatException('Invalid AI history');
     }
-    return List.unmodifiable(
-      messages.map(
-        (m) => AiMessage.fromJson(Map<String, dynamic>.from(m as Map)),
+    if (session.userId != uid || auth.currentUser?.uid != uid) {
+      throw const AiChatFailure('Phiên đăng nhập đã thay đổi.');
+    }
+    return ChatHistoryPage(
+      List.unmodifiable(
+        messages.map(
+          (m) => AiMessage.fromJson(Map<String, dynamic>.from(m as Map)),
+        ),
       ),
+      loadOlder: next is String
+          ? () {
+              if (session.userId != uid) {
+                throw const AiChatFailure('Phiên đăng nhập đã thay đổi.');
+              }
+              return _historyPage(next);
+            }
+          : null,
     );
   }
 

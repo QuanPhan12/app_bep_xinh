@@ -8,6 +8,7 @@ import '../../../core/utils/app_layout.dart';
 import '../../../core/widgets/app_avatar.dart';
 import '../../../core/widgets/app_load_state.dart';
 import '../cubits/conversation_cubit.dart';
+import 'chat_history_list.dart';
 import 'message_bubble.dart';
 import 'message_composer.dart';
 
@@ -73,55 +74,27 @@ class ConversationContent extends StatelessWidget {
                           ),
                         ),
                       )
-                    : CustomScrollView(
-                        reverse: true,
-                        keyboardDismissBehavior:
-                            ScrollViewKeyboardDismissBehavior.onDrag,
-                        slivers: [
-                          SliverPadding(
-                            padding: const EdgeInsets.all(16),
-                            sliver: SliverList.builder(
-                              itemCount: conversation.messages.length,
-                              itemBuilder: (_, index) => MessageBubble(
-                                key: ValueKey(
-                                  conversation
-                                      .messages[conversation.messages.length -
-                                          1 -
-                                          index]
-                                      .id,
-                                ),
-                                onOpenRecipe:
-                                    conversation
-                                            .messages[conversation
-                                                    .messages
-                                                    .length -
-                                                1 -
-                                                index]
-                                            .recipe ==
-                                        null
-                                    ? null
-                                    : () {
-                                        final recipe = conversation
-                                            .messages[conversation
-                                                    .messages
-                                                    .length -
-                                                1 -
-                                                index]
-                                            .recipe!;
-                                        context.push(
-                                          '/recipe/${Uri.encodeComponent(recipe.id)}',
-                                        );
-                                      },
-                                message:
-                                    conversation.messages[conversation
-                                            .messages
-                                            .length -
-                                        1 -
-                                        index],
-                              ),
-                            ),
-                          ),
-                        ],
+                    : ChatHistoryList(
+                        messageCount: conversation.messages.length,
+                        messageBuilder: (_, index) {
+                          final message = conversation.messages[index];
+                          final recipe = message.recipe;
+                          return MessageBubble(
+                            key: ValueKey(message.id),
+                            message: message,
+                            onOpenRecipe: recipe == null
+                                ? null
+                                : () => context.push(
+                                    '/recipe/${Uri.encodeComponent(recipe.id)}',
+                                  ),
+                          );
+                        },
+                        hasOlder: state.hasOlder,
+                        loadingOlder: state.loadingOlder,
+                        olderLoadFailed: state.olderLoadFailed,
+                        onLoadOlder: context
+                            .read<ConversationCubit>()
+                            .loadOlder,
                       ),
               ),
               const MessageComposer(),

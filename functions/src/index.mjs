@@ -26,7 +26,11 @@ export const bepXinhAi = onRequest({ region: 'asia-southeast1', secrets: [master
     try { identity = await getAuth().verifyIdToken(token, true); } catch { throw new AiError(401, 'unauthenticated', 'Phiên đăng nhập đã hết hạn.'); }
     if (req.rawBody?.length > 12000) throw new AiError(413, 'too_large', 'Yêu cầu quá lớn.');
     const path = req.path.replace(/\/$/, '');
-    if (req.method === 'GET' && path === '/history') return res.json({ messages: await backend.history(identity.uid) });
+    if (req.method === 'GET' && path === '/history') {
+      return res.json(req.query.page === '1'
+        ? await backend.historyPage(identity.uid, req.query.before)
+        : { messages: await backend.history(identity.uid) });
+    }
     if (req.method === 'POST' && path === '/chat') return res.json(await backend.chat(identity.uid, validateTurn(req.body)));
     if (req.method === 'GET' && path === '/admin/config') return res.json(await backend.adminConfig(identity.uid));
     if (req.method === 'GET' && path === '/admin/stats') return res.json(await backend.adminStats(identity.uid));

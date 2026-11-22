@@ -1,8 +1,10 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { FieldValue, Timestamp } from 'firebase-admin/firestore';
+import { FieldPath, FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { AiError, defaults, publicConfig, validateConfig, encryptKey, decryptKey, selectRecipes, parseAnswer, systemGuide } from './domain.mjs';
 import { generate, listGeminiModels } from './provider.mjs';
 import { aiStatsDays, summarizeAiStats } from './stats.mjs';
+
+const historyPageSize = 6;
 
 export function createBackend(db, { master = () => process.env.AI_CONFIG_ENCRYPTION_KEY, provider = generate, modelProvider = listGeminiModels, now = Date.now } = {}) {
   const configRef = db.doc('_ai_private/config');
@@ -67,10 +69,30 @@ export function createBackend(db, { master = () => process.env.AI_CONFIG_ENCRYPT
     });
     return publicConfig(saved);
   }
-  async function history(uid) {
+  function historyQuery(uid) {
+    return db.collection(`_ai_threads/${uid}/messages`).orderBy('createdAtMillis', 'desc');
+  }
+  async function history(uid, limit = 40) {
     await account(uid);
-    const result = await db.collection(`_ai_threads/${uid}/messages`).orderBy('createdAtMillis', 'desc').limit(40).get();
+    const result = await historyQuery(uid).limit(limit).get();
     return result.docs.map(d => ({ id: d.id, ...d.data() })).reverse();
+  }
+  async function historyPage(uid, before) {
+    await account(uid);
+    let query = historyQuery(uid).orderBy(FieldPath.documentId(), 'desc');
+    if (before !== undefined) {
+      const cursor = typeof before === 'string' && /^(\d{1,16}):([a-f0-9]{32}_[ua])$/.exec(before);
+      if (!cursor || !Number.isSafeInteger(Number(cursor[1]))) {
+        throw new AiError(400, 'invalid_cursor', 'Mốc tải lịch sử không hợp lệ.');
+      }
+      query = query.startAfter(Number(cursor[1]), cursor[2]);
+    }
+    const { docs } = await query.limit(historyPageSize).get();
+    const oldest = docs.at(-1);
+    return {
+      messages: docs.map(doc => ({ ...doc.data(), id: doc.id })).reverse(),
+      olderCursor: docs.length === historyPageSize ? `${oldest.get('createdAtMillis')}:${oldest.id}` : null,
+    };
   }
   async function chat(uid, { requestId, message }) {
     await account(uid);
@@ -96,10 +118,10 @@ export function createBackend(db, { master = () => process.env.AI_CONFIG_ENCRYPT
     });
     if (cached) return cached;
     try {
-      const [past, records] = await Promise.all([history(uid), db.collection('recipes').where('status', '==', 'approved').orderBy('submittedAt', 'desc').limit(100).select('status', 'content.title', 'content.cover', 'content.ingredients', 'content.preparationMinutes', 'content.cookingMinutes', 'content.categories', 'content.difficulty').get()]);
+      const [past, records] = await Promise.all([history(uid, 8), db.collection('recipes').where('status', '==', 'approved').orderBy('submittedAt', 'desc').limit(100).select('status', 'content.title', 'content.cover', 'content.ingredients', 'content.preparationMinutes', 'content.cookingMinutes', 'content.categories', 'content.difficulty').get()]);
       const candidates = selectRecipes(records.docs.map(d => ({ ...d.data(), id: d.id })), message);
       const apiKey = decryptKey(settings.keyCipher, master());
-      const raw = await provider(settings, apiKey, systemGuide, past.slice(-8).map(m => ({ role: m.role, text: m.text.slice(0, 3000) })), message, candidates);
+      const raw = await provider(settings, apiKey, systemGuide, past.map(m => ({ role: m.role, text: m.text.slice(0, 3000) })), message, candidates);
       if (typeof raw === 'string' && raw.includes(apiKey)) throw new AiError(502, 'provider_unsafe', 'API trả nội dung không phù hợp. Vui lòng liên hệ quản trị viên.');
       const answer = parseAnswer(raw, candidates);
       // Kiểm tra lại trạng thái món sau khi model trả lời, tránh đề xuất món vừa bị ẩn.
@@ -128,5 +150,5 @@ export function createBackend(db, { master = () => process.env.AI_CONFIG_ENCRYPT
       throw error;
     }
   }
-  return { account, adminConfig, adminModels, adminStats, saveConfig, history, chat };
+  return { account, adminConfig, adminModels, adminStats, saveConfig, history, historyPage, chat };
 }

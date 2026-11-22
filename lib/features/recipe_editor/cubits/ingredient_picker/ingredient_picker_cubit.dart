@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_bep_xinh/core/utils/search_utils.dart';
 import 'package:app_bep_xinh/features/ingredients/models/ingredient_catalog.dart';
+import 'package:app_bep_xinh/features/ingredients/models/ingredient_quantity.dart';
 import 'package:app_bep_xinh/features/ingredients/services/ingredient_catalog_service.dart';
 
 import 'ingredient_picker_state.dart';
@@ -50,7 +51,7 @@ class IngredientPickerCubit extends Cubit<IngredientPickerState> {
           customName: item != null && catalog.byId[item.ingredientId] == null
               ? item.name
               : null,
-          amount: item?.amount?.toString().replaceAll('.', ',') ?? '',
+          amount: formatIngredientQuantity(amount: item?.amount),
           unit: unit,
           toTaste: item?.toTaste ?? false,
           note: item?.note ?? '',
@@ -172,12 +173,19 @@ class IngredientPickerCubit extends Cubit<IngredientPickerState> {
         id: initial?.id ?? '',
         ingredientId: value.selected?.id,
         name: value.name,
-        amount: double.tryParse(value.amount.trim().replaceAll(',', '.')),
+        amount: _parseAmount(value.amount),
         unit: value.unit,
         toTaste: value.toTaste,
         note: value.note.trim(),
         groupId: initial?.groupId ?? 'main',
       ).normalized();
+
+  static final _amountDigits = RegExp(r'^[0-9]+$');
+
+  double? _parseAmount(String value) {
+    final text = value.trim();
+    return _amountDigits.hasMatch(text) ? int.tryParse(text)?.toDouble() : null;
+  }
 
   Map<String, String> _errors(IngredientPickerState value) =>
       RecipeEditorValidation.validateIngredient(_value(value));

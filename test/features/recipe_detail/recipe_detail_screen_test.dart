@@ -108,6 +108,20 @@ void main() {
   }
 
   testWidgets(
+    'servings always scale from the original amount before rounding',
+    (tester) async {
+      await open(tester, router(), id: 'ca_hoi_ap_chao');
+      expect(find.text('15 g'), findsOneWidget);
+      await tap(tester, find.bySemanticsLabel('Tăng khẩu phần'));
+      expect(find.text('23 g'), findsOneWidget);
+      await tap(tester, find.bySemanticsLabel('Giảm khẩu phần'));
+      expect(find.text('15 g'), findsOneWidget);
+      await tap(tester, find.bySemanticsLabel('Giảm khẩu phần'));
+      expect(find.text('8 g'), findsOneWidget);
+      expect(find.text('Vừa đủ'), findsOneWidget);
+    },
+  );
+  testWidgets(
     'uses route id, shared UI, changes servings and ingredient checks',
     (tester) async {
       await open(tester, router(), id: 'salad_uc_ga_me_rang');

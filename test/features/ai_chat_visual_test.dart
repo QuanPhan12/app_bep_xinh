@@ -12,36 +12,39 @@ import 'package:app_bep_xinh/features/ai_chat/services/ai_chat_repository.dart';
 import 'package:app_bep_xinh/features/ai_chat/screens/ai_chat_screen.dart';
 import 'package:app_bep_xinh/features/ai_chat/widgets/ai_chat_session_scope.dart';
 import 'package:app_bep_xinh/features/messages/models/chat_recipe.dart';
+import 'package:app_bep_xinh/features/messages/models/chat_history_page.dart';
 import 'package:app_bep_xinh/features/recipes/models/recipe_image.dart';
 
 class _VisualAi implements AiChatRepository {
   final bool welcome;
   _VisualAi(this.welcome);
   @override
-  Future<List<AiMessage>> history() async => welcome
-      ? []
-      : const [
-          AiMessage(
-            id: 'user',
-            role: 'user',
-            text: 'Tôi có đậu phụ và cà chua, nấu món gì?',
-          ),
-          AiMessage(
-            id: 'ai',
-            role: 'assistant',
-            text: 'Bạn có thể làm đậu sốt cà chua: món dễ nấu, hợp ăn cùng cơm nóng. Mở công thức bên dưới để xem nguyên liệu và các bước nhé.',
-            recipes: [
-              ChatRecipe(
-                id: 'r_ai_visual',
-                title: 'Đậu sốt cà chua',
-                cover: RecipeImage.asset(
-                  id: 'cover',
-                  assetPath: 'assets/images/fridge_tofu_tomato.webp',
+  Future<ChatHistoryPage<AiMessage>> history() async => ChatHistoryPage(
+    welcome
+        ? const []
+        : const [
+            AiMessage(
+              id: 'user',
+              role: 'user',
+              text: 'Tôi có đậu phụ và cà chua, nấu món gì?',
+            ),
+            AiMessage(
+              id: 'ai',
+              role: 'assistant',
+              text: 'Bạn có thể làm đậu sốt cà chua: món dễ nấu, hợp ăn cùng cơm nóng. Mở công thức bên dưới để xem nguyên liệu và các bước nhé.',
+              recipes: [
+                ChatRecipe(
+                  id: 'r_ai_visual',
+                  title: 'Đậu sốt cà chua',
+                  cover: RecipeImage.asset(
+                    id: 'cover',
+                    assetPath: 'assets/images/fridge_tofu_tomato.webp',
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ];
+              ],
+            ),
+          ],
+  );
   @override
   Future<List<AiMessage>> send(String message, String requestId) async => [];
 }

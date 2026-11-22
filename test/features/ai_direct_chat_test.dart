@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:app_bep_xinh/features/messages/models/chat_history_page.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
@@ -30,7 +32,10 @@ class _Store implements DirectAiStore {
   @override
   Future<Map<String, dynamic>> config() async => settings;
   @override
-  Future<List<AiMessage>> history(String uid) async => [];
+  Future<ChatHistoryPage<AiMessage>> history(String uid) async =>
+      const ChatHistoryPage([]);
+  @override
+  Future<List<AiMessage>> recentHistory(String uid) async => [];
   @override
   Future<List<Map<String, dynamic>>> recipes() async => [
     {

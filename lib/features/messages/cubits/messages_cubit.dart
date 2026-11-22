@@ -12,12 +12,14 @@ class MessagesState extends Equatable {
   final bool unreadOnly;
   final String query;
   final String? error;
+  final String? deletingId;
   const MessagesState({
     this.items = const [],
     this.loading = true,
     this.unreadOnly = false,
     this.query = '',
     this.error,
+    this.deletingId,
   });
 
   List<Conversation> get visibleItems => items
@@ -34,15 +36,25 @@ class MessagesState extends Equatable {
     bool? unreadOnly,
     String? query,
     String? error,
+    String? deletingId,
+    bool finishDeleting = false,
   }) => MessagesState(
     items: items == null ? this.items : List.unmodifiable(items),
     loading: loading ?? this.loading,
     unreadOnly: unreadOnly ?? this.unreadOnly,
     query: query ?? this.query,
     error: error,
+    deletingId: finishDeleting ? null : deletingId ?? this.deletingId,
   );
   @override
-  List<Object?> get props => [items, loading, unreadOnly, query, error];
+  List<Object?> get props => [
+    items,
+    loading,
+    unreadOnly,
+    query,
+    error,
+    deletingId,
+  ];
 }
 
 class MessagesCubit extends Cubit<MessagesState> {
@@ -89,6 +101,24 @@ class MessagesCubit extends Cubit<MessagesState> {
 
   void filterUnread(bool value) {
     if (!isClosed) emit(state.copyWith(unreadOnly: value));
+  }
+
+  Future<bool> deleteConversation(String id) async {
+    if (isClosed ||
+        state.deletingId != null ||
+        !state.items.any((item) => item.id == id)) {
+      return false;
+    }
+    emit(state.copyWith(deletingId: id, error: state.error));
+    try {
+      await repository.deleteConversation(id);
+      return true;
+    } catch (_) {
+      return false;
+    } finally {
+      if (!isClosed)
+        emit(state.copyWith(finishDeleting: true, error: state.error));
+    }
   }
 
   @override

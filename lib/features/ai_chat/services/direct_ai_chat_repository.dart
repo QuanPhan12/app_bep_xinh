@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../auth/services/auth_service.dart';
 import '../../messages/models/chat_recipe.dart';
+import '../../messages/models/chat_history_page.dart';
 import '../models/ai_message.dart';
 import 'ai_chat_repository.dart';
 import 'direct_ai_store.dart';
@@ -39,12 +40,24 @@ class DirectAiChatRepository implements AiChatRepository {
   }
 
   @override
-  Future<List<AiMessage>> history() async {
+  Future<ChatHistoryPage<AiMessage>> history() async {
     final uid = _uid();
+    return _readPage(uid, () => store.history(uid));
+  }
+
+  Future<ChatHistoryPage<AiMessage>> _readPage(
+    String uid,
+    LoadOlderMessages<AiMessage> fetch,
+  ) async {
     try {
-      final messages = await store.history(uid);
       _uid(uid);
-      return messages;
+      final page = await fetch();
+      _uid(uid);
+      final older = page.loadOlder;
+      return ChatHistoryPage(
+        page.messages,
+        loadOlder: older == null ? null : () => _readPage(uid, older),
+      );
     } on AiChatFailure {
       rethrow;
     } catch (_) {
@@ -91,7 +104,7 @@ class DirectAiChatRepository implements AiChatRepository {
       );
       _uid(uid);
       if (reservation.cached != null) return reservation.cached!;
-      final history = await store.history(uid);
+      final recent = await store.recentHistory(uid);
       _uid(uid);
       final records = await store.recipes();
       _uid(uid);
@@ -118,9 +131,6 @@ class DirectAiChatRepository implements AiChatRepository {
         };
       }).toList();
       final guide = '$aiDirectGuide\nCANDIDATES: ${jsonEncode(context)}';
-      final recent = history
-          .skip(history.length > 8 ? history.length - 8 : 0)
-          .toList();
       final url = gemini
           ? Uri.https(
               'generativelanguage.googleapis.com',

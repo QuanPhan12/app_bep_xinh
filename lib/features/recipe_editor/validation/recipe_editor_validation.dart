@@ -19,8 +19,9 @@ class RecipeEditorValidation {
       if (amount == null ||
           !amount.isFinite ||
           amount <= 0 ||
+          amount != amount.truncateToDouble() ||
           amount > RecipeEditorLimits.maxIngredientAmount) {
-        errors['amount'] = 'Nhập lượng dùng lớn hơn 0, tối đa 100.000.';
+        errors['amount'] = 'Nhập lượng dùng là số nguyên từ 1 đến 100.000.';
       }
       if (item.unit == null || item.unitId!.trim().isEmpty) {
         errors['unit'] = 'Chọn đơn vị.';

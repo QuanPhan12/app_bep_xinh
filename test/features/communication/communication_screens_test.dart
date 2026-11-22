@@ -148,6 +148,48 @@ void main() {
       )
       .hasUnread;
 
+  testWidgets('only regular chat can be deleted, after confirmation', (
+    tester,
+  ) async {
+    await open(tester, PathRouter.messagesScreen);
+    final options = find.byTooltip('Tùy chọn cuộc trò chuyện với Mai');
+    expect(find.byType(PopupMenuButton<bool>), findsOneWidget);
+    expect(find.text('Bếp Xinh AI'), findsOneWidget);
+
+    Future<void> showDelete() async {
+      await tap(tester, options);
+      await tap(tester, find.text('Xóa cuộc trò chuyện'));
+    }
+
+    await showDelete();
+    await tap(tester, find.text('Hủy'));
+    expect(messages.deletedIds, isEmpty);
+    expect(find.text('Mai'), findsOneWidget);
+
+    messages.onDelete = () async => throw StateError('offline');
+    await showDelete();
+    await tap(tester, find.text('Xóa'));
+    expect(messages.deletedIds, isEmpty);
+    expect(find.text('Mai'), findsOneWidget);
+    expect(
+      find.text('Chưa xóa được cuộc trò chuyện. Bạn thử lại nhé.'),
+      findsOneWidget,
+    );
+    AppMessenger.hide();
+    await tester.pumpAndSettle();
+
+    messages.onDelete = null;
+    await showDelete();
+    await tap(tester, find.text('Xóa'));
+    expect(messages.deletedIds, [messages.thread.id]);
+    expect(find.text('Mai'), findsNothing);
+    expect(find.text('Bếp Xinh AI'), findsOneWidget);
+
+    await messages.send(messages.thread.id, 'Tin nhắn mới', requestId: 'new');
+    await tester.pumpAndSettle();
+    expect(find.text('Mai'), findsOneWidget);
+    expect(find.text('Bạn: Tin nhắn mới'), findsOneWidget);
+  });
   testWidgets(
     'recipe attachment sends a card with caption and opens the recipe',
     (tester) async {

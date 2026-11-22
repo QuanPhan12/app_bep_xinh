@@ -88,6 +88,7 @@ void main() {
       unit: catalogFixture().unitsById['g'],
     );
     expect(fractional.quantity(1 / 3), '0,333 g');
+    expect(fractional.quantityForServings(1, 3), '<1 g');
   });
   test(
     'saving in detail updates an already loaded Home and survives re-opening',

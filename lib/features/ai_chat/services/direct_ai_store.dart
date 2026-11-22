@@ -1,4 +1,5 @@
 import '../models/ai_message.dart';
+import '../../messages/models/chat_history_page.dart';
 
 class AiReservation {
   final int lease;
@@ -8,7 +9,8 @@ class AiReservation {
 
 abstract interface class DirectAiStore {
   Future<Map<String, dynamic>> config();
-  Future<List<AiMessage>> history(String uid);
+  Future<ChatHistoryPage<AiMessage>> history(String uid);
+  Future<List<AiMessage>> recentHistory(String uid);
   Future<List<Map<String, dynamic>>> recipes();
   Future<bool> isApproved(String id);
   Future<AiReservation> reserve(

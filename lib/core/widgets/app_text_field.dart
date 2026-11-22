@@ -19,6 +19,7 @@ class AppTextField extends StatelessWidget {
   final bool decimal;
   final bool enabled;
   final bool showCounter;
+  final List<TextInputFormatter>? inputFormatters;
 
   const AppTextField({
     super.key,
@@ -35,6 +36,7 @@ class AppTextField extends StatelessWidget {
     this.decimal = false,
     this.enabled = true,
     this.showCounter = true,
+    this.inputFormatters,
   });
 
   @override
@@ -65,7 +67,9 @@ class AppTextField extends StatelessWidget {
             : TextCapitalization.sentences,
         inputFormatters: [
           if (!showCounter) LengthLimitingTextInputFormatter(maxLength),
-          if (decimal)
+          if (inputFormatters != null)
+            ...inputFormatters!
+          else if (decimal)
             FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))
           else if (numeric)
             FilteringTextInputFormatter.digitsOnly,

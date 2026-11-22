@@ -67,6 +67,19 @@ class RecipeIngredient extends Equatable {
     unit: unit,
     toTaste: toTaste,
   );
+
+  String quantityForServings(int servings, int originalServings) {
+    final originalAmount = amount;
+    return formatIngredientQuantity(
+      amount: originalAmount == null
+          ? null
+          : originalAmount * servings / originalServings,
+      unit: unit,
+      toTaste: toTaste,
+      wholeNumbers: true,
+    );
+  }
+
   factory RecipeIngredient.fromJson(
     Map<String, dynamic> json,
     IngredientCatalog catalog,

@@ -51,6 +51,7 @@ void main() {
       service.onFetch = null;
       await cubit.load();
       expect(cubit.state.selected!.id, 'egg');
+      expect(cubit.state.amount, '2');
       expect(
         cubit.confirm()!.toJson(),
         validRecipeDraft().ingredients.single.inGroup('seasoning').toJson(),
@@ -58,40 +59,46 @@ void main() {
     },
   );
 
-  test('decimal amount, allowed units, validation and to taste produce typed payload', () async {
-    final cubit = IngredientPickerCubit(service: StubCatalogService());
-    addTearDown(cubit.close);
-    await cubit.load();
-    cubit.choose(cubit.state.catalog!.byId['beef']!);
-    expect(cubit.confirm(), isNull);
-    expect(cubit.state.errors['amount'], isNotNull);
-    cubit.changeAmount('0');
-    expect(cubit.confirm(), isNull);
-    cubit.changeAmount('0,5');
-    expect(cubit.state.errors, isEmpty);
-    cubit.selectUnit(const IngredientUnit(id: 'ml', label: 'ml'));
-    expect(cubit.state.unit!.id, 'g');
-    cubit.selectUnit(cubit.state.catalog!.unitsById['kg']!);
-    cubit.changeNote('  thái mỏng  ');
-    expect(cubit.confirm()!.toJson(), {
-      'ingredientId': 'beef',
-      'name': 'Thịt bò',
-      'amount': .5,
-      'unitId': 'kg',
-      'toTaste': false,
-      'note': 'thái mỏng',
-      'groupId': 'main',
-    });
-    cubit.changeAmount('1,2,3');
-    expect(cubit.confirm(), isNull);
-    cubit.setToTaste(true);
-    final result = cubit.confirm()!;
-    expect(result.amount, isNull);
-    expect(result.unitId, isNull);
-    expect(result.quantityLabel, 'Vừa đủ');
-    cubit.setToTaste(false);
-    expect(cubit.confirm(), isNull);
-  });
+  test(
+    'whole amounts, allowed units and to taste produce typed payload',
+    () async {
+      final cubit = IngredientPickerCubit(service: StubCatalogService());
+      addTearDown(cubit.close);
+      await cubit.load();
+      cubit.choose(cubit.state.catalog!.byId['beef']!);
+      expect(cubit.confirm(), isNull);
+      expect(cubit.state.errors['amount'], isNotNull);
+      cubit.changeAmount('0');
+      expect(cubit.confirm(), isNull);
+      cubit.changeAmount('0,5');
+      expect(cubit.confirm(), isNull);
+      expect(cubit.state.errors['amount'], isNotNull);
+      cubit.changeAmount('500');
+      expect(cubit.state.errors, isEmpty);
+      cubit.selectUnit(const IngredientUnit(id: 'ml', label: 'ml'));
+      expect(cubit.state.unit!.id, 'g');
+      cubit.selectUnit(cubit.state.catalog!.unitsById['g']!);
+      cubit.changeNote('  thái mỏng  ');
+      expect(cubit.confirm()!.toJson(), {
+        'ingredientId': 'beef',
+        'name': 'Thịt bò',
+        'amount': 500,
+        'unitId': 'g',
+        'toTaste': false,
+        'note': 'thái mỏng',
+        'groupId': 'main',
+      });
+      cubit.changeAmount('1,2,3');
+      expect(cubit.confirm(), isNull);
+      cubit.setToTaste(true);
+      final result = cubit.confirm()!;
+      expect(result.amount, isNull);
+      expect(result.unitId, isNull);
+      expect(result.quantityLabel, 'Vừa đủ');
+      cubit.setToTaste(false);
+      expect(cubit.confirm(), isNull);
+    },
+  );
 
   testWidgets('search debounces typing and ignores out of order responses', (
     tester,

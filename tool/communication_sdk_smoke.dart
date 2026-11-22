@@ -245,6 +245,47 @@ Future<void> main() async {
           'Ảnh có chú thích',
       'messages survive sign-out/sign-in',
     );
+    await alice.deleteConversation(id);
+    check(
+      (await alice.watchInbox().first.timeout(const Duration(seconds: 20)))
+          .isEmpty,
+      'deleted conversation is removed from the owner inbox',
+    );
+    final cleared = await alice
+        .watchConversation(id)
+        .first
+        .timeout(const Duration(seconds: 20));
+    check(
+      cleared.messages.isEmpty && cleared.loadOlder == null,
+      'cleared history does not appear on reopen',
+    );
+    final peerHistory = await bob
+        .watchConversation(id)
+        .first
+        .timeout(const Duration(seconds: 20));
+    check(
+      peerHistory.messages.length == 4,
+      'the other member keeps the shared history',
+    );
+    const newId = '55555555555555555555555555555555';
+    final newHistory = first(
+      alice.watchConversation(id),
+      (thread) => thread.messages.any((m) => m.id == newId),
+    );
+    await bob.send(id, 'Tin sau khi xóa', requestId: newId);
+    check(
+      (await newHistory).messages.single.id == newId,
+      'only new messages appear after clearing',
+    );
+    check(
+      (await first(
+            alice.watchInbox(),
+            (items) =>
+                items.any((item) => item.messages.lastOrNull?.id == newId),
+          )).single.id ==
+          id,
+      'a new message returns the conversation to the inbox',
+    );
     smokeResult =
         'PASS: $checks real Flutter Firebase SDK communication checks, emulator only.'
             .toJS;

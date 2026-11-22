@@ -91,6 +91,20 @@ async function user(label) {
   await commit(alice.token,[write(path,{},[],[`readAt.${bob.id}`])],403);
   await commit(bob.token,[write(path,{},[],[`readAt.${bob.id}`])]);
   await commit(bob.token,sendWrites(bob,'Mình cũng thích món này!').writes);
+  const deletionPath = `users/${alice.id}/chat_deletions/${conversationId}`;
+  const through = (await get(alice.token,path)).fields.updatedAt;
+  const deletion = (ownerId, cutoff = through) => ({update:{
+    name:`${prefix}/users/${ownerId}/chat_deletions/${conversationId}`,fields:{through:cutoff},
+  }});
+  await commit(alice.token,[deletion(alice.id,{timestampValue:'2099-01-01T00:00:00Z'})],403);
+  await commit(outsider.token,[deletion(outsider.id)],403);
+  await commit(bob.token,[deletion(alice.id)],403);
+  await commit(alice.token,[deletion(alice.id)]);
+  await get(alice.token,deletionPath);
+  await get(bob.token,deletionPath,403);
+  await get(bob.token,`${path}/messages/${first.id}`);
+  await commit(bob.token,sendWrites(bob,'Tin nhắn mới sau khi xóa').writes);
+  assert.equal((await get(alice.token,deletionPath)).fields.through.timestampValue,through.timestampValue);
   await commit(alice.token,[{delete:`${prefix}/${path}`}],403);
   // Query inbox phải kèm membership; rules không hoạt động như bộ lọc hậu kỳ.
   const query = member => ({structuredQuery:{from:[{collectionId:'conversations'}],
@@ -108,6 +122,7 @@ async function user(label) {
   await commit(alice.token,[write(`recipes/${recipeId}`,{status:'approved'},['status'])],403);
   await commit('owner',[write(`users/${alice.id}`,{status:'locked'},['status'])]);
   await get(alice.token,path,403);
+  await get(alice.token,deletionPath,403);
   await commit(alice.token,sendWrites(alice,'Đã khóa').writes,403);
   console.log(`Communication rules: ${checks} checks passed (demo emulator only).`);
 })().catch(error => {console.error(error.message); process.exitCode=1;});

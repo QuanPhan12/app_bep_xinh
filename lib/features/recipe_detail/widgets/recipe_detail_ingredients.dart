@@ -86,7 +86,10 @@ class RecipeDetailIngredients extends StatelessWidget {
                                   Flexible(
                                     flex: 2,
                                     child: Text(
-                                      item.quantity(state.quantityRatio),
+                                      item.quantityForServings(
+                                        state.servings,
+                                        recipe.servings,
+                                      ),
                                       textAlign: TextAlign.end,
                                       style: AppTextStyles.labelMedium,
                                     ),

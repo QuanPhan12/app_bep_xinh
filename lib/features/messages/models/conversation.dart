@@ -1,4 +1,5 @@
 import 'chat_recipe.dart';
+import 'chat_history_page.dart';
 import '../../recipes/models/recipe_image.dart';
 
 class ChatMessage {
@@ -24,12 +25,14 @@ class Conversation {
   final String subtitle;
   final List<ChatMessage> messages;
   final int unreadCount;
+  final LoadOlderMessages<ChatMessage>? loadOlder;
   const Conversation({
     required this.id,
     required this.name,
     required this.subtitle,
     required this.messages,
     this.unreadCount = 0,
+    this.loadOlder,
   });
 
   Conversation copyWith({List<ChatMessage>? messages, int? unreadCount}) =>
@@ -39,6 +42,7 @@ class Conversation {
         subtitle: subtitle,
         messages: List.unmodifiable(messages ?? this.messages),
         unreadCount: unreadCount ?? this.unreadCount,
+        loadOlder: loadOlder,
       );
 }
 

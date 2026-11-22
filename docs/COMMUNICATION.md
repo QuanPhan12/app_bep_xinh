@@ -52,7 +52,13 @@ active, là tác giả của bài approved và tên snapshot khớp bài đó.
 Khi đang tạo, tác giả được chọn hiện vòng tải. Nếu tạo thất bại, màn giữ danh
 sách người nhận và hiện lỗi qua `AppMessenger` để tránh cảm giác nút không hoạt động.
 
-`/messages/:id`: nhận tối đa 100 tin gần nhất realtime, thứ tự cũ → mới khi hiển thị.
+`/messages/:id` mở với 6 tin mới nhất, hiển thị theo thứ tự cũ → mới. Cuộn lên
+để tải thêm từng trang 6 tin. Tin đến sau khi mở hội thoại cập nhật theo thời gian thực.
+
+Menu trên từng cuộc trò chuyện thường cho phép xóa khỏi hộp thư sau khi xác nhận.
+Mốc xóa lưu riêng ở `users/{uid}/chat_deletions/{conversationId}.through` và dùng
+thời điểm cập nhật gần nhất của hội thoại. Khi có tin mới, hội thoại hiện lại với
+lịch sử sau mốc xóa. Người còn lại vẫn thấy lịch sử của họ.
 Tin dài tối đa 2.000 ký tự, hỗ trợ xuống dòng. Mỗi tin có thể kèm một ảnh hoặc
 chỉ gửi ảnh không có chữ. Chưa có file khác, nhóm chat, trạng thái online/typing
 hoặc phân trang lịch sử cũ hơn.
