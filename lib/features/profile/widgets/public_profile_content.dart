@@ -5,13 +5,16 @@ import 'package:app_bep_xinh/core/router/app_router.dart';
 import 'profile_cover.dart';
 
 import 'package:app_bep_xinh/core/widgets/app_section_header.dart';
-import 'package:app_bep_xinh/features/product/widgets/product_grid.dart';
+
+import 'profile_photo_grid.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../cubits/public_profile/public_profile_cubit.dart';
 import 'profile_identity_info.dart';
+import '../../following/screens/following_screen.dart';
 
 class PublicProfileContent extends StatelessWidget {
   const PublicProfileContent({super.key});
@@ -42,6 +45,13 @@ class PublicProfileContent extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (user.identity.id != null)
+                  SliverToBoxAdapter(
+                    child: FollowAuthorControl(
+                      authorId: user.identity.id!,
+                      name: user.identity.name,
+                    ),
+                  ),
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   sliver: SliverToBoxAdapter(
@@ -63,18 +73,11 @@ class PublicProfileContent extends StatelessWidget {
                     ),
                   )
                 else
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    sliver: ProductGrid(
-                      recipes: data.recipes,
-                      spacing: 12,
-                      runSpacing: 12,
-                      aspectRatio: 1,
-                      onRecipeTap: (recipe) {
-                        context.push(PathRouter.recipeDetail(recipe.id));
-                      },
-                      onFavoriteTap: cubit.toggleFavorite,
-                    ),
+                  ProfilePhotoGrid(
+                    recipes: data.recipes,
+                    onOpen: (recipe) {
+                      context.push(PathRouter.recipeDetail(recipe.id));
+                    },
                   ),
                 const SliverToBoxAdapter(child: SizedBox(height: 28)),
               ],

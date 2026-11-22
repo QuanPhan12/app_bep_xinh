@@ -1,3 +1,5 @@
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -10,7 +12,6 @@ import 'package:app_bep_xinh/core/widgets/app_tap.dart';
 import 'package:app_bep_xinh/features/home/models/recipe_item.dart';
 import 'package:app_bep_xinh/features/product/widgets/product_card.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -28,7 +29,7 @@ class ProductSlider extends StatefulWidget {
 
   const ProductSlider({
     super.key,
-    this.title = 'Món ăn thịnh hành',
+    this.title = 'Món ngon khám phá',
     required this.recipes,
     this.onRecipeTap,
     this.onFavoriteTap,
@@ -76,7 +77,6 @@ class _ProductSliderState extends State<ProductSlider> {
 
     final isTablet = context.isTablet;
     // Trên Tablet hiển thị nhiều thẻ cùng lúc (~2.7 thẻ) để vuốt mượt mà
-    final baseHeight = isTablet ? 230.h(context) : 210.h(context);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -87,9 +87,12 @@ class _ProductSliderState extends State<ProductSlider> {
           1.0,
           constraints.maxWidth * viewportFraction - 14.w(context),
         );
-        final sliderHeight = math.max(
-          baseHeight,
-          ProductCard.minimumHeight(context, cardWidth),
+        final sliderHeight = widget.recipes.fold<double>(
+          0,
+          (tallest, recipe) => math.max(
+            tallest,
+            ProductCard.contentHeight(context, cardWidth, recipe),
+          ),
         );
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,7 +110,7 @@ class _ProductSliderState extends State<ProductSlider> {
                       style: AppTextStyles.titleMedium.copyWith(
                         fontWeight: FontWeight.bold,
                         fontSize: 16.sp(context),
-                        color: AppColors.textPrimary,
+                        color: context.colors.textPrimary,
                       ),
                     ),
                   ),
@@ -139,14 +142,14 @@ class _ProductSliderState extends State<ProductSlider> {
                       // Nút chuyển trang Trái / Phải chuyên dụng trên Tablet
                       if (isTablet) ...[
                         _SliderNavButton(
-                          icon: CupertinoIcons.chevron_left,
+                          icon: PhosphorIconsRegular.caretLeft,
                           actionName: 'slider_btn_prev',
                           enabled: _currentIndex > 0,
                           onTap: _goToPrevious,
                         ),
                         SizedBox(width: 6.w(context)),
                         _SliderNavButton(
-                          icon: CupertinoIcons.chevron_right,
+                          icon: PhosphorIconsRegular.caretRight,
                           actionName: 'slider_btn_next',
                           enabled: _currentIndex < widget.recipes.length - 1,
                           onTap: _goToNext,
@@ -215,7 +218,7 @@ class _ProductSliderState extends State<ProductSlider> {
                   dotWidth: 6.w(context),
                   expansionFactor: 3.2,
                   activeDotColor: AppColors.primary,
-                  dotColor: AppColors.border,
+                  dotColor: context.colors.border,
                   spacing: 5.w(context),
                 ),
                 onDotClicked: (index) {
@@ -265,9 +268,9 @@ class _SliderNavButton extends StatelessWidget {
           width: 28.w(context),
           height: 28.h(context),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.colors.surface,
             borderRadius: BorderRadius.circular(8.r(context)),
-            border: Border.all(color: AppColors.border, width: 0.8),
+            border: Border.all(color: context.colors.border, width: 0.8),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.04),
@@ -279,7 +282,7 @@ class _SliderNavButton extends StatelessWidget {
           child: Icon(
             icon,
             size: 14.sp(context),
-            color: enabled ? AppColors.textPrimary : AppColors.textTertiary,
+            color: enabled ? context.colors.textPrimary : context.colors.textTertiary,
           ),
         ),
       ),

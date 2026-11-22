@@ -1,0 +1,2024 @@
+{
+  "schemaVersion": 1,
+  "version": "2026-11-09.v1",
+  "locale": "vi-VN",
+  "categories": [
+    {
+      "id": "meat",
+      "name": "Thịt đỏ",
+      "sortOrder": 10
+    },
+    {
+      "id": "poultry",
+      "name": "Gia cầm",
+      "sortOrder": 20
+    },
+    {
+      "id": "seafood",
+      "name": "Cá và hải sản",
+      "sortOrder": 30
+    },
+    {
+      "id": "eggs_dairy",
+      "name": "Trứng, sữa và chế phẩm",
+      "sortOrder": 40
+    },
+    {
+      "id": "legumes",
+      "name": "Đậu và các loại hạt",
+      "sortOrder": 50
+    },
+    {
+      "id": "leafy_vegetables",
+      "name": "Rau ăn lá",
+      "sortOrder": 60
+    },
+    {
+      "id": "roots",
+      "name": "Củ và rễ",
+      "sortOrder": 70
+    },
+    {
+      "id": "fruit_vegetables",
+      "name": "Rau ăn quả, hoa và thân",
+      "sortOrder": 80
+    },
+    {
+      "id": "mushrooms",
+      "name": "Nấm",
+      "sortOrder": 90
+    },
+    {
+      "id": "herbs",
+      "name": "Rau thơm và gia vị tươi",
+      "sortOrder": 100
+    },
+    {
+      "id": "fruits",
+      "name": "Trái cây",
+      "sortOrder": 110
+    },
+    {
+      "id": "grains_noodles",
+      "name": "Gạo, bột và mì bún",
+      "sortOrder": 120
+    },
+    {
+      "id": "seasonings",
+      "name": "Gia vị khô",
+      "sortOrder": 130
+    },
+    {
+      "id": "oils_sauces",
+      "name": "Dầu, nước chấm và xốt",
+      "sortOrder": 140
+    },
+    {
+      "id": "processed",
+      "name": "Thực phẩm chế biến và đồ khô",
+      "sortOrder": 150
+    }
+  ],
+  "units": [
+    {
+      "id": "g",
+      "label": "g",
+      "type": "mass"
+    },
+    {
+      "id": "kg",
+      "label": "kg",
+      "type": "mass"
+    },
+    {
+      "id": "ml",
+      "label": "ml",
+      "type": "volume"
+    },
+    {
+      "id": "l",
+      "label": "l",
+      "type": "volume"
+    },
+    {
+      "id": "fruit",
+      "label": "quả",
+      "type": "count"
+    },
+    {
+      "id": "piece",
+      "label": "cái",
+      "type": "count"
+    },
+    {
+      "id": "block",
+      "label": "bìa",
+      "type": "count"
+    },
+    {
+      "id": "clove",
+      "label": "tép",
+      "type": "count"
+    },
+    {
+      "id": "bulb",
+      "label": "củ",
+      "type": "count"
+    },
+    {
+      "id": "bunch",
+      "label": "bó",
+      "type": "count"
+    },
+    {
+      "id": "stalk",
+      "label": "cây",
+      "type": "count"
+    },
+    {
+      "id": "slice",
+      "label": "lát",
+      "type": "count"
+    },
+    {
+      "id": "pack",
+      "label": "gói",
+      "type": "count"
+    },
+    {
+      "id": "can",
+      "label": "lon",
+      "type": "count"
+    },
+    {
+      "id": "bottle",
+      "label": "chai",
+      "type": "count"
+    },
+    {
+      "id": "tsp",
+      "label": "thìa cà phê",
+      "type": "kitchen"
+    },
+    {
+      "id": "tbsp",
+      "label": "thìa canh",
+      "type": "kitchen"
+    },
+    {
+      "id": "cup",
+      "label": "chén",
+      "type": "kitchen"
+    }
+  ],
+  "ingredients": [
+    {
+      "id": "beef_shank",
+      "name": "Bắp bò",
+      "categoryId": "meat",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "pork_hock",
+      "name": "Chân giò heo",
+      "categoryId": "meat",
+      "aliases": ["giò heo", "móng giò"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "pork_liver",
+      "name": "Gan heo",
+      "categoryId": "meat",
+      "aliases": ["gan lợn"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "beef_tendon",
+      "name": "Gân bò",
+      "categoryId": "meat",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "beef_brisket",
+      "name": "Nạm bò",
+      "categoryId": "meat",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "pork_ribs",
+      "name": "Sườn heo",
+      "categoryId": "meat",
+      "aliases": ["sườn lợn", "sườn non"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "pork_belly",
+      "name": "Thịt ba chỉ",
+      "categoryId": "meat",
+      "aliases": ["ba rọi", "ba chỉ heo"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "beef",
+      "name": "Thịt bò",
+      "categoryId": "meat",
+      "aliases": ["bò"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "lamb",
+      "name": "Thịt cừu",
+      "categoryId": "meat",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "goat",
+      "name": "Thịt dê",
+      "categoryId": "meat",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "pork",
+      "name": "Thịt heo",
+      "categoryId": "meat",
+      "aliases": ["thịt lợn", "heo", "lợn"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "ground_pork",
+      "name": "Thịt heo xay",
+      "categoryId": "meat",
+      "aliases": ["thịt lợn băm", "thịt heo băm"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "pork_shoulder",
+      "name": "Thịt nạc vai",
+      "categoryId": "meat",
+      "aliases": ["nạc vai heo"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "chicken_wing",
+      "name": "Cánh gà",
+      "categoryId": "poultry",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "chicken_feet",
+      "name": "Chân gà",
+      "categoryId": "poultry",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "quail",
+      "name": "Chim cút",
+      "categoryId": "poultry",
+      "aliases": ["cút"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "chicken_thigh",
+      "name": "Đùi gà",
+      "categoryId": "poultry",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "chicken_liver",
+      "name": "Gan gà",
+      "categoryId": "poultry",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "chicken_meat",
+      "name": "Thịt gà",
+      "categoryId": "poultry",
+      "aliases": ["gà"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "muscovy_duck",
+      "name": "Thịt ngan",
+      "categoryId": "poultry",
+      "aliases": ["thịt vịt xiêm", "ngan"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "duck",
+      "name": "Thịt vịt",
+      "categoryId": "poultry",
+      "aliases": ["vịt"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "chicken",
+      "name": "Ức gà",
+      "categoryId": "poultry",
+      "aliases": ["lườn gà"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "chicken_bones",
+      "name": "Xương gà",
+      "categoryId": "poultry",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "octopus",
+      "name": "Bạch tuộc",
+      "categoryId": "seafood",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "catfish",
+      "name": "Cá basa",
+      "categoryId": "seafood",
+      "aliases": ["cá ba sa"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "goby",
+      "name": "Cá bống",
+      "categoryId": "seafood",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "carp",
+      "name": "Cá chép",
+      "categoryId": "seafood",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "anchovy",
+      "name": "Cá cơm",
+      "categoryId": "seafood",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "salmon",
+      "name": "Cá hồi",
+      "categoryId": "seafood",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "snakehead",
+      "name": "Cá lóc",
+      "categoryId": "seafood",
+      "aliases": ["cá quả", "cá chuối"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "tuna",
+      "name": "Cá ngừ",
+      "categoryId": "seafood",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "tilapia",
+      "name": "Cá rô phi",
+      "categoryId": "seafood",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "mackerel",
+      "name": "Cá thu",
+      "categoryId": "seafood",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "crab",
+      "name": "Cua biển",
+      "categoryId": "seafood",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "field_crab",
+      "name": "Cua đồng",
+      "categoryId": "seafood",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "oyster",
+      "name": "Hàu",
+      "categoryId": "seafood",
+      "aliases": ["hào"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "eel",
+      "name": "Lươn",
+      "categoryId": "seafood",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "cuttlefish",
+      "name": "Mực nang",
+      "categoryId": "seafood",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "squid",
+      "name": "Mực ống",
+      "categoryId": "seafood",
+      "aliases": ["mực"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "clam",
+      "name": "Nghêu",
+      "categoryId": "seafood",
+      "aliases": ["ngao"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "scallop",
+      "name": "Sò điệp",
+      "categoryId": "seafood",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "dried_shrimp",
+      "name": "Tôm khô",
+      "categoryId": "seafood",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "shrimp",
+      "name": "Tôm sú",
+      "categoryId": "seafood",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "whiteleg_shrimp",
+      "name": "Tôm thẻ",
+      "categoryId": "seafood",
+      "aliases": ["tôm thẻ chân trắng"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "mussel",
+      "name": "Vẹm xanh",
+      "categoryId": "seafood",
+      "aliases": ["vẹm"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "butter",
+      "name": "Bơ lạt",
+      "categoryId": "eggs_dairy",
+      "aliases": ["bơ động vật"],
+      "unitIds": ["g", "kg", "tsp", "tbsp"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "cream",
+      "name": "Kem tươi",
+      "categoryId": "eggs_dairy",
+      "aliases": ["whipping cream"],
+      "unitIds": ["ml", "l"],
+      "defaultUnitId": "ml"
+    },
+    {
+      "id": "cheese",
+      "name": "Phô mai",
+      "categoryId": "eggs_dairy",
+      "aliases": ["pho mát"],
+      "unitIds": ["g", "slice"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "mozzarella",
+      "name": "Phô mai mozzarella",
+      "categoryId": "eggs_dairy",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "yogurt",
+      "name": "Sữa chua",
+      "categoryId": "eggs_dairy",
+      "aliases": ["yaourt"],
+      "unitIds": ["g", "ml"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "condensed_milk",
+      "name": "Sữa đặc",
+      "categoryId": "eggs_dairy",
+      "aliases": [],
+      "unitIds": ["g", "tbsp", "can"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "milk",
+      "name": "Sữa tươi",
+      "categoryId": "eggs_dairy",
+      "aliases": [],
+      "unitIds": ["ml", "l"],
+      "defaultUnitId": "ml"
+    },
+    {
+      "id": "quail_egg",
+      "name": "Trứng cút",
+      "categoryId": "eggs_dairy",
+      "aliases": ["hột cút"],
+      "unitIds": ["fruit", "g"],
+      "defaultUnitId": "fruit"
+    },
+    {
+      "id": "egg",
+      "name": "Trứng gà",
+      "categoryId": "eggs_dairy",
+      "aliases": ["hột gà"],
+      "unitIds": ["fruit", "g"],
+      "defaultUnitId": "fruit"
+    },
+    {
+      "id": "salted_egg",
+      "name": "Trứng muối",
+      "categoryId": "eggs_dairy",
+      "aliases": ["hột vịt muối"],
+      "unitIds": ["fruit", "g"],
+      "defaultUnitId": "fruit"
+    },
+    {
+      "id": "duck_egg",
+      "name": "Trứng vịt",
+      "categoryId": "eggs_dairy",
+      "aliases": ["hột vịt"],
+      "unitIds": ["fruit", "g"],
+      "defaultUnitId": "fruit"
+    },
+    {
+      "id": "black_bean",
+      "name": "Đậu đen",
+      "categoryId": "legumes",
+      "aliases": ["đỗ đen"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "red_bean",
+      "name": "Đậu đỏ",
+      "categoryId": "legumes",
+      "aliases": ["đỗ đỏ"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "tofu",
+      "name": "Đậu hũ",
+      "categoryId": "legumes",
+      "aliases": ["đậu phụ", "tàu hũ"],
+      "unitIds": ["block", "piece", "g", "kg"],
+      "defaultUnitId": "block"
+    },
+    {
+      "id": "silken_tofu",
+      "name": "Đậu hũ non",
+      "categoryId": "legumes",
+      "aliases": ["đậu phụ non"],
+      "unitIds": ["block", "g"],
+      "defaultUnitId": "block"
+    },
+    {
+      "id": "soybean",
+      "name": "Đậu nành",
+      "categoryId": "legumes",
+      "aliases": ["đỗ tương"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "peanut",
+      "name": "Đậu phộng",
+      "categoryId": "legumes",
+      "aliases": ["lạc"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "green_bean",
+      "name": "Đậu xanh",
+      "categoryId": "legumes",
+      "aliases": ["đỗ xanh"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "cashew",
+      "name": "Hạt điều",
+      "categoryId": "legumes",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "lotus_seed",
+      "name": "Hạt sen",
+      "categoryId": "legumes",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "black_sesame",
+      "name": "Mè đen",
+      "categoryId": "legumes",
+      "aliases": ["vừng đen"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "sesame",
+      "name": "Mè trắng",
+      "categoryId": "legumes",
+      "aliases": ["vừng trắng", "mè"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "tofu_skin",
+      "name": "Tàu hũ ky",
+      "categoryId": "legumes",
+      "aliases": ["váng đậu", "phù trúc"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "cabbage",
+      "name": "Bắp cải",
+      "categoryId": "leafy_vegetables",
+      "aliases": ["cải bắp"],
+      "unitIds": ["g", "kg", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "purple_cabbage",
+      "name": "Bắp cải tím",
+      "categoryId": "leafy_vegetables",
+      "aliases": ["cải bắp tím"],
+      "unitIds": ["g", "kg", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "spinach",
+      "name": "Cải bó xôi",
+      "categoryId": "leafy_vegetables",
+      "aliases": ["rau bina", "rau chân vịt"],
+      "unitIds": ["g", "kg", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "choy_sum",
+      "name": "Cải ngọt",
+      "categoryId": "leafy_vegetables",
+      "aliases": [],
+      "unitIds": ["g", "kg", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "napa_cabbage",
+      "name": "Cải thảo",
+      "categoryId": "leafy_vegetables",
+      "aliases": [],
+      "unitIds": ["g", "kg", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "bok_choy",
+      "name": "Cải thìa",
+      "categoryId": "leafy_vegetables",
+      "aliases": ["cải chíp"],
+      "unitIds": ["g", "kg", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "mustard_greens",
+      "name": "Cải xanh",
+      "categoryId": "leafy_vegetables",
+      "aliases": ["cải bẹ xanh"],
+      "unitIds": ["g", "kg", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "kale",
+      "name": "Cải xoăn",
+      "categoryId": "leafy_vegetables",
+      "aliases": [],
+      "unitIds": ["g", "kg", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "watercress",
+      "name": "Cải xoong",
+      "categoryId": "leafy_vegetables",
+      "aliases": ["xà lách xoong"],
+      "unitIds": ["g", "kg", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "malabar_spinach",
+      "name": "Mồng tơi",
+      "categoryId": "leafy_vegetables",
+      "aliases": ["rau mồng tơi"],
+      "unitIds": ["g", "kg", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "amaranth",
+      "name": "Rau dền",
+      "categoryId": "leafy_vegetables",
+      "aliases": [],
+      "unitIds": ["g", "kg", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "jute_leaves",
+      "name": "Rau đay",
+      "categoryId": "leafy_vegetables",
+      "aliases": [],
+      "unitIds": ["g", "kg", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "sweet_potato_leaves",
+      "name": "Rau lang",
+      "categoryId": "leafy_vegetables",
+      "aliases": ["đọt khoai lang"],
+      "unitIds": ["g", "kg", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "water_spinach",
+      "name": "Rau muống",
+      "categoryId": "leafy_vegetables",
+      "aliases": [],
+      "unitIds": ["g", "kg", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "chrysanthemum_greens",
+      "name": "Tần ô",
+      "categoryId": "leafy_vegetables",
+      "aliases": ["cải cúc"],
+      "unitIds": ["g", "kg", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "lettuce",
+      "name": "Xà lách",
+      "categoryId": "leafy_vegetables",
+      "aliases": ["rau diếp"],
+      "unitIds": ["g", "kg", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "carrot",
+      "name": "Cà rốt",
+      "categoryId": "roots",
+      "aliases": [],
+      "unitIds": ["g", "kg", "bulb"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "daikon",
+      "name": "Củ cải trắng",
+      "categoryId": "roots",
+      "aliases": ["củ cải"],
+      "unitIds": ["g", "kg", "bulb"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "beetroot",
+      "name": "Củ dền",
+      "categoryId": "roots",
+      "aliases": [],
+      "unitIds": ["g", "kg", "bulb"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "lotus_root",
+      "name": "Củ sen",
+      "categoryId": "roots",
+      "aliases": ["ngó sen củ"],
+      "unitIds": ["g", "kg", "bulb"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "ginger",
+      "name": "Gừng",
+      "categoryId": "roots",
+      "aliases": [],
+      "unitIds": ["g", "kg", "bulb"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "onion",
+      "name": "Hành tây",
+      "categoryId": "roots",
+      "aliases": [],
+      "unitIds": ["g", "kg", "bulb"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "red_onion",
+      "name": "Hành tây tím",
+      "categoryId": "roots",
+      "aliases": [],
+      "unitIds": ["g", "kg", "bulb"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "shallot",
+      "name": "Hành tím",
+      "categoryId": "roots",
+      "aliases": ["hành khô"],
+      "unitIds": ["g", "kg", "bulb"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "sweet_potato",
+      "name": "Khoai lang",
+      "categoryId": "roots",
+      "aliases": [],
+      "unitIds": ["g", "kg", "bulb"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "cassava",
+      "name": "Khoai mì",
+      "categoryId": "roots",
+      "aliases": ["sắn"],
+      "unitIds": ["g", "kg", "bulb"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "taro",
+      "name": "Khoai môn",
+      "categoryId": "roots",
+      "aliases": [],
+      "unitIds": ["g", "kg", "bulb"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "potato",
+      "name": "Khoai tây",
+      "categoryId": "roots",
+      "aliases": [],
+      "unitIds": ["bulb", "g", "kg"],
+      "defaultUnitId": "bulb"
+    },
+    {
+      "id": "turmeric",
+      "name": "Nghệ",
+      "categoryId": "roots",
+      "aliases": ["nghệ tươi"],
+      "unitIds": ["g", "kg", "bulb"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "galangal",
+      "name": "Riềng",
+      "categoryId": "roots",
+      "aliases": ["củ riềng"],
+      "unitIds": ["g", "kg", "bulb"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "banana_blossom",
+      "name": "Bắp chuối",
+      "categoryId": "fruit_vegetables",
+      "aliases": ["hoa chuối"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "corn",
+      "name": "Bắp ngọt",
+      "categoryId": "fruit_vegetables",
+      "aliases": ["ngô ngọt", "bắp mỹ"],
+      "unitIds": ["g", "kg", "piece"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "baby_corn",
+      "name": "Bắp non",
+      "categoryId": "fruit_vegetables",
+      "aliases": ["ngô bao tử"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "bottle_gourd",
+      "name": "Bầu",
+      "categoryId": "fruit_vegetables",
+      "aliases": ["quả bầu"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "winter_melon",
+      "name": "Bí đao",
+      "categoryId": "fruit_vegetables",
+      "aliases": ["bí xanh"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "pumpkin",
+      "name": "Bí đỏ",
+      "categoryId": "fruit_vegetables",
+      "aliases": ["bí ngô"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "cauliflower",
+      "name": "Bông cải trắng",
+      "categoryId": "fruit_vegetables",
+      "aliases": ["súp lơ trắng"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "broccoli",
+      "name": "Bông cải xanh",
+      "categoryId": "fruit_vegetables",
+      "aliases": ["súp lơ xanh"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "tomato",
+      "name": "Cà chua",
+      "categoryId": "fruit_vegetables",
+      "aliases": [],
+      "unitIds": ["fruit", "g", "kg"],
+      "defaultUnitId": "fruit"
+    },
+    {
+      "id": "eggplant",
+      "name": "Cà tím",
+      "categoryId": "fruit_vegetables",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "celery",
+      "name": "Cần tây",
+      "categoryId": "fruit_vegetables",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "cucumber",
+      "name": "Dưa leo",
+      "categoryId": "fruit_vegetables",
+      "aliases": ["dưa chuột"],
+      "unitIds": ["fruit", "g", "kg"],
+      "defaultUnitId": "fruit"
+    },
+    {
+      "id": "okra",
+      "name": "Đậu bắp",
+      "categoryId": "fruit_vegetables",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "yardlong_beans",
+      "name": "Đậu đũa",
+      "categoryId": "fruit_vegetables",
+      "aliases": ["đỗ đũa"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "green_beans",
+      "name": "Đậu que",
+      "categoryId": "fruit_vegetables",
+      "aliases": ["đậu cô ve", "đỗ que"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "bean_sprouts",
+      "name": "Giá đỗ",
+      "categoryId": "fruit_vegetables",
+      "aliases": ["giá đậu", "giá"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "bitter_melon",
+      "name": "Khổ qua",
+      "categoryId": "fruit_vegetables",
+      "aliases": ["mướp đắng"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "bamboo_shoot",
+      "name": "Măng tươi",
+      "categoryId": "fruit_vegetables",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "luffa",
+      "name": "Mướp hương",
+      "categoryId": "fruit_vegetables",
+      "aliases": ["mướp"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "lotus_stem",
+      "name": "Ngó sen",
+      "categoryId": "fruit_vegetables",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "bell_pepper",
+      "name": "Ớt chuông",
+      "categoryId": "fruit_vegetables",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "water_dropwort",
+      "name": "Rau cần",
+      "categoryId": "fruit_vegetables",
+      "aliases": ["cần nước"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "wood_ear",
+      "name": "Mộc nhĩ",
+      "categoryId": "mushrooms",
+      "aliases": ["nấm mèo"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "oyster_mushroom",
+      "name": "Nấm bào ngư",
+      "categoryId": "mushrooms",
+      "aliases": ["nấm sò"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "king_oyster_mushroom",
+      "name": "Nấm đùi gà",
+      "categoryId": "mushrooms",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "shiitake",
+      "name": "Nấm hương",
+      "categoryId": "mushrooms",
+      "aliases": ["nấm đông cô"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "mushroom",
+      "name": "Nấm kim châm",
+      "categoryId": "mushrooms",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "shimeji",
+      "name": "Nấm linh chi trắng",
+      "categoryId": "mushrooms",
+      "aliases": ["nấm hải sản"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "button_mushroom",
+      "name": "Nấm mỡ",
+      "categoryId": "mushrooms",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "straw_mushroom",
+      "name": "Nấm rơm",
+      "categoryId": "mushrooms",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "scallion",
+      "name": "Hành lá",
+      "categoryId": "herbs",
+      "aliases": ["hành xanh"],
+      "unitIds": ["g", "kg", "bunch", "stalk"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "chives",
+      "name": "Hẹ",
+      "categoryId": "herbs",
+      "aliases": ["lá hẹ"],
+      "unitIds": ["g", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "mint",
+      "name": "Húng lủi",
+      "categoryId": "herbs",
+      "aliases": ["húng nhủi"],
+      "unitIds": ["g", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "basil",
+      "name": "Húng quế",
+      "categoryId": "herbs",
+      "aliases": ["rau quế"],
+      "unitIds": ["g", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "lime_leaf",
+      "name": "Lá chanh",
+      "categoryId": "herbs",
+      "aliases": [],
+      "unitIds": ["g", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "kaffir_lime_leaf",
+      "name": "Lá chúc",
+      "categoryId": "herbs",
+      "aliases": ["lá chanh kaffir"],
+      "unitIds": ["g", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "pandan",
+      "name": "Lá dứa",
+      "categoryId": "herbs",
+      "aliases": ["lá nếp"],
+      "unitIds": ["g", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "culantro",
+      "name": "Ngò gai",
+      "categoryId": "herbs",
+      "aliases": ["mùi tàu"],
+      "unitIds": ["g", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "rice_paddy_herb",
+      "name": "Ngò om",
+      "categoryId": "herbs",
+      "aliases": ["rau ngổ"],
+      "unitIds": ["g", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "cilantro",
+      "name": "Ngò rí",
+      "categoryId": "herbs",
+      "aliases": ["rau mùi", "mùi ta"],
+      "unitIds": ["g", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "chili",
+      "name": "Ớt",
+      "categoryId": "herbs",
+      "aliases": ["ớt tươi"],
+      "unitIds": ["fruit", "g"],
+      "defaultUnitId": "fruit"
+    },
+    {
+      "id": "vietnamese_coriander",
+      "name": "Rau răm",
+      "categoryId": "herbs",
+      "aliases": [],
+      "unitIds": ["g", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "lemongrass",
+      "name": "Sả",
+      "categoryId": "herbs",
+      "aliases": ["sả cây"],
+      "unitIds": ["g", "stalk"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "dill",
+      "name": "Thì là",
+      "categoryId": "herbs",
+      "aliases": [],
+      "unitIds": ["g", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "perilla",
+      "name": "Tía tô",
+      "categoryId": "herbs",
+      "aliases": [],
+      "unitIds": ["g", "bunch"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "garlic",
+      "name": "Tỏi",
+      "categoryId": "herbs",
+      "aliases": [],
+      "unitIds": ["g", "kg", "clove", "bulb", "tsp", "tbsp"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "orange",
+      "name": "Cam",
+      "categoryId": "fruits",
+      "aliases": [],
+      "unitIds": ["g", "kg", "fruit"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "passion_fruit",
+      "name": "Chanh dây",
+      "categoryId": "fruits",
+      "aliases": ["chanh leo"],
+      "unitIds": ["g", "kg", "fruit"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "lime",
+      "name": "Chanh ta",
+      "categoryId": "fruits",
+      "aliases": ["chanh"],
+      "unitIds": ["g", "kg", "fruit"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "lemon",
+      "name": "Chanh vàng",
+      "categoryId": "fruits",
+      "aliases": [],
+      "unitIds": ["g", "kg", "fruit"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "banana",
+      "name": "Chuối",
+      "categoryId": "fruits",
+      "aliases": [],
+      "unitIds": ["g", "kg", "fruit"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "ambarella",
+      "name": "Cóc",
+      "categoryId": "fruits",
+      "aliases": ["trái cóc"],
+      "unitIds": ["g", "kg", "fruit"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "coconut",
+      "name": "Dừa",
+      "categoryId": "fruits",
+      "aliases": [],
+      "unitIds": ["g", "kg", "fruit"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "pineapple",
+      "name": "Dứa",
+      "categoryId": "fruits",
+      "aliases": ["thơm", "khóm"],
+      "unitIds": ["g", "kg", "fruit"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "papaya",
+      "name": "Đu đủ",
+      "categoryId": "fruits",
+      "aliases": [],
+      "unitIds": ["g", "kg", "fruit"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "starfruit",
+      "name": "Khế",
+      "categoryId": "fruits",
+      "aliases": [],
+      "unitIds": ["g", "kg", "fruit"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "tamarind",
+      "name": "Me",
+      "categoryId": "fruits",
+      "aliases": ["me chua"],
+      "unitIds": ["g", "kg", "fruit"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "avocado",
+      "name": "Quả bơ",
+      "categoryId": "fruits",
+      "aliases": ["trái bơ"],
+      "unitIds": ["g", "kg", "fruit"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "apple",
+      "name": "Táo",
+      "categoryId": "fruits",
+      "aliases": [],
+      "unitIds": ["g", "kg", "fruit"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "kumquat",
+      "name": "Tắc",
+      "categoryId": "fruits",
+      "aliases": ["quất"],
+      "unitIds": ["g", "kg", "fruit"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "mango",
+      "name": "Xoài",
+      "categoryId": "fruits",
+      "aliases": [],
+      "unitIds": ["g", "kg", "fruit"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "rice_tapioca_noodles",
+      "name": "Bánh canh",
+      "categoryId": "grains_noodles",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "baguette",
+      "name": "Bánh mì",
+      "categoryId": "grains_noodles",
+      "aliases": [],
+      "unitIds": ["piece", "g"],
+      "defaultUnitId": "piece"
+    },
+    {
+      "id": "pho_noodles",
+      "name": "Bánh phở",
+      "categoryId": "grains_noodles",
+      "aliases": ["phở tươi"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "rice_paper",
+      "name": "Bánh tráng",
+      "categoryId": "grains_noodles",
+      "aliases": ["bánh đa nem"],
+      "unitIds": ["g", "piece"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "cornstarch",
+      "name": "Bột bắp",
+      "categoryId": "grains_noodles",
+      "aliases": ["bột ngô"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "crispy_flour",
+      "name": "Bột chiên giòn",
+      "categoryId": "grains_noodles",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "breadcrumbs",
+      "name": "Bột chiên xù",
+      "categoryId": "grains_noodles",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "rice_flour",
+      "name": "Bột gạo",
+      "categoryId": "grains_noodles",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "wheat_flour",
+      "name": "Bột mì",
+      "categoryId": "grains_noodles",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "tapioca_starch",
+      "name": "Bột năng",
+      "categoryId": "grains_noodles",
+      "aliases": ["bột sắn lọc"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "glutinous_rice_flour",
+      "name": "Bột nếp",
+      "categoryId": "grains_noodles",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "vermicelli",
+      "name": "Bún khô",
+      "categoryId": "grains_noodles",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "rice_noodles",
+      "name": "Bún tươi",
+      "categoryId": "grains_noodles",
+      "aliases": ["bún"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "brown_rice",
+      "name": "Gạo lứt",
+      "categoryId": "grains_noodles",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "sticky_rice",
+      "name": "Gạo nếp",
+      "categoryId": "grains_noodles",
+      "aliases": ["nếp"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "rice",
+      "name": "Gạo tẻ",
+      "categoryId": "grains_noodles",
+      "aliases": ["gạo"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "instant_noodles",
+      "name": "Mì ăn liền",
+      "categoryId": "grains_noodles",
+      "aliases": ["mì gói"],
+      "unitIds": ["g", "pack"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "egg_noodles",
+      "name": "Mì trứng",
+      "categoryId": "grains_noodles",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "glass_noodles",
+      "name": "Miến",
+      "categoryId": "grains_noodles",
+      "aliases": ["bún tàu"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "oats",
+      "name": "Yến mạch",
+      "categoryId": "grains_noodles",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "curry_powder",
+      "name": "Bột cà ri",
+      "categoryId": "seasonings",
+      "aliases": [],
+      "unitIds": ["g", "tsp", "tbsp"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "turmeric_powder",
+      "name": "Bột nghệ",
+      "categoryId": "seasonings",
+      "aliases": [],
+      "unitIds": ["g", "tsp", "tbsp"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "msg",
+      "name": "Bột ngọt",
+      "categoryId": "seasonings",
+      "aliases": ["mì chính"],
+      "unitIds": ["g", "tsp", "tbsp"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "baking_powder",
+      "name": "Bột nở",
+      "categoryId": "seasonings",
+      "aliases": ["baking powder"],
+      "unitIds": ["g", "tsp", "tbsp"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "brown_sugar",
+      "name": "Đường nâu",
+      "categoryId": "seasonings",
+      "aliases": [],
+      "unitIds": ["g", "tsp", "tbsp"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "rock_sugar",
+      "name": "Đường phèn",
+      "categoryId": "seasonings",
+      "aliases": [],
+      "unitIds": ["g", "tsp", "tbsp"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "sugar",
+      "name": "Đường trắng",
+      "categoryId": "seasonings",
+      "aliases": ["đường cát"],
+      "unitIds": ["g", "tsp", "tbsp"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "seasoning_powder",
+      "name": "Hạt nêm",
+      "categoryId": "seasonings",
+      "aliases": ["bột nêm"],
+      "unitIds": ["g", "tsp", "tbsp"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "star_anise",
+      "name": "Hoa hồi",
+      "categoryId": "seasonings",
+      "aliases": ["đại hồi"],
+      "unitIds": ["g", "piece"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "bay_leaf",
+      "name": "Lá nguyệt quế",
+      "categoryId": "seasonings",
+      "aliases": [],
+      "unitIds": ["g", "piece"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "yeast",
+      "name": "Men nở",
+      "categoryId": "seasonings",
+      "aliases": ["men bánh mì"],
+      "unitIds": ["g", "tsp", "tbsp"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "salt",
+      "name": "Muối",
+      "categoryId": "seasonings",
+      "aliases": ["muối ăn"],
+      "unitIds": ["g", "tsp", "tbsp"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "baking_soda",
+      "name": "Muối nở",
+      "categoryId": "seasonings",
+      "aliases": ["baking soda"],
+      "unitIds": ["g", "tsp", "tbsp"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "five_spice",
+      "name": "Ngũ vị hương",
+      "categoryId": "seasonings",
+      "aliases": ["bột ngũ vị hương"],
+      "unitIds": ["g", "tsp", "tbsp"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "chili_powder",
+      "name": "Ớt bột",
+      "categoryId": "seasonings",
+      "aliases": ["bột ớt"],
+      "unitIds": ["g", "tsp", "tbsp"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "cinnamon",
+      "name": "Quế",
+      "categoryId": "seasonings",
+      "aliases": ["quế thanh"],
+      "unitIds": ["g", "piece"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "cardamom",
+      "name": "Thảo quả",
+      "categoryId": "seasonings",
+      "aliases": [],
+      "unitIds": ["g", "fruit"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "pepper",
+      "name": "Tiêu",
+      "categoryId": "seasonings",
+      "aliases": ["tiêu đen", "hạt tiêu"],
+      "unitIds": ["g", "tsp"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "fermented_tofu",
+      "name": "Chao",
+      "categoryId": "oils_sauces",
+      "aliases": [],
+      "unitIds": ["g", "block", "tsp", "tbsp"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "cooking_oil",
+      "name": "Dầu ăn",
+      "categoryId": "oils_sauces",
+      "aliases": ["dầu thực vật"],
+      "unitIds": ["ml", "l", "tsp", "tbsp"],
+      "defaultUnitId": "ml"
+    },
+    {
+      "id": "oyster_sauce",
+      "name": "Dầu hào",
+      "categoryId": "oils_sauces",
+      "aliases": [],
+      "unitIds": ["ml", "l", "tsp", "tbsp"],
+      "defaultUnitId": "ml"
+    },
+    {
+      "id": "sesame_oil",
+      "name": "Dầu mè",
+      "categoryId": "oils_sauces",
+      "aliases": ["dầu vừng"],
+      "unitIds": ["ml", "l", "tsp", "tbsp"],
+      "defaultUnitId": "ml"
+    },
+    {
+      "id": "olive_oil",
+      "name": "Dầu ô liu",
+      "categoryId": "oils_sauces",
+      "aliases": ["dầu olive"],
+      "unitIds": ["ml", "l", "tsp", "tbsp"],
+      "defaultUnitId": "ml"
+    },
+    {
+      "id": "vinegar",
+      "name": "Giấm gạo",
+      "categoryId": "oils_sauces",
+      "aliases": ["dấm gạo", "giấm"],
+      "unitIds": ["ml", "l", "tsp", "tbsp"],
+      "defaultUnitId": "ml"
+    },
+    {
+      "id": "fermented_fish_sauce",
+      "name": "Mắm nêm",
+      "categoryId": "oils_sauces",
+      "aliases": [],
+      "unitIds": ["ml", "tsp", "tbsp"],
+      "defaultUnitId": "ml"
+    },
+    {
+      "id": "shrimp_paste",
+      "name": "Mắm tôm",
+      "categoryId": "oils_sauces",
+      "aliases": [],
+      "unitIds": ["g", "tsp", "tbsp"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "honey",
+      "name": "Mật ong",
+      "categoryId": "oils_sauces",
+      "aliases": [],
+      "unitIds": ["ml", "tsp", "tbsp"],
+      "defaultUnitId": "ml"
+    },
+    {
+      "id": "coconut_milk",
+      "name": "Nước cốt dừa",
+      "categoryId": "oils_sauces",
+      "aliases": [],
+      "unitIds": ["ml", "l", "can"],
+      "defaultUnitId": "ml"
+    },
+    {
+      "id": "coconut_water",
+      "name": "Nước dừa",
+      "categoryId": "oils_sauces",
+      "aliases": [],
+      "unitIds": ["ml", "l"],
+      "defaultUnitId": "ml"
+    },
+    {
+      "id": "fish_sauce",
+      "name": "Nước mắm",
+      "categoryId": "oils_sauces",
+      "aliases": [],
+      "unitIds": ["ml", "l", "tsp", "tbsp"],
+      "defaultUnitId": "ml"
+    },
+    {
+      "id": "soy_sauce",
+      "name": "Nước tương",
+      "categoryId": "oils_sauces",
+      "aliases": ["xì dầu"],
+      "unitIds": ["ml", "l", "tsp", "tbsp"],
+      "defaultUnitId": "ml"
+    },
+    {
+      "id": "rice_wine",
+      "name": "Rượu nấu ăn",
+      "categoryId": "oils_sauces",
+      "aliases": ["rượu trắng"],
+      "unitIds": ["ml", "l", "tsp", "tbsp"],
+      "defaultUnitId": "ml"
+    },
+    {
+      "id": "chili_paste",
+      "name": "Sa tế",
+      "categoryId": "oils_sauces",
+      "aliases": [],
+      "unitIds": ["g", "tsp", "tbsp"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "ketchup",
+      "name": "Tương cà",
+      "categoryId": "oils_sauces",
+      "aliases": ["xốt cà chua"],
+      "unitIds": ["ml", "l", "tsp", "tbsp"],
+      "defaultUnitId": "ml"
+    },
+    {
+      "id": "hoisin_sauce",
+      "name": "Tương đen",
+      "categoryId": "oils_sauces",
+      "aliases": ["tương ngọt"],
+      "unitIds": ["ml", "l", "tsp", "tbsp"],
+      "defaultUnitId": "ml"
+    },
+    {
+      "id": "chili_sauce",
+      "name": "Tương ớt",
+      "categoryId": "oils_sauces",
+      "aliases": [],
+      "unitIds": ["ml", "l", "tsp", "tbsp"],
+      "defaultUnitId": "ml"
+    },
+    {
+      "id": "mayonnaise",
+      "name": "Xốt mayonnaise",
+      "categoryId": "oils_sauces",
+      "aliases": ["sốt mayonnaise"],
+      "unitIds": ["g", "tbsp"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "canned_tuna",
+      "name": "Cá ngừ đóng hộp",
+      "categoryId": "processed",
+      "aliases": [],
+      "unitIds": ["g", "can"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "fish_cake",
+      "name": "Chả cá",
+      "categoryId": "processed",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "vietnamese_sausage",
+      "name": "Chả lụa",
+      "categoryId": "processed",
+      "aliases": ["giò lụa"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "preserved_radish",
+      "name": "Củ cải muối",
+      "categoryId": "processed",
+      "aliases": ["xá bấu"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "pickled_shallot",
+      "name": "Củ kiệu",
+      "categoryId": "processed",
+      "aliases": ["kiệu chua"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "pickled_mustard",
+      "name": "Dưa cải chua",
+      "categoryId": "processed",
+      "aliases": ["cải chua", "dưa chua"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "kimchi",
+      "name": "Kim chi",
+      "categoryId": "processed",
+      "aliases": ["kimchi"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "chinese_sausage",
+      "name": "Lạp xưởng",
+      "categoryId": "processed",
+      "aliases": [],
+      "unitIds": ["g", "piece"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "dried_bamboo_shoot",
+      "name": "Măng khô",
+      "categoryId": "processed",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "dried_wood_ear",
+      "name": "Mộc nhĩ khô",
+      "categoryId": "processed",
+      "aliases": ["nấm mèo khô"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "dried_shiitake",
+      "name": "Nấm hương khô",
+      "categoryId": "processed",
+      "aliases": ["nấm đông cô khô"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "fermented_pork",
+      "name": "Nem chua",
+      "categoryId": "processed",
+      "aliases": [],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "seaweed",
+      "name": "Rong biển",
+      "categoryId": "processed",
+      "aliases": ["rong biển khô"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "bacon",
+      "name": "Thịt xông khói",
+      "categoryId": "processed",
+      "aliases": ["ba rọi xông khói"],
+      "unitIds": ["g", "kg"],
+      "defaultUnitId": "g"
+    },
+    {
+      "id": "sausage",
+      "name": "Xúc xích",
+      "categoryId": "processed",
+      "aliases": [],
+      "unitIds": ["g", "piece"],
+      "defaultUnitId": "g"
+    }
+  ]
+}

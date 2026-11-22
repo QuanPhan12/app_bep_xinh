@@ -1,7 +1,9 @@
-import 'package:app_bep_xinh/core/utils/app_layout.dart';
+import 'package:app_bep_xinh/core/colors/app_colors.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+import 'package:app_bep_xinh/core/widgets/app_adaptive_sheet.dart';
 import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
 import 'package:app_bep_xinh/core/widgets/app_button.dart';
-import 'package:app_bep_xinh/core/widgets/app_feature_theme.dart';
+import 'package:app_bep_xinh/core/widgets/app_text_action.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -11,13 +13,10 @@ import 'fridge_ingredient_picker.dart';
 Future<void> showFridgeIngredientSheet(BuildContext context) async {
   final cubit = context.read<FridgeCubit>();
   cubit.searchIngredients('');
-  await showModalBottomSheet<void>(
+  await showAppAdaptiveSheet<void>(
     context: context,
-    useRootNavigator: true,
-    isScrollControlled: true,
-    useSafeArea: true,
+    showDragHandle: false,
     backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-    constraints: BoxConstraints(maxWidth: AppLayout.sheetWidth(context)),
     builder: (_) =>
         BlocProvider.value(value: cubit, child: const _FridgeIngredientSheet()),
   );
@@ -56,20 +55,40 @@ class _FridgeIngredientSheet extends StatelessWidget {
                           IconButton(
                             tooltip: 'Đóng bảng nguyên liệu',
                             onPressed: () => Navigator.of(context).pop(),
-                            icon: const Icon(Icons.close_rounded),
+                            icon: const Icon(PhosphorIconsRegular.x),
                           ),
                         ],
                       ),
                       BlocSelector<FridgeCubit, FridgeState, int>(
                         selector: (state) => state.selectedIds.length,
-                        builder: (_, count) => Semantics(
-                          liveRegion: true,
-                          child: Text(
-                            'Đã chọn $count nguyên liệu · Tự động lưu',
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppFeatureTheme.muted,
+                        builder: (context, count) => Row(
+                          children: [
+                            Expanded(
+                              child: Semantics(
+                                liveRegion: true,
+                                child: Text(
+                                  'Đã chọn $count nguyên liệu',
+                                  style: AppTextStyles.bodySmall.copyWith(
+                                    color: context.colors.textSecondary,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
+                            if (count > 0) ...[
+                              const SizedBox(width: 12),
+                              AppTextAction(
+                                label: 'Xóa hết',
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                actionName: 'fridge_clear_all',
+                                allowConcurrent: true,
+                                onTap: context
+                                    .read<FridgeCubit>()
+                                    .clearIngredients,
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                       const SizedBox(height: 20),

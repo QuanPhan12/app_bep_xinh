@@ -1,12 +1,12 @@
+import 'package:app_bep_xinh/core/widgets/app_sliver_app_bar.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
 import 'package:app_bep_xinh/core/utils/app_layout.dart';
 import 'package:app_bep_xinh/core/widgets/app_adaptive_columns.dart';
 import 'package:app_bep_xinh/core/dimensions/app_size.dart';
 import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
-import 'package:app_bep_xinh/core/widgets/app_button.dart';
-import 'package:app_bep_xinh/core/widgets/app_card.dart';
+import 'package:app_bep_xinh/core/widgets/app_feature_header.dart';
 import 'package:app_bep_xinh/core/widgets/app_tap.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class _CartItem {
@@ -48,140 +48,130 @@ class _CartMobileViewState extends State<CartMobileView> {
     final totalCount = _itemsM1.length + _itemsM2.length;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: Row(
-          children: [
-            const Icon(CupertinoIcons.cart_fill, color: AppColors.primary),
-            SizedBox(width: 8.w(context)),
-            Expanded(
-              child: Text(
-                'Giỏ đi chợ & Nguyên liệu',
-                style: AppTextStyles.titleLarge.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              ),
+      backgroundColor: context.colors.background,
+      body: CustomScrollView(
+        key: const PageStorageKey('cart_scroll'),
+        slivers: [
+          AppSliverAppBar.tab(title: 'Giỏ đi chợ & Nguyên liệu'),
+          SliverPadding(
+            padding: EdgeInsets.symmetric(
+              horizontal: 16.w(context),
+              vertical: 16.h(context),
             ),
-          ],
-        ),
-        backgroundColor: AppColors.surface,
-        elevation: 0.5,
-        centerTitle: false,
-        actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.share_outlined,
-              color: AppColors.textSecondary,
-            ),
-            onPressed: () {},
-          ),
-          SizedBox(width: 8.w(context)),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(
-          horizontal: 16.w(context),
-          vertical: 16.h(context),
-        ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: AppLayout.pageWidth(context)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Thẻ tiến độ mua sắm
-                Container(
-                  padding: EdgeInsets.all(16.w(context)),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(AppCard.radius),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.03),
-                        blurRadius: 10,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
+            sliver: SliverToBoxAdapter(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: AppLayout.pageWidth(context),
                   ),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        width: 50.w(context),
-                        height: 50.w(context),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary50,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            '$checkedCount/$totalCount',
-                            style: AppTextStyles.labelMedium.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ),
+                      const AppFeatureHeader(
+                        eyebrow: 'DANH SÁCH MẪU',
+                        title: 'Chuẩn bị cho bữa ăn',
+                        description: 'Thử đánh dấu nguyên liệu đã chuẩn bị. Danh sách mẫu chỉ được giữ trong phiên hiện tại.',
                       ),
-                      SizedBox(width: 14.w(context)),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      const SizedBox(height: 16),
+                      // Thẻ tiến độ mua sắm
+                      Container(
+                        padding: EdgeInsets.all(16.w(context)),
+                        decoration: BoxDecoration(
+                          color: context.colors.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.03),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Row(
                           children: [
-                            Text(
-                              'Đã chuẩn bị $checkedCount trên $totalCount món',
-                              style: AppTextStyles.titleSmall.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
+                            Container(
+                              width: 50.w(context),
+                              height: 50.w(context),
+                              decoration: BoxDecoration(
+                                color: context.colors.primary50,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '$checkedCount/$totalCount',
+                                  style: AppTextStyles.labelMedium.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
                               ),
                             ),
-                            SizedBox(height: 4.h(context)),
-                            LinearProgressIndicator(
-                              value: totalCount > 0
-                                  ? checkedCount / totalCount
-                                  : 0,
-                              backgroundColor: AppColors.surfaceVariant,
-                              valueColor: const AlwaysStoppedAnimation(
-                                AppColors.primary,
+                            SizedBox(width: 14.w(context)),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Đã chuẩn bị $checkedCount trên $totalCount món',
+                                    style: AppTextStyles.titleSmall.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: context.colors.textPrimary,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4.h(context)),
+                                  LinearProgressIndicator(
+                                    value: totalCount > 0
+                                        ? checkedCount / totalCount
+                                        : 0,
+                                    backgroundColor: context.colors.surfaceVariant,
+                                    valueColor: const AlwaysStoppedAnimation(
+                                      AppColors.primary,
+                                    ),
+                                    minHeight: 6,
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
+                                ],
                               ),
-                              minHeight: 6,
-                              borderRadius: BorderRadius.circular(3),
                             ),
                           ],
                         ),
                       ),
+                      SizedBox(height: 20.h(context)),
+
+                      // Nhóm 1: Canh sườn hầm rau củ
+                      AppAdaptiveColumns(
+                        breakpoint: 760,
+                        spacing: 18,
+                        primary: _buildRecipeGroup(
+                          title: 'Canh sườn hầm rau củ',
+                          items: _itemsM1,
+                        ),
+
+                        // Nhóm 2: Bò né sốt tiêu đen
+                        secondary: _buildRecipeGroup(
+                          title: 'Bò né sốt tiêu đen bánh mì',
+                          items: _itemsM2,
+                        ),
+                      ),
+                      SizedBox(height: 24.h(context)),
+
+                      if (checkedCount == totalCount)
+                        Semantics(
+                          liveRegion: true,
+                          child: Text(
+                            'Bạn đã đánh dấu đủ nguyên liệu trong danh sách mẫu.',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: context.colors.secondary,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
-                SizedBox(height: 20.h(context)),
-
-                // Nhóm 1: Canh sườn hầm rau củ
-                AppAdaptiveColumns(
-                  breakpoint: 760,
-                  spacing: 18,
-                  primary: _buildRecipeGroup(
-                    title: 'Canh sườn hầm rau củ',
-                    items: _itemsM1,
-                  ),
-
-                  // Nhóm 2: Bò né sốt tiêu đen
-                  secondary: _buildRecipeGroup(
-                    title: 'Bò né sốt tiêu đen bánh mì',
-                    items: _itemsM2,
-                  ),
-                ),
-                SizedBox(height: 24.h(context)),
-
-                // Nút hoàn thành
-                AppButton(
-                  text: 'Hoàn thành đi chợ ($checkedCount/$totalCount)',
-                  actionName: 'cart_complete_checkout',
-                  onPressed: () {},
-                ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -192,8 +182,8 @@ class _CartMobileViewState extends State<CartMobileView> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppCard.radius),
+        color: context.colors.surface,
+        borderRadius: BorderRadius.circular(12),
       ),
       padding: EdgeInsets.all(14.w(context)),
       child: Column(
@@ -202,7 +192,7 @@ class _CartMobileViewState extends State<CartMobileView> {
           Row(
             children: [
               const Icon(
-                Icons.soup_kitchen_rounded,
+                PhosphorIconsRegular.cookingPot,
                 color: AppColors.primary,
                 size: 18,
               ),
@@ -212,7 +202,7 @@ class _CartMobileViewState extends State<CartMobileView> {
                   title,
                   style: AppTextStyles.titleSmall.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                 ),
               ),
@@ -220,48 +210,55 @@ class _CartMobileViewState extends State<CartMobileView> {
           ),
           const Divider(height: 20),
           ...items.map((item) {
-            return AppTap(
-              actionName: 'cart_toggle_${item.name}',
-              onTap: () {
-                setState(() {
-                  item.isChecked = !item.isChecked;
-                });
-              },
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 6.h(context)),
-                child: Row(
-                  children: [
-                    Icon(
-                      item.isChecked
-                          ? Icons.check_circle_rounded
-                          : Icons.radio_button_unchecked_rounded,
-                      color: item.isChecked
-                          ? AppColors.primary
-                          : AppColors.textTertiary,
-                      size: 20,
-                    ),
-                    SizedBox(width: 10.w(context)),
-                    Expanded(
-                      child: Text(
-                        item.name,
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          decoration: item.isChecked
-                              ? TextDecoration.lineThrough
-                              : null,
+            return Semantics(
+              button: true,
+              checked: item.isChecked,
+              child: AppTap(
+                actionName: 'cart_toggle_${item.name}',
+                onTap: () {
+                  setState(() {
+                    item.isChecked = !item.isChecked;
+                  });
+                },
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 48),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 6.h(context)),
+                    child: Row(
+                      children: [
+                        Icon(
+                          item.isChecked
+                              ? PhosphorIconsRegular.checkCircle
+                              : PhosphorIconsRegular.circle,
                           color: item.isChecked
-                              ? AppColors.textMuted
-                              : AppColors.textPrimary,
+                              ? AppColors.primary
+                              : context.colors.textTertiary,
+                          size: 20,
                         ),
-                      ),
+                        SizedBox(width: 10.w(context)),
+                        Expanded(
+                          child: Text(
+                            item.name,
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              decoration: item.isChecked
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                              color: item.isChecked
+                                  ? context.colors.textMuted
+                                  : context.colors.textPrimary,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          item.amount,
+                          style: AppTextStyles.labelMedium.copyWith(
+                            color: context.colors.textSecondary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      item.amount,
-                      style: AppTextStyles.labelMedium.copyWith(
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             );

@@ -1,12 +1,12 @@
+import 'package:app_bep_xinh/core/colors/app_colors.dart';
 import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
 import 'package:app_bep_xinh/core/widgets/app_card.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 import '../models/recipe_content.dart';
 import '../presentation/recipe_labels.dart';
 import 'recipe_image_view.dart';
-
-import 'package:app_bep_xinh/core/widgets/app_feature_theme.dart';
 
 class RecipeContentOverview extends StatelessWidget {
   final RecipeContent content;
@@ -37,10 +37,10 @@ class RecipeContentOverview extends StatelessWidget {
             children: [
               Text(
                 content.title,
-                style: AppTextStyles.headlineSmall.copyWith(
-                  color: AppFeatureTheme.ink,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -.6,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: context.colors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -.3,
                   height: 1.25,
                 ),
               ),
@@ -49,8 +49,8 @@ class RecipeContentOverview extends StatelessWidget {
                 Text(
                   content.description,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppFeatureTheme.muted,
-                    height: 1.65,
+                    color: context.colors.textSecondary,
+                    height: 1.55,
                   ),
                 ),
               ],
@@ -63,8 +63,8 @@ class RecipeContentOverview extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppFeatureTheme.herbWash,
-                  borderRadius: BorderRadius.circular(AppCard.radius),
+                  color: Theme.of(context).colorScheme.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: LayoutBuilder(
                   builder: (context, constraints) => Wrap(
@@ -87,7 +87,7 @@ class RecipeContentOverview extends StatelessWidget {
                               Text(
                                 item.$2,
                                 style: AppTextStyles.titleSmall.copyWith(
-                                  color: AppFeatureTheme.herb,
+                                  color: context.colors.textPrimary,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -113,7 +113,9 @@ class RecipeContentOverview extends StatelessWidget {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: AppFeatureTheme.peach,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -141,9 +143,22 @@ class RecipeContentOverview extends StatelessWidget {
                   runSpacing: 8,
                   children: [
                     if (rating != null)
-                      Text(
-                        'Đánh giá ${rating!.toStringAsFixed(1)} / 5',
-                        style: AppTextStyles.bodySmall,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            PhosphorIconsFill.star,
+                            size: 16,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              'Điểm tham khảo ${rating!.toStringAsFixed(1)} / 5',
+                              style: AppTextStyles.bodySmall,
+                            ),
+                          ),
+                        ],
                       ),
                     if (calories != null)
                       Text(

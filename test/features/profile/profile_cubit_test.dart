@@ -24,6 +24,64 @@ void main() {
     await favorites.dispose();
   });
 
+  testWidgets('pending profile stops loading, retries and ignores late data', (
+    tester,
+  ) async {
+    final pending = Completer<ProfileData>();
+    service.onFetch = () => pending.future;
+    final loading = cubit.load();
+    expect(cubit.state.status, ProfileStatus.loading);
+
+    await tester.pump(const Duration(seconds: 21));
+    await loading;
+    expect(cubit.state.status, ProfileStatus.failure);
+    expect(cubit.state.message, contains('Kiểm tra kết nối mạng'));
+
+    service.onFetch = null;
+    await cubit.load();
+    expect(cubit.state.status, ProfileStatus.ready);
+    final recovered = cubit.state.data;
+
+    pending.complete(
+      profileFixture().copyWith(
+        account: service.account.copyWith(name: 'Kết quả cũ'),
+      ),
+    );
+    await tester.pump();
+    expect(cubit.state.data, recovered);
+    expect(cubit.state.status, ProfileStatus.ready);
+  });
+
+  test('time filter composes with tabs and live saved recipes', () async {
+    final fixture = profileFixture();
+    service.onFetch = () async => fixture.copyWith(
+      recipes: [
+        for (final recipe in fixture.recipes)
+          recipe.copyWith(
+            cookTimeMinutes: recipe.id == 'bo_ne_tieu_den' ? 20 : 30,
+          ),
+      ],
+    );
+    await cubit.load();
+    cubit.selectFilter(ProfileRecipeFilter.under30);
+    expect(cubit.state.visibleRecipes.map((r) => r.id), ['bo_ne_tieu_den']);
+    expect(cubit.state.data!.ownRecipes.length, 2);
+    cubit.selectTab(ProfileTab.saved);
+    expect(cubit.state.visibleRecipes, isEmpty);
+    await favorites.setFavorite('bo_ne_tieu_den', true);
+    await Future<void>.delayed(Duration.zero);
+    expect(cubit.state.visibleRecipes.map((r) => r.id), ['bo_ne_tieu_den']);
+    cubit.selectFilter(ProfileRecipeFilter.from30);
+    expect(
+      cubit.state.visibleRecipes.every((r) => r.cookTimeMinutes >= 30),
+      isTrue,
+    );
+    expect(cubit.state.visibleRecipes, isNotEmpty);
+    await cubit.load();
+    expect(cubit.state.filter, ProfileRecipeFilter.from30);
+    expect(cubit.state.tab, ProfileTab.saved);
+  });
+
   test(
     'load deduplicates, retries and keeps loaded content on refresh failure',
     () async {

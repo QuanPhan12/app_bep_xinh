@@ -1,3 +1,4 @@
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -10,6 +11,7 @@ import '../../../core/widgets/widgets.dart';
 import '../cubits/register/register.dart';
 import 'login_text_field.dart';
 import 'register_checkbox_policy.dart';
+import '../validation/validation.dart';
 
 class RegisterForm extends StatelessWidget {
   final VoidCallback? onRegisterSuccess;
@@ -19,6 +21,9 @@ class RegisterForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = context.appSize;
+    final busy = context.select(
+      (RegisterCubit cubit) => cubit.state.status == RegisterStatus.loading,
+    );
 
     return BlocListener<RegisterCubit, RegisterState>(
       listenWhen: (previous, current) => previous.status != current.status,
@@ -46,9 +51,11 @@ class RegisterForm extends StatelessWidget {
         children: [
           // 1. Tên hiển thị
           LoginTextField(
+            enabled: !busy,
             label: 'Tên hiển thị',
+            validator: Validation.validateName,
             initialValue: context.read<RegisterCubit>().state.name,
-            prefixIcon: Icons.person_outline_rounded,
+            prefixIcon: PhosphorIconsRegular.user,
             keyboardType: TextInputType.text,
             height: 50.h(context),
             onChanged: context.read<RegisterCubit>().nameChanged,
@@ -57,9 +64,11 @@ class RegisterForm extends StatelessWidget {
 
           // 2. Email
           LoginTextField(
+            enabled: !busy,
             label: 'Email',
+            validator: (value) => Validation.validateEmail(value?.trim()),
             initialValue: context.read<RegisterCubit>().state.email,
-            prefixIcon: Icons.email_outlined,
+            prefixIcon: PhosphorIconsRegular.envelopeSimple,
             keyboardType: TextInputType.emailAddress,
             height: 50.h(context),
             onChanged: context.read<RegisterCubit>().emailChanged,
@@ -71,12 +80,14 @@ class RegisterForm extends StatelessWidget {
             selector: (state) => state.isPasswordObscured,
             builder: (context, isObscured) {
               return LoginTextField(
+                enabled: !busy,
                 label: 'Mật khẩu',
+                validator: Validation.validatePassword,
                 initialValue: context.read<RegisterCubit>().state.password,
-                prefixIcon: Icons.lock_outline_rounded,
+                prefixIcon: PhosphorIconsRegular.lockSimple,
                 suffixIcon: isObscured
-                    ? Icons.visibility_off_outlined
-                    : Icons.visibility_outlined,
+                    ? PhosphorIconsRegular.eyeSlash
+                    : PhosphorIconsRegular.eye,
                 obscureText: isObscured,
                 height: 50.h(context),
                 onChanged: context.read<RegisterCubit>().passwordChanged,
@@ -92,15 +103,16 @@ class RegisterForm extends StatelessWidget {
             selector: (state) => state.isConfirmPasswordObscured,
             builder: (context, isObscured) {
               return LoginTextField(
+                enabled: !busy,
                 label: 'Xác nhận mật khẩu',
                 initialValue: context
                     .read<RegisterCubit>()
                     .state
                     .confirmPassword,
-                prefixIcon: Icons.lock_outline_rounded,
+                prefixIcon: PhosphorIconsRegular.lockSimple,
                 suffixIcon: isObscured
-                    ? Icons.visibility_off_outlined
-                    : Icons.visibility_outlined,
+                    ? PhosphorIconsRegular.eyeSlash
+                    : PhosphorIconsRegular.eye,
                 obscureText: isObscured,
                 height: 50.h(context),
                 onChanged: context.read<RegisterCubit>().confirmPasswordChanged,

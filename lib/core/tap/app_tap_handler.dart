@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+
 import 'tap_config.dart';
 import 'tap_interceptor.dart';
 
@@ -56,7 +58,8 @@ class AppTapHandler {
   /// Cấu hình logic xác thực đăng nhập toàn cục
   void configureAuth({
     required bool Function() isAuthenticated,
-    required void Function(BuildContext context, TapConfig config) onUnauthenticated,
+    required void Function(BuildContext context, TapConfig config)
+    onUnauthenticated,
   }) {
     _authInterceptor.isAuthenticated = isAuthenticated;
     _authInterceptor.onUnauthenticated = onUnauthenticated;
@@ -64,7 +67,8 @@ class AppTapHandler {
 
   /// Cấu hình tracking / analytics toàn cục (Firebase, Mixpanel,...)
   void configureAnalytics({
-    required void Function(String actionName, Map<String, dynamic>? params) onTrack,
+    required void Function(String actionName, Map<String, dynamic>? params)
+    onTrack,
   }) {
     _analyticsInterceptor.onTrack = onTrack;
   }
@@ -98,7 +102,8 @@ class AppTapHandler {
   }) async {
     if (onTap == null) return;
 
-    final resolvedConfig = config ??
+    final resolvedConfig =
+        config ??
         TapConfig(
           actionName: actionName,
           requiresAuth: requiresAuth,
@@ -120,8 +125,10 @@ class AppTapHandler {
         _notifyComplete(interceptors, resolvedConfig);
         return;
       }
-      final canContinue =
-          await interceptor.beforeExecute(context, resolvedConfig);
+      final canContinue = await interceptor.beforeExecute(
+        context,
+        resolvedConfig,
+      );
       if (!canContinue) {
         // Bị chặn bởi một Interceptor (vd: mất mạng, chưa đăng nhập, spam, ấn 2 nút cùng lúc)
         _notifyComplete(interceptors, resolvedConfig);

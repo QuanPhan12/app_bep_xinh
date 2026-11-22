@@ -40,7 +40,7 @@ class IngredientPickerCubit extends Cubit<IngredientPickerState> {
       final allowedUnits = selected?.unitIds ?? catalog.unitsById.keys.toList();
       final unit = savedUnit != null && allowedUnits.contains(savedUnit.id)
           ? savedUnit
-          : catalog.unitsById[allowedUnits.first];
+          : catalog.unitsById[selected?.preferredUnitId ?? allowedUnits.first];
       emit(
         state.copyWith(
           catalog: catalog,
@@ -111,7 +111,7 @@ class IngredientPickerCubit extends Cubit<IngredientPickerState> {
         amount: '',
         note: '',
         toTaste: false,
-        unit: state.catalog!.unitsById[known.unitIds.first],
+        unit: state.catalog!.unitsById[known.preferredUnitId],
         searching: false,
       ),
     );

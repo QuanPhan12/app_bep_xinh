@@ -14,8 +14,9 @@ class ForgotPasswordMobileView extends StatelessWidget {
     final size = context.appSize;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: CustomScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         slivers: [
           const AppSliverAppBar(title: 'Quên mật khẩu', pinned: true),
           SliverPadding(

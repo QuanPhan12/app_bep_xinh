@@ -1,3 +1,4 @@
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import 'package:app_bep_xinh/core/widgets/app_text_action.dart';
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
 import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
@@ -57,11 +58,12 @@ class RecipeIngredientAmountFields extends StatelessWidget {
                 Text('Đơn vị', style: AppTextStyles.labelMedium),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<IngredientUnit>(
+                  icon: const Icon(PhosphorIconsRegular.caretDown),
                   key: ValueKey('ingredient_unit_${state.unit?.id}'),
                   initialValue: state.unit,
                   isExpanded: true,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                   decoration: InputDecoration(errorText: state.errors['unit']),
                   items: [

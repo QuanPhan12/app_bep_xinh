@@ -184,6 +184,7 @@ class RecipeStep extends Equatable {
 /// The recipe authored by the form. Identity, author and rating are server metadata.
 class RecipeContent extends Equatable {
   final String title;
+  final bool isBanner;
   final String description;
   final RecipeImage? cover;
   final int preparationMinutes;
@@ -198,6 +199,7 @@ class RecipeContent extends Equatable {
   final List<RecipeStep> steps;
   RecipeContent({
     required this.title,
+    this.isBanner = false,
     this.description = '',
     this.cover,
     required this.preparationMinutes,
@@ -275,6 +277,7 @@ class RecipeContent extends Equatable {
     final legacyImage = reader.optionalString('image');
     return RecipeContent(
       title: _text(json, 'title', RecipeLimits.titleLength, required: true),
+      isBanner: reader.boolean('isBanner'),
       description: _text(json, 'description', RecipeLimits.descriptionLength),
       cover: json['cover'] != null
           ? _image(json['cover'])
@@ -298,6 +301,7 @@ class RecipeContent extends Equatable {
 
   Map<String, dynamic> toJson() => {
     'title': title,
+    'isBanner': isBanner,
     'description': description,
     'cover': cover?.toJson(),
     'preparationMinutes': preparationMinutes,
@@ -322,6 +326,7 @@ class RecipeContent extends Equatable {
   @override
   List<Object?> get props => [
     title,
+    isBanner,
     description,
     cover,
     preparationMinutes,

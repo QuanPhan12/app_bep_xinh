@@ -16,7 +16,8 @@
         "tofu",
         "tomato",
         "scallion"
-      ]
+      ],
+      "image": "assets/images/fridge_tofu_tomato.webp"
     },
     {
       "id": "egg_tomato_soup",
@@ -27,7 +28,8 @@
         "egg",
         "tomato",
         "scallion"
-      ]
+      ],
+      "image": "assets/images/fridge_egg_tomato_soup.webp"
     },
     {
       "id": "beef_tomato",
@@ -38,7 +40,8 @@
         "beef",
         "tomato",
         "scallion"
-      ]
+      ],
+      "image": "assets/images/fridge_beef_tomato.webp"
     },
     {
       "id": "chicken_salad",
@@ -62,7 +65,7 @@
         "butter",
         "garlic"
       ],
-      "image": "assets/images/ca_hoi.png"
+      "image": "assets/images/ca_hoi_ap_chao.png"
     },
     {
       "id": "kimchi_soup",
@@ -74,7 +77,7 @@
         "pork",
         "tofu"
       ],
-      "image": "assets/images/canh_kimchi.png"
+      "image": "assets/images/fridge_kimchi_soup.webp"
     }
   ]
 }

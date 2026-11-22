@@ -16,16 +16,15 @@ class Validation {
     String? password,
     String? confirmPassword,
     bool isTermsAccepted = true,
-  }) =>
-      [
-        validateName(name),
-        validateEmail(email),
-        validatePassword(password),
-        if (confirmPassword != null && password != confirmPassword)
-          'Mật khẩu xác nhận không khớp',
-        if (!isTermsAccepted)
-          'Vui lòng đồng ý với Điều khoản dịch vụ và Chính sách bảo mật',
-      ].nonNulls.firstOrNull;
+  }) => [
+    validateName(name),
+    validateEmail(email),
+    validatePassword(password),
+    if (confirmPassword != null && password != confirmPassword)
+      'Mật khẩu xác nhận không khớp',
+    if (!isTermsAccepted)
+      'Vui lòng đồng ý với Điều khoản dịch vụ và Chính sách bảo mật',
+  ].nonNulls.firstOrNull;
 
   /// Validate lỗi quên mật khẩu
   static String? getForgotPasswordValidationErrors({String? email}) =>
@@ -35,6 +34,7 @@ class Validation {
     null => null,
     '' => 'Vui lòng nhập tên hiển thị',
     final v when v.trim().length < 2 => 'Tên hiển thị phải từ 2 ký tự trở lên',
+    final v when v.trim().length > 60 => 'Tên hiển thị tối đa 60 ký tự',
     _ => null,
   };
 

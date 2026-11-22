@@ -7,8 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubits/recipe_editor/recipe_editor_cubit.dart';
 import 'recipe_editor_labels.dart';
 
-import 'package:app_bep_xinh/core/widgets/app_feature_theme.dart';
-
 class RecipeEditorProgress extends StatelessWidget {
   const RecipeEditorProgress({super.key});
 
@@ -22,7 +20,7 @@ class RecipeEditorProgress extends StatelessWidget {
             previous.hasUnsavedChanges != current.hasUnsavedChanges ||
             previous.hasSavedDraft != current.hasSavedDraft,
         builder: (context, state) => Container(
-          decoration: const BoxDecoration(color: AppFeatureTheme.canvas),
+          decoration: BoxDecoration(color: context.colors.background),
           padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,7 +81,7 @@ class RecipeEditorProgress extends StatelessWidget {
                                     style: AppTextStyles.bodySmall.copyWith(
                                       color: step == state.step
                                           ? AppColors.primary
-                                          : AppColors.textSecondary,
+                                          : context.colors.textSecondary,
                                       fontWeight: step == state.step
                                           ? FontWeight.w600
                                           : FontWeight.w400,
@@ -97,7 +95,7 @@ class RecipeEditorProgress extends StatelessWidget {
                                         ? AppColors.primary
                                         : step == state.step
                                         ? AppColors.primary
-                                        : AppColors.border,
+                                        : context.colors.border,
                                     borderRadius: BorderRadius.circular(3),
                                   ),
                                 ),

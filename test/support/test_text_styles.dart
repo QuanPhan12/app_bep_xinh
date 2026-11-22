@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 
 /// UI tests kiểm tra layout/tương tác, không phụ thuộc tải Google Fonts.
 void configureTestTextStyles() {
+  AppTextStyles.primaryButton = const TextStyle(
+    fontSize: 15,
+    fontWeight: FontWeight.w600,
+  );
   AppTextStyles.titleLarge = const TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.w700,

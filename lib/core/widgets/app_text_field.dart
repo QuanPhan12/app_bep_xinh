@@ -1,4 +1,5 @@
-import 'package:app_bep_xinh/core/colors/app_colors.dart';
+import '../../sollume/shared/app_text_field.dart' as sollume;
+
 import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,6 +18,7 @@ class AppTextField extends StatelessWidget {
   final bool numeric;
   final bool decimal;
   final bool enabled;
+  final bool showCounter;
 
   const AppTextField({
     super.key,
@@ -32,6 +34,7 @@ class AppTextField extends StatelessWidget {
     this.numeric = false,
     this.decimal = false,
     this.enabled = true,
+    this.showCounter = true,
   });
 
   @override
@@ -42,15 +45,14 @@ class AppTextField extends StatelessWidget {
         Text(label!, style: AppTextStyles.labelMedium),
         const SizedBox(height: 8),
       ],
-      TextFormField(
+      sollume.AppTextField(
         key: ValueKey(fieldId),
         initialValue: initialValue,
         onChanged: onChanged,
         enabled: enabled,
-        style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
         minLines: minLines,
         maxLines: maxLines,
-        maxLength: maxLength,
+        maxLength: showCounter ? maxLength : null,
         keyboardType: decimal
             ? const TextInputType.numberWithOptions(decimal: true)
             : numeric
@@ -61,19 +63,18 @@ class AppTextField extends StatelessWidget {
         textCapitalization: numeric || decimal
             ? TextCapitalization.none
             : TextCapitalization.sentences,
-        inputFormatters: decimal
-            ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))]
-            : numeric
-            ? [FilteringTextInputFormatter.digitsOnly]
-            : null,
+        inputFormatters: [
+          if (!showCounter) LengthLimitingTextInputFormatter(maxLength),
+          if (decimal)
+            FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))
+          else if (numeric)
+            FilteringTextInputFormatter.digitsOnly,
+        ],
         textInputAction: maxLines > 1
             ? TextInputAction.newline
             : TextInputAction.next,
-        decoration: InputDecoration(
-          hintText: hint,
-          errorText: error,
-          counterText: '',
-        ),
+        hintText: hint,
+        errorText: error,
       ),
     ],
   );

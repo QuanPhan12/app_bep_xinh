@@ -1,7 +1,6 @@
-import 'package:app_bep_xinh/core/widgets/app_feature_theme.dart';
+import 'package:app_bep_xinh/core/colors/app_colors.dart';
 import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
 import 'package:flutter/material.dart';
-import 'package:app_bep_xinh/core/widgets/app_card.dart';
 
 class RecipeNotes extends StatelessWidget {
   final String title;
@@ -12,8 +11,8 @@ class RecipeNotes extends StatelessWidget {
     width: double.infinity,
     padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
-      color: AppFeatureTheme.herbWash,
-      borderRadius: BorderRadius.circular(AppCard.radius),
+      color: context.colors.secondaryLight,
+      borderRadius: BorderRadius.circular(12),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -21,7 +20,7 @@ class RecipeNotes extends StatelessWidget {
         Text(
           title,
           style: AppTextStyles.labelMedium.copyWith(
-            color: AppFeatureTheme.herb,
+            color: context.colors.secondary,
             fontWeight: FontWeight.w700,
           ),
         ),

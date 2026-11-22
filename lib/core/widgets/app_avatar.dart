@@ -6,12 +6,16 @@ import '../text_styles/app_text_styles.dart';
 class AppAvatar extends StatelessWidget {
   final String name;
   final String? assetPath;
+  final String? imageUrl;
   final double size;
+  final double? cornerRadius;
   const AppAvatar({
     super.key,
     required this.name,
     this.assetPath,
+    this.imageUrl,
     this.size = 44,
+    this.cornerRadius,
   });
 
   @override
@@ -25,17 +29,38 @@ class AppAvatar extends StatelessWidget {
         .join()
         .toUpperCase();
     final fallback = ColoredBox(
-      color: AppColors.primary50,
+      color: context.colors.primary50,
       child: Center(
         child: Text(
           initials.isEmpty ? '?' : initials,
           style: AppTextStyles.labelLarge.copyWith(
-            color: AppColors.primary,
-            fontSize: (size * .32).clamp(12, 24),
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+            fontSize: (size * .32).clamp(12, 24).toDouble(),
           ),
         ),
       ),
     );
+    final remote = Uri.tryParse(imageUrl ?? '');
+    final content =
+        remote != null && remote.scheme == 'https' && remote.host.isNotEmpty
+        ? Image.network(
+            imageUrl!,
+            fit: BoxFit.cover,
+            cacheWidth: (size * MediaQuery.devicePixelRatioOf(context))
+                .round()
+                .clamp(1, 256),
+            errorBuilder: (_, _, _) => fallback,
+          )
+        : assetPath == null
+        ? fallback
+        : Image.asset(
+            assetPath!,
+            fit: BoxFit.cover,
+            cacheWidth: (size * MediaQuery.devicePixelRatioOf(context))
+                .round()
+                .clamp(1, 256),
+            errorBuilder: (_, _, _) => fallback,
+          );
     return Semantics(
       image: true,
       label: 'Ảnh đại diện của $name',
@@ -43,18 +68,12 @@ class AppAvatar extends StatelessWidget {
         child: SizedBox(
           width: size,
           height: size,
-          child: ClipOval(
-            child: assetPath == null
-                ? fallback
-                : Image.asset(
-                    assetPath!,
-                    fit: BoxFit.cover,
-                    cacheWidth: (size * MediaQuery.devicePixelRatioOf(context))
-                        .round()
-                        .clamp(1, 256),
-                    errorBuilder: (_, _, _) => fallback,
-                  ),
-          ),
+          child: cornerRadius == null
+              ? ClipOval(child: content)
+              : ClipRRect(
+                  borderRadius: BorderRadius.circular(cornerRadius!),
+                  child: content,
+                ),
         ),
       ),
     );

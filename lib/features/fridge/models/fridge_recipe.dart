@@ -1,6 +1,9 @@
 import 'package:equatable/equatable.dart';
 import 'package:app_bep_xinh/core/services/json_reader.dart';
 
+import '../../ingredients/models/ingredient_catalog.dart';
+import '../../recipes/models/recipe_content.dart';
+
 class FridgeRecipe extends Equatable {
   final String id;
   final String title;
@@ -9,6 +12,7 @@ class FridgeRecipe extends Equatable {
   final bool isVegetarian;
   final List<String> ingredientIds;
   final String? image;
+  final Map<String, String> ingredientNames;
 
   const FridgeRecipe({
     required this.id,
@@ -18,6 +22,7 @@ class FridgeRecipe extends Equatable {
     required this.ingredientIds,
     this.isVegetarian = false,
     this.image,
+    this.ingredientNames = const {},
   });
 
   List<String> missingIngredients(Iterable<String> selectedIds) {
@@ -38,6 +43,29 @@ class FridgeRecipe extends Equatable {
     image: JsonReader(json).optionalString('image'),
   );
 
+  factory FridgeRecipe.fromPublished(
+    Map<String, dynamic> json,
+    IngredientCatalog catalog,
+  ) {
+    final content = RecipeContent.fromJson(json, catalog);
+    final id = JsonReader(json).string('id');
+    // Nguyên liệu tự nhập chưa có trong catalog luôn được tính là còn thiếu.
+    final names = {
+      for (final item in content.ingredients)
+        item.ingredientId ?? 'custom:$id:${item.id}': item.name,
+    };
+    return FridgeRecipe(
+      id: id,
+      title: content.title,
+      description: content.description,
+      minutes: content.preparationMinutes + content.cookingMinutes,
+      ingredientIds: List.unmodifiable(names.keys),
+      ingredientNames: Map.unmodifiable(names),
+      isVegetarian: content.categories.contains(RecipeCategory.vegetarian),
+      image: content.cover?.source,
+    );
+  }
+
   @override
   List<Object?> get props => [
     id,
@@ -47,5 +75,6 @@ class FridgeRecipe extends Equatable {
     isVegetarian,
     ingredientIds,
     image,
+    ingredientNames,
   ];
 }

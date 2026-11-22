@@ -1,5 +1,8 @@
+import '../../../sollume/shared/app_menu_tile.dart';
+import '../../auth/services/auth_service.dart';
+import '../../../core/widgets/app_menu_group.dart';
 
-import 'dart:async';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,11 +15,10 @@ import 'package:app_bep_xinh/core/tap/tap_extension.dart';
 import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
 import 'package:app_bep_xinh/core/widgets/widgets.dart';
 import 'package:app_bep_xinh/core/widgets/app_load_state.dart';
+import 'package:app_bep_xinh/core/widgets/app_appearance_picker.dart';
 import 'package:app_bep_xinh/features/profile/services/profile_service.dart';
-import 'package:app_bep_xinh/features/profile/widgets/profile_edit_sheet.dart';
 
 import '../cubits/settings/settings_cubit.dart';
-
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -52,16 +54,24 @@ class _SettingsPage extends StatelessWidget {
       ),
     );
     if (confirmed == true && context.mounted) {
-      context.go(PathRouter.loginScreen);
+      try {
+        // Hoàn tất đăng xuất SDK trước khi rời màn hình; lỗi mạng không được báo thành công.
+        await context.read<AuthService>().signOut();
+        if (context.mounted) context.go(PathRouter.loginScreen);
+      } catch (error) {
+        if (context.mounted) {
+          AppMessenger.showError(context, authErrorMessage(error));
+        }
+      }
     }
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => AppPageScaffold(
     backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-    appBar: AppAppBar(
+    appBar: AppSliverAppBar(
       title: 'Cài đặt',
-      onBack: () {
+      onBackPressed: () {
         if (context.canPop()) {
           context.pop();
         } else {
@@ -90,71 +100,84 @@ class _SettingsPage extends StatelessWidget {
                   onRetry: context.read<SettingsCubit>().load,
                 );
               }
-              return ListView(
+              return AppContentScrollView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  const AppSectionHeader(title: 'Hồ sơ của bạn'),
-                  const SizedBox(height: 12),
-                  AppCard(
-                    child: Material(
-                      type: MaterialType.transparency,
-                      child: Column(
-                        children: [
-                          ListTile(
-                            leading: AppAvatar(
-                              name: state.account!.name,
-                              assetPath: state.account!.avatarAsset,
-                              size: 44,
-                            ),
-                            title: Text(
-                              state.account!.name,
-                              style: AppTextStyles.titleSmall,
-                            ),
-                            subtitle: Text(
-                              '@${state.account!.handle}',
-                              style: AppTextStyles.bodySmall,
-                            ),
-                            trailing: const Icon(
-                              Icons.chevron_right_rounded,
-                              color: AppColors.textTertiary,
-                            ),
-                            onTap: context.onAppTap(() {
-                              unawaited(
-                                showProfileEditSheet(context, state.account!),
-                              );
-                            }, actionName: 'settings_edit_profile'),
-                          ),
-                          const Divider(indent: 16, endIndent: 16),
-                          SwitchListTile.adaptive(
-                            key: const ValueKey('settings_show_bio'),
-                            title: Text(
-                              'Hiển thị giới thiệu',
-                              style: AppTextStyles.titleSmall,
-                            ),
-                            subtitle: Text(
-                              'Hiện phần giới thiệu trên trang cá nhân.',
-                              style: AppTextStyles.bodySmall,
-                            ),
-                            value: state.account!.showBio,
-                            activeTrackColor: AppColors.primary,
-                            onChanged: state.saving
-                                ? null
-                                : context.read<SettingsCubit>().setShowBio,
-                          ),
-                        ],
+                  AppMenuGroup(
+                    title: 'Tài khoản',
+                    children: [
+                      AppMenuTile(
+                        leadingIcon: PhosphorIconsRegular.userCircle,
+                        title: 'Chỉnh sửa hồ sơ',
+                        subtitle: state.account!.name,
+                        onTap: context.onAppTap(() {
+                          context.push(PathRouter.profileEditScreen);
+                        }, actionName: 'settings_edit_profile'),
                       ),
-                    ),
+                      AppMenuTile(
+                        leadingIcon: PhosphorIconsRegular.article,
+                        title: 'Quản lý bài đăng',
+                        subtitle: 'Bài đã đăng, chờ duyệt và bài đã ẩn',
+                        onTap: context.onAppTap(() {
+                          context.push(PathRouter.recipeSubmissionsScreen);
+                        }, actionName: 'settings_recipe_submissions'),
+                      ),
+                      AppMenuTile(
+                        leadingIcon: PhosphorIconsRegular.lockKey,
+                        title: 'Đổi mật khẩu',
+                        onTap: () {
+                          context.push('/settings/password');
+                        },
+                      ),
+                    ],
+                  ),
+                  AppMenuGroup(
+                    title: 'Quyền riêng tư',
+                    children: [
+                      SwitchListTile.adaptive(
+                        key: const ValueKey('settings_show_bio'),
+                        title: const Text('Hiển thị giới thiệu'),
+                        subtitle: const Text(
+                          'Cho phép người khác xem phần giới thiệu trên hồ sơ',
+                        ),
+                        value: state.account!.showBio,
+                        onChanged: state.saving
+                            ? null
+                            : context.read<SettingsCubit>().setShowBio,
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 28),
-                  const AppSectionHeader(title: 'Ứng dụng'),
+                  const AppSectionHeader(title: 'Giao diện ứng dụng'),
+                  const AppAppearancePicker(),
                   const SizedBox(height: 12),
+                  AppMenuGroup(
+                    title: 'Thông tin',
+                    children: [
+                      AppMenuTile(
+                        leadingIcon: PhosphorIconsRegular.fileText,
+                        title: 'Điều khoản dịch vụ',
+                        onTap: () {
+                          context.push('/legal/terms');
+                        },
+                      ),
+                      AppMenuTile(
+                        leadingIcon: PhosphorIconsRegular.shieldCheck,
+                        title: 'Chính sách bảo mật',
+                        onTap: () {
+                          context.push('/legal/privacy');
+                        },
+                      ),
+                    ],
+                  ),
                   AppCard(
+                    showBorder: false,
                     child: Material(
                       type: MaterialType.transparency,
                       child: ListTile(
-                        leading: const Icon(
-                          Icons.info_outline_rounded,
-                          color: AppColors.textSecondary,
+                        leading: Icon(
+                          PhosphorIconsRegular.info,
+                          color: context.colors.textSecondary,
                         ),
                         title: Text(
                           'Về ${AppConstants.appName}',
@@ -164,9 +187,9 @@ class _SettingsPage extends StatelessWidget {
                           'Phiên bản ${AppConstants.appVersion}',
                           style: AppTextStyles.bodySmall,
                         ),
-                        trailing: const Icon(
-                          Icons.chevron_right_rounded,
-                          color: AppColors.textTertiary,
+                        trailing: Icon(
+                          PhosphorIconsRegular.caretRight,
+                          color: context.colors.textTertiary,
                         ),
                         onTap: context.onAppTap(
                           () => showAboutDialog(

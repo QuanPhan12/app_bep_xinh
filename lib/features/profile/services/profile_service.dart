@@ -10,6 +10,16 @@ import 'package:app_bep_xinh/features/recipes/models/recipe_author.dart';
 import '../models/profile_data.dart';
 import '../models/public_profile_data.dart';
 import 'public_profile_service.dart';
+import '../../recipes/models/recipe_image.dart';
+
+abstract interface class ProfileAvatarService {
+  Future<RecipeImage?> pickAvatar();
+  Future<UserProfile> updateProfileWithAvatar({
+    required String name,
+    required String bio,
+    required RecipeImage image,
+  });
+}
 
 abstract interface class ProfileService {
   Stream<UserProfile> get changes;

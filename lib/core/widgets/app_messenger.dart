@@ -1,3 +1,5 @@
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -228,27 +230,27 @@ class _AppNotificationWidgetState extends State<_AppNotificationWidget>
 
     switch (widget.type) {
       case AppNotificationType.success:
-        mainColor = AppColors.success;
-        bgColor = AppColors.successBg;
-        iconData = Icons.check_circle_rounded;
+        mainColor = context.colors.success;
+        bgColor = context.colors.successBg;
+        iconData = PhosphorIconsRegular.checkCircle;
         defaultTitle = 'Thành công';
         break;
       case AppNotificationType.error:
-        mainColor = AppColors.error;
-        bgColor = AppColors.errorBg;
-        iconData = Icons.cancel_rounded;
+        mainColor = context.colors.error;
+        bgColor = context.colors.errorBg;
+        iconData = PhosphorIconsRegular.xCircle;
         defaultTitle = 'Đã có lỗi xảy ra';
         break;
       case AppNotificationType.warning:
-        mainColor = AppColors.warning;
-        bgColor = AppColors.warningBg;
-        iconData = Icons.warning_rounded;
+        mainColor = context.colors.warning;
+        bgColor = context.colors.warningBg;
+        iconData = PhosphorIconsRegular.warning;
         defaultTitle = 'Cảnh báo';
         break;
       case AppNotificationType.info:
-        mainColor = AppColors.info;
-        bgColor = AppColors.infoBg;
-        iconData = Icons.info_rounded;
+        mainColor = context.colors.info;
+        bgColor = context.colors.infoBg;
+        iconData = PhosphorIconsRegular.info;
         defaultTitle = 'Thông báo';
         break;
     }
@@ -261,7 +263,7 @@ class _AppNotificationWidgetState extends State<_AppNotificationWidget>
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: mainColor.withValues(alpha: 0.35),
@@ -301,7 +303,7 @@ class _AppNotificationWidgetState extends State<_AppNotificationWidget>
                   Text(
                     widget.title ?? defaultTitle,
                     style: AppTextStyles.labelLarge.copyWith(
-                      color: AppColors.textPrimary,
+                      color: context.colors.textPrimary,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -309,7 +311,7 @@ class _AppNotificationWidgetState extends State<_AppNotificationWidget>
                   Text(
                     widget.message,
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
+                      color: context.colors.textSecondary,
                     ),
                   ),
                 ],
@@ -345,11 +347,11 @@ class _AppNotificationWidgetState extends State<_AppNotificationWidget>
             InkWell(
               onTap: _dismiss,
               borderRadius: BorderRadius.circular(20),
-              child: const Padding(
+              child: Padding(
                 padding: EdgeInsets.all(4),
                 child: Icon(
-                  Icons.close_rounded,
-                  color: AppColors.textMuted,
+                  PhosphorIconsRegular.x,
+                  color: context.colors.textMuted,
                   size: 18,
                 ),
               ),

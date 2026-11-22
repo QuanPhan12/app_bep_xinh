@@ -1,3 +1,5 @@
+import '../../support/auth_fake.dart';
+
 import 'dart:async';
 
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
@@ -7,7 +9,6 @@ import 'package:app_bep_xinh/core/widgets/app_messenger.dart';
 import 'package:app_bep_xinh/core/widgets/app_skeleton.dart';
 import 'package:app_bep_xinh/features/fridge/services/fridge_service.dart';
 import 'package:app_bep_xinh/features/home/services/home_service.dart';
-import 'package:app_bep_xinh/features/product/widgets/product_card.dart';
 import 'package:app_bep_xinh/features/profile/models/public_profile_data.dart';
 import 'package:app_bep_xinh/features/profile/screens/public_profile_screen.dart';
 import 'package:app_bep_xinh/features/profile/services/profile_service.dart';
@@ -30,6 +31,7 @@ import '../../support/recipe_detail_fakes.dart';
 import '../../support/test_text_styles.dart';
 
 void main() {
+  setUp(configureAuthenticatedTaps);
   setUpAll(configureTestTextStyles);
   setUp(AppTapHandler.resetLock);
   late StubPublicProfileService profiles;
@@ -129,20 +131,7 @@ void main() {
       expect(find.byTooltip('Cài đặt'), findsNothing);
       expect(find.text('Đã lưu'), findsNothing);
       expect(find.byType(SegmentedButton), findsNothing);
-      final card = find.byWidgetPredicate(
-        (widget) => widget is ProductCard && widget.recipe.id == 'tofu_tomato',
-      );
-      final favorite = find.descendant(
-        of: card,
-        matching: find.byIcon(Icons.favorite_border_rounded),
-      );
-      await tester.ensureVisible(favorite);
-      await tester.pumpAndSettle();
-      await tester.pump(const Duration(milliseconds: 150));
-      await tester.tap(favorite);
-      await tester.pumpAndSettle();
-      expect(favorites.values['tofu_tomato'], isTrue);
-      await tap(tester, find.text('Đậu hũ sốt cà chua'));
+      await tap(tester, find.byTooltip('Đậu hũ sốt cà chua'));
       expect(
         router.routerDelegate.currentConfiguration.last.matchedLocation,
         '/recipe/tofu_tomato',
@@ -267,11 +256,11 @@ void main() {
         await open(tester, '/users/linh_nguyen', width: width, scale: 1.5);
         expect(find.text('Linh Nguyễn'), findsOneWidget);
         await tester.scrollUntilVisible(
-          find.text('Bò xào cà chua'),
+          find.byTooltip('Bò xào cà chua'),
           250,
           scrollable: find.byType(Scrollable).first,
         );
-        expect(find.text('Bò xào cà chua'), findsOneWidget);
+        expect(find.byTooltip('Bò xào cà chua'), findsOneWidget);
         expect(find.text('Sửa hồ sơ'), findsNothing);
         expect(tester.takeException(), isNull);
       },

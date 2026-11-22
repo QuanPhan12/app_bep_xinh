@@ -1,6 +1,7 @@
+import 'package:app_bep_xinh/core/widgets/app_sliver_app_bar.dart';
 import 'package:app_bep_xinh/core/router/app_router.dart';
 import 'package:app_bep_xinh/core/utils/app_layout.dart';
-import 'package:app_bep_xinh/core/widgets/app_app_bar.dart';
+import 'package:app_bep_xinh/core/widgets/app_page_scaffold.dart';
 import 'package:app_bep_xinh/core/widgets/app_load_state.dart';
 import 'package:app_bep_xinh/core/widgets/app_messenger.dart';
 import 'package:app_bep_xinh/features/recipes/services/recipe_favorites_service.dart';
@@ -31,11 +32,11 @@ class PublicProfileScreen extends StatelessWidget {
 class _PublicProfilePage extends StatelessWidget {
   const _PublicProfilePage();
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => AppPageScaffold(
     backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-    appBar: AppAppBar(
+    appBar: AppSliverAppBar(
       title: 'Hồ sơ',
-      onBack: () {
+      onBackPressed: () {
         if (context.canPop()) {
           context.pop();
         } else {

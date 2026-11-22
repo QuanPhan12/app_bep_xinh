@@ -1,3 +1,7 @@
+> Cập nhật 17/11/2026: theme/component hiện lấy từ Sollume.
+> Xem [phạm vi port và adapter](SOLLUME_UI_PORT.md). Mô tả style Home bên dưới là lịch sử
+> cấu trúc Bếp Xinh; màu sắc, input, button, card và tab hiện lấy từ theme mới.
+
 # UI dùng chung
 
 Home là nguồn style. Các thành phần đã được chuyển sang `lib/core/widgets` và
@@ -22,8 +26,8 @@ Home cũng dùng trực tiếp chúng; không giữ một bản trang trí gần
 Đăng món và Chi tiết món dùng trực tiếp các block này; không sao chép cách hiển
 thị tên bước, ảnh, thời gian, mẹo hoặc thông số món sang từng feature.
 
-`AppCard` không viền, dùng bo góc 12px và shadow nhẹ; `CardTheme` dùng cùng
-`AppCard.radius`. Các khung nội dung và ghi chú dùng cùng quy tắc. `AppSearchBar`
+`AppCard` không viền, dùng bo góc 16px và không shadow; `CardTheme` dùng cùng
+`AppUi.cardRadius`. Các khung nội dung và ghi chú dùng cùng quy tắc. `AppSearchBar`
 giữ kích thước, icon và typography của thanh tìm kiếm Home, hỗ trợ cả mở trang và
 nhập trực tiếp. `AppTextField` và dropdown dùng `inputDecorationTheme` sẵn có
 trong `AppTheme`, không tự định nghĩa lại màu nền, viền, padding hoặc bo góc.
@@ -47,9 +51,12 @@ qua `AppLoadState` để người dùng có thể thử lại.
 Quy tắc responsive dùng `AppLayout` trong `core/utils/app_layout.dart`. Xem
 [responsive.md](responsive.md) cho chiều rộng trang/form/sheet, bố cục tablet và kiểm thử.
 
-Các màn ngoài Home/Giỏ hàng/Auth dùng `AppFeatureTheme` để tinh chỉnh palette,
-card và trạng thái trống mà không đổi theme của các màn đó. Nút và bộ chọn dùng
-style app chung cho mọi màn: AppButton có primary/secondary/ghost, không có
-biến thể viền. AppChoiceChip, AppFilterChip và AppSelectionStyles.segmented dùng
-màu primary cho trạng thái chọn, nền trung tính cho trạng thái còn lại và không viền.
-Xem [feature_presentation.md](feature_presentation.md) cho phạm vi và quy tắc.
+Toàn app dùng AppTheme và token AppColors/AppUi. AppFeatureTheme chỉ còn là marker
+tương thích, không thay palette hoặc style component. AppButton dùng nền đặc, giữ
+nhãn khi loading và cho chữ lớn xuống dòng. Xem [feature_presentation.md](feature_presentation.md)
+và [UI_UX_IMPLEMENTATION.md](UI_UX_IMPLEMENTATION.md).
+
+Nút quay lại trên AppAppBar/SliverAppBar dùng đúng control Sollume:
+`IconButton` + `PhosphorIconsBold.caretLeft`, không đặt size 18px hay bọc hiệu ứng
+AppTap riêng. Kích thước, vùng bấm, feedback, màu disabled theo IconButtonTheme;
+callback vẫn qua guard Bếp Xinh và giữ trạng thái khóa khi đang lưu.

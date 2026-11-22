@@ -1,18 +1,16 @@
-import 'package:app_bep_xinh/core/colors/app_colors.dart';
-import 'package:app_bep_xinh/core/utils/app_layout.dart';
-import 'package:app_bep_xinh/core/dimensions/app_size.dart';
-import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
-import 'package:app_bep_xinh/core/widgets/app_tap.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+import 'package:app_bep_xinh/core/colors/app_colors.dart';
+import 'package:app_bep_xinh/core/dimensions/app_size.dart';
+import 'package:app_bep_xinh/core/utils/app_layout.dart';
+import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
+import 'package:app_bep_xinh/core/widgets/app_text_action.dart';
 
 import '../models/fridge_summary.dart';
 
-/// Thẻ gợi ý "Tủ lạnh thông minh" (Smart Fridge Recommendation Card)
-/// Giúp người dùng nấu ăn từ nguyên liệu sẵn có trong tủ lạnh
 class FridgeCard extends StatelessWidget {
   final VoidCallback onExploreTap;
   final FridgeSummary summary;
-
   const FridgeCard({
     super.key,
     required this.onExploreTap,
@@ -20,148 +18,77 @@ class FridgeCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w(context)),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: AppLayout.pageWidth(context)),
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(12.r(context)),
-            ),
-            padding: EdgeInsets.all(14.w(context)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header của thẻ
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        'Tủ lạnh thông minh',
-                        style: AppTextStyles.titleMedium.copyWith(
-                          color: AppColors.textWhite,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15.sp(context),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 6.w(context),
-                        vertical: 2.h(context),
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(4.r(context)),
-                      ),
-                      child: Text(
-                        'Gợi ý',
-                        style: AppTextStyles.labelSmall.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10.sp(context),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8.h(context)),
-
-                // Mô tả nguyên liệu
-                RichText(
-                  text: TextSpan(
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textMuted,
-                      fontSize: 12.sp(context),
-                      height: 1.4,
-                    ),
-                    children: [
-                      const TextSpan(text: 'Gợi ý từ nguyên liệu của bạn:'),
-                      TextSpan(
-                        text: summary.ingredientNames.isEmpty
-                            ? 'Chưa có nguyên liệu'
-                            : '(${summary.ingredientNames.take(3).join(', ')}${summary.ingredientNames.length > 3 ? '…' : ''})',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ],
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.symmetric(horizontal: 16.w(context)),
+    child: Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: AppLayout.pageWidth(context)),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+          decoration: BoxDecoration(
+            color: context.colors.secondaryLight,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    PhosphorIconsRegular.snowflake,
+                    color: context.colors.secondary,
+                    size: 24,
                   ),
-                ),
-                SizedBox(height: 12.h(context)),
-
-                // Hàng hành động: Số món nấu được + Nút Khám phá ngay
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 8.h(context),
-                  children: [
-                    Container(
-                      alignment: Alignment.center,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12.w(context),
-                        vertical: 6.h(context),
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.secondaryLight,
-                        borderRadius: BorderRadius.circular(8.r(context)),
-                      ),
-                      child: Text(
-                        'Nấu được ${summary.readyRecipeCount} món ngon',
-                        style: AppTextStyles.labelMedium.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12.sp(context),
-                        ),
-                      ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Tủ lạnh thông minh',
+                      style: AppTextStyles.titleMedium,
                     ),
-                    AppTap(
-                      actionName: 'home_smart_fridge_explore_tap',
-                      onTap: onExploreTap,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 14.w(context),
-                          vertical: 6.h(context),
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary,
-                          borderRadius: BorderRadius.circular(8.r(context)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.secondary.withValues(
-                                alpha: 0.25,
-                              ),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Khám phá ngay',
-                              style: AppTextStyles.labelSmall.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 11.sp(context),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Gợi ý',
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: context.colors.secondary,
                     ),
-                  ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                summary.ingredientNames.isEmpty
+                    ? 'Thêm nguyên liệu bạn đang có để tìm món phù hợp.'
+                    : 'Gợi ý từ ${summary.ingredientNames.take(3).join(', ')}${summary.ingredientNames.length > 3 ? '…' : '.'}',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: context.colors.textSecondary,
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 12,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text(
+                    'Nấu được ${summary.readyRecipeCount} món ngon',
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: context.colors.secondary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  AppTextAction(
+                    label: 'Khám phá ngay',
+                    trailingIcon: PhosphorIconsRegular.arrowRight,
+                    actionName: 'home_smart_fridge_explore_tap',
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    onTap: onExploreTap,
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
 }

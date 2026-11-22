@@ -488,7 +488,7 @@
       "cover": {
         "id": "canh_kim_chi_thit_heo_cover",
         "name": "Canh kim chi thịt heo đậu hũ",
-        "assetPath": "assets/images/canh_kimchi.png"
+        "assetPath": "assets/images/fridge_kimchi_soup.webp"
       },
       "categories": [
         "soup"
@@ -522,7 +522,7 @@
           "id": "potato",
           "ingredientId": "potato",
           "amount": 2,
-          "unitId": "fruit",
+          "unitId": "bulb",
           "note": "",
           "toTaste": false,
           "groupId": "main"
@@ -701,7 +701,11 @@
         "dinner"
       ],
       "storageNotes": "",
-      "cover": null,
+      "cover": {
+        "id": "tofu_tomato_cover",
+        "name": "Đậu hũ sốt cà chua",
+        "assetPath": "assets/images/fridge_tofu_tomato.webp"
+      },
       "categories": [
         "vegetarian",
         "quick"
@@ -801,7 +805,11 @@
         "dinner"
       ],
       "storageNotes": "",
-      "cover": null,
+      "cover": {
+        "id": "egg_tomato_soup_cover",
+        "name": "Canh cà chua trứng",
+        "assetPath": "assets/images/fridge_egg_tomato_soup.webp"
+      },
       "categories": [
         "soup",
         "quick"
@@ -900,7 +908,11 @@
         "dinner"
       ],
       "storageNotes": "",
-      "cover": null,
+      "cover": {
+        "id": "beef_tomato_cover",
+        "name": "Bò xào cà chua",
+        "assetPath": "assets/images/fridge_beef_tomato.webp"
+      },
       "categories": [
         "quick"
       ],

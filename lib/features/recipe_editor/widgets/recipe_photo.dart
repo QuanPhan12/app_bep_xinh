@@ -4,7 +4,7 @@ import 'package:app_bep_xinh/features/recipes/widgets/recipe_image_view.dart';
 import '../models/recipe_draft.dart';
 
 class RecipePhoto extends StatelessWidget {
-  final RecipeCover photo;
+  final RecipeImage photo;
   final double aspectRatio;
   const RecipePhoto({
     super.key,

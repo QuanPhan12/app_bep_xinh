@@ -48,7 +48,7 @@ class FridgeIngredientPicker extends StatelessWidget {
                           Text(
                             group,
                             style: AppTextStyles.labelMedium.copyWith(
-                              color: AppColors.textSecondary,
+                              color: context.colors.textSecondary,
                             ),
                           ),
                           const SizedBox(height: 10),

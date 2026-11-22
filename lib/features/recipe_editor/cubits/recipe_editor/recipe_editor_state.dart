@@ -29,6 +29,7 @@ class RecipeEditorState extends Equatable {
   final RecipeEditorStep step;
   final int furthestStep;
   final bool hasSavedDraft;
+  final String workLabel;
 
   RecipeEditorState({
     this.status = RecipeEditorStatus.initial,
@@ -44,6 +45,7 @@ class RecipeEditorState extends Equatable {
     this.step = RecipeEditorStep.details,
     this.furthestStep = 0,
     this.hasSavedDraft = false,
+    this.workLabel = '',
   }) : draft = draft ?? RecipeDraft(),
        savedDraft = savedDraft ?? RecipeDraft(),
        errors = Map.unmodifiable(errors);
@@ -67,6 +69,7 @@ class RecipeEditorState extends Equatable {
     RecipeEditorStep? step,
     int? furthestStep,
     bool? hasSavedDraft,
+    String? workLabel,
   }) => RecipeEditorState(
     status: status ?? this.status,
     operation: operation ?? this.operation,
@@ -81,6 +84,7 @@ class RecipeEditorState extends Equatable {
     step: step ?? this.step,
     furthestStep: furthestStep ?? this.furthestStep,
     hasSavedDraft: hasSavedDraft ?? this.hasSavedDraft,
+    workLabel: workLabel ?? (operation != null ? '' : this.workLabel),
   );
 
   @override
@@ -98,5 +102,6 @@ class RecipeEditorState extends Equatable {
     step,
     furthestStep,
     hasSavedDraft,
+    workLabel,
   ];
 }

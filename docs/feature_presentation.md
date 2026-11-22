@@ -1,34 +1,50 @@
-# Giao diện các màn chức năng
+# Giao diện toàn app Bếp Xinh
 
-`AppFeatureTheme` áp dụng tại entrypoint của Tủ lạnh, Hồ sơ cá nhân/công
-khai, Cài đặt, Tìm kiếm, Đăng món và Chi tiết/Nấu món. Scope này không bọc
-NavigationScreen, Home, Giỏ hàng hoặc Auth. Đăng nhập, Đăng ký và Quên mật khẩu
-dùng giao diện mobile làm chuẩn cho cả điện thoại và tablet. Nội dung trên
-tablet được căn giữa, tối đa 440px; không có card hoặc phần thương hiệu riêng.
+## Nguồn thiết kế chung
 
-Palette dùng nền kem và xanh thảo mộc cho thông tin hỗ trợ.
-Card và khung nội dung không viền, bo góc 12px theo AppCard.radius.
-Nút chính luôn dùng AppColors.primaryGradient có sẵn, nút phụ dùng primary50;
-không có màu cam riêng hoặc biến thể nút viền cho từng feature.
-AppCard, AppAppBar, AppSearchBar, AppSectionHeader,
-AppActionBar và AppLoadState đọc scope; ngoài scope vẫn dùng cách trình bày cũ.
-Marker là InheritedTheme để sheet/dialog mở từ các màn chức năng giữ cùng style.
+`AppColors`, `AppUi` và `AppTheme` là nguồn màu, khoảng cách, bo góc và theme.
+Điện thoại và tablet dùng nền sáng ấm, card trắng, chữ nâu đậm, cam cho hành động
+và xanh thảo mộc cho nội dung hỗ trợ. Không có palette riêng theo feature.
+`AppFeatureTheme` còn tồn tại như marker tương thích; không tạo Theme override.
+Các hằng của marker trỏ về AppColors.
 
-AppChoiceChip và AppFilterChip dùng chung style không viền: mục được chọn có
-nền primary, chữ trắng; mục còn lại có nền surfaceVariant. Tab phân đoạn dùng
-AppSelectionStyles.segmented theo cùng quy tắc. AppButton và các bộ chọn không
-thay đổi style theo AppFeatureTheme.
+- Cam thương hiệu giữ nguyên; `AppColors.action` dùng sắc cam đậm cho nút/chip
+  có chữ trắng và liên kết nhỏ. Cặp màu chính được kiểm tra tương phản trong test.
+- Card mặc định bo 16 px, không viền và không shadow; control bo 12 px.
+- Button có primary/secondary/ghost. Primary dùng nền đặc, có icon và giữ nhãn
+  khi loading. Chiều cao là tối thiểu; nhãn dài/chữ lớn được xuống dòng, không co font.
+- Input/search/tab/chip dùng component chung; vị trí focus và giá trị nhập giữ
+  nguyên khi đổi kích thước. Form auth dùng Validation chung để báo lỗi tại trường.
+- AppBar nền sáng, chữ/icon tối. AppBar tab vẫn floating/snap; màn con cố định.
+- Thanh điều hướng có tên tab mặc định và đo chiều cao theo nội dung/cỡ chữ.
+  Nút giữa là hành động Đăng món, không trở thành một tab được chọn.
 
-AppFeatureHeader cung cấp phần mở đầu với phân cấp chữ rõ và ảnh món ăn có sẵn.
-Ảnh trang trí được bỏ khỏi semantics, có giới hạn decode và fallback khi lỗi.
-Trên màn hẹp hoặc chữ lớn, phần ảnh nhường không gian cho nội dung. Header của
-Tìm kiếm ẩn khi nhập hoặc mở bàn phím để giữ không gian kết quả.
+## Phân cấp nội dung
 
-ProfileCover dùng chung cho hồ sơ cá nhân
-và công khai, đi cùng thống kê thực từ state. Không thêm số liệu giả hoặc nút
-chưa có luồng xử lý. RecipeContentOverview và RecipeStepContent vẫn dùng chung
-cho xem trước, chi tiết và nấu món; badge bước/thời gian tự xuống dòng.
+`AppFeatureHeader` dùng khoảng cách và typography cho phần mở đầu; ảnh trang trí
+có fallback, không có semantics. Header Đăng món ẩn khi mở bàn phím để ưu tiên ô nhập.
+`AppCard`, `AppSearchBar`, `AppSectionHeader`, `AppActionBar`, `AppLoadState` và
+`AppStatusBadge` không đổi style theo marker feature.
 
-Tất cả bố cục tiếp tục theo AppLayout. Kiểm tra hồi quy bao gồm toàn bộ route
-trên điện thoại 320 px với chữ 150%, tablet dọc/ngang, bàn phím, xoay màn,
-giữ dữ liệu form, điều hướng và scope Home/Giỏ hàng/Auth.
+Home dùng tên Món ngon khám phá, không ngụ ý có thuật toán xếp hạng thịnh hành.
+Thẻ Tủ lạnh nền xanh nhạt, thông tin và hành động rõ ràng. Recipe card dùng tiêu đề
+14 px, metadata 12 px; grid/slider đo lại chiều cao tương ứng. Nút lưu món có tooltip,
+semantics và vùng tương tác 48 px.
+
+Hồ sơ cá nhân dùng cùng block danh tính với hồ sơ công khai, không có khoảng trống
+cover lớn hay dấu xác minh vô điều kiện. Sửa hồ sơ xác nhận trước khi bỏ thay đổi,
+cả nút Back lẫn Back hệ thống, và chặn rời màn khi đang lưu.
+
+Bài đã gửi dùng badge chữ + icon cho chờ duyệt/đã duyệt/cần sửa. Thông báo hiển thị
+đã/chưa đọc bằng chữ cùng các dấu hiệu trực quan. Tin nhắn chỉ có ảnh có preview
+bằng chữ trong inbox. Chế độ nấu có hành động tạm dừng bên cạnh điều khiển bước.
+
+Giỏ đi chợ hiện là danh sách mẫu lưu trong phiên; màn hình ghi rõ điều này và không
+hiển thị nút chia sẻ/hoàn tất chưa có xử lý. Không ghi thêm dữ liệu thật từ đợt UI.
+
+## Kiểm chứng
+
+Bố cục theo AppLayout, AppAdaptiveColumns và showAppAdaptiveSheet. Kiểm tra
+điện thoại nhỏ, tablet dọc/ngang, breakpoint 599/600, bàn phím và chữ 150%/200%.
+Ảnh audit, giới hạn kiểm chứng và lệnh chạy nằm trong
+[UI_UX_IMPLEMENTATION.md](UI_UX_IMPLEMENTATION.md).

@@ -1,3 +1,4 @@
+import 'package:app_bep_xinh/core/widgets/app_content_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:app_bep_xinh/core/utils/app_layout.dart';
 import 'package:app_bep_xinh/core/widgets/app_skeleton.dart';
@@ -10,7 +11,7 @@ class HomeSkeleton extends StatelessWidget {
     child: ConstrainedBox(
       constraints: BoxConstraints(maxWidth: AppLayout.pageWidth(context)),
       child: AppSkeleton(
-        child: ListView(
+        child: AppContentScrollView(
           padding: const EdgeInsets.all(16),
           children: [
             const SkeletonBlock(height: 48, radius: 24),

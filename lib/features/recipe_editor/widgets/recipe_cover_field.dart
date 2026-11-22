@@ -1,3 +1,6 @@
+import '../../recipes/widgets/recipe_image_view.dart';
+
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
 import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
 import 'package:app_bep_xinh/core/widgets/app_tap.dart';
@@ -7,8 +10,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../cubits/recipe_editor/recipe_editor_cubit.dart';
 import 'recipe_editor_section.dart';
-
-import 'package:app_bep_xinh/core/widgets/app_feature_theme.dart';
 
 class RecipeCoverField extends StatelessWidget {
   const RecipeCoverField({super.key});
@@ -49,12 +50,12 @@ class RecipeCoverField extends StatelessWidget {
               child: Container(
                 clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
-                  color: AppFeatureTheme.herbWash,
+                  color: context.colors.secondaryLight,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: state.errors['cover'] == null
-                        ? AppColors.border
-                        : AppColors.error,
+                        ? context.colors.border
+                        : context.colors.error,
                   ),
                 ),
                 child: AspectRatio(
@@ -72,10 +73,10 @@ class RecipeCoverField extends StatelessWidget {
                                 color: Colors.white,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(
-                                Icons.add_photo_alternate_outlined,
+                              child: Icon(
+                                PhosphorIconsRegular.cameraPlus,
                                 size: 24,
-                                color: AppFeatureTheme.herb,
+                                color: context.colors.secondary,
                               ),
                             ),
                             const SizedBox(height: 10),
@@ -86,23 +87,7 @@ class RecipeCoverField extends StatelessWidget {
                           ],
                         )
                       else ...[
-                        LayoutBuilder(
-                          builder: (context, constraints) => Image.memory(
-                            photo.bytes,
-                            fit: BoxFit.cover,
-                            cacheWidth:
-                                (constraints.maxWidth *
-                                        MediaQuery.devicePixelRatioOf(context))
-                                    .round()
-                                    .clamp(1, 1600),
-                            errorBuilder: (_, _, _) => const Center(
-                              child: Icon(
-                                Icons.image_outlined,
-                                color: AppColors.textTertiary,
-                              ),
-                            ),
-                          ),
-                        ),
+                        RecipeImageView(image: photo),
                         Positioned(
                           right: 10,
                           bottom: 10,
@@ -137,12 +122,21 @@ class RecipeCoverField extends StatelessWidget {
               ),
             ),
           ),
+          TextButton.icon(
+            onPressed: state.isBusy
+                ? null
+                : () => cubit.pickCover(camera: true),
+            icon: const Icon(PhosphorIconsRegular.camera),
+            label: const Text('Chụp ảnh món ăn'),
+          ),
           if (state.errors['cover'] case final error?)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
                 error,
-                style: AppTextStyles.bodySmall.copyWith(color: AppColors.error),
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: context.colors.error,
+                ),
               ),
             ),
         ],

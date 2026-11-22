@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../colors/app_colors.dart';
 import '../dimensions/app_size.dart';
 import '../text_styles/app_text_styles.dart';
 import 'app_tap.dart';
@@ -34,34 +33,41 @@ class AppTextAction extends StatelessWidget {
       actionName: actionName,
       onTap: onTap,
       allowConcurrent: allowConcurrent,
-      child: Padding(
-        padding: padding,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (leadingIcon != null) ...[
-              Icon(leadingIcon, color: AppColors.primary, size: 13.sp(context)),
-              SizedBox(width: 4.w(context)),
-            ],
-            Flexible(
-              child: Text(
-                label,
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12.sp(context),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 48),
+        child: Padding(
+          padding: padding,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (leadingIcon != null) ...[
+                Icon(
+                  leadingIcon,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 16,
+                ),
+                SizedBox(width: 4.w(context)),
+              ],
+              Flexible(
+                child: Text(
+                  label,
+                  style: AppTextStyles.labelMedium.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12.sp(context),
+                  ),
                 ),
               ),
-            ),
-            if (trailingIcon != null) ...[
-              SizedBox(width: 2.w(context)),
-              Icon(
-                trailingIcon,
-                color: AppColors.primary,
-                size: 11.sp(context),
-              ),
+              if (trailingIcon != null) ...[
+                SizedBox(width: 2.w(context)),
+                Icon(
+                  trailingIcon,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 11.sp(context),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     ),

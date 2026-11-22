@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import '../../../kitchen/models/kitchen_entry.dart';
+
 import 'package:app_bep_xinh/core/models/app_notification_type.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,6 +19,8 @@ class RecipeDetailCubit extends Cubit<RecipeDetailState> {
   late final StreamSubscription<RecipeFavoriteChange> _subscription;
   final _latestFavorites = <String, bool>{};
   Future<void>? _loadTask;
+  String? _journalSessionId;
+  String get journalSessionId => _journalSessionId ??= kitchenId();
   RecipeDetailCubit({
     required this.recipeId,
     required this.service,
@@ -136,6 +140,9 @@ class RecipeDetailCubit extends Cubit<RecipeDetailState> {
 
   void startCooking() {
     if (!isClosed && state.recipe != null) {
+      if (state.completedCooking || _journalSessionId == null) {
+        _journalSessionId = kitchenId();
+      }
       emit(
         state.copyWith(
           tab: RecipeDetailTab.steps,

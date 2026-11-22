@@ -179,7 +179,7 @@ class _HomeBannerState extends State<HomeBanner> with WidgetsBindingObserver {
                         dotWidth: 5.w(context),
                         expansionFactor: 3.5,
                         activeDotColor: AppColors.primary,
-                        dotColor: AppColors.border,
+                        dotColor: context.colors.border,
                         spacing: 4.w(context),
                       ),
                       onDotClicked: _goTo,

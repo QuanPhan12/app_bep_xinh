@@ -33,7 +33,15 @@ class FridgeState extends Equatable {
   List<FridgeRecipe> get recipes => data?.recipes ?? const [];
   bool get hasCatalog => ingredients.isNotEmpty;
 
-  String ingredientName(String id) => data?.ingredientsById[id]?.name ?? id;
+  String ingredientName(String id) {
+    final known = data?.ingredientsById[id]?.name;
+    if (known != null) return known;
+    for (final recipe in recipes) {
+      final name = recipe.ingredientNames[id];
+      if (name != null) return name;
+    }
+    return id;
+  }
 
   List<Ingredient> get selectedIngredients => [
     for (final id in selectedIds) ?data?.ingredientsById[id],

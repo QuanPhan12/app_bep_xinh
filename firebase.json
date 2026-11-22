@@ -1,0 +1,55 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "bepxinh-b0be7",
+          "appId": "1:955775168150:android:5eb936809cf6100b329cb7",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "bepxinh-b0be7",
+          "configurations": {
+            "android": "1:955775168150:android:5eb936809cf6100b329cb7",
+            "ios": "1:955775168150:ios:bff6f2ac8a4f1cdf329cb7",
+            "web": "1:955775168150:web:f661fb103e9ed7cd329cb7"
+          }
+        }
+      }
+    }
+  },
+  "functions": [{ "source": "functions", "codebase": "bep-xinh-ai", "runtime": "nodejs22", "ignore": ["node_modules", ".git", "test", "*.log", ".env*", ".secret.local"] }],
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000
+    },
+    "singleProjectMode": true
+  },
+  "hosting": {
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "public": "build/web",
+    "rewrites": [
+      {
+        "destination": "/index.html",
+        "source": "**"
+      }
+    ]
+  }
+}

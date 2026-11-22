@@ -4,7 +4,7 @@ import 'package:equatable/equatable.dart';
 enum NavigationTab {
   home, // Trang chủ (index 0)
   fridge, // Tủ lạnh thông minh (index 1)
-  cart, // Đi chợ / Giỏ hàng (index 2)
+  kitchen, // Bếp của tôi (index 2)
   profile, // Cá nhân (index 3)
 }
 
@@ -12,9 +12,7 @@ enum NavigationTab {
 class NavigationState extends Equatable {
   final int currentIndex;
 
-  const NavigationState({
-    this.currentIndex = 0,
-  });
+  const NavigationState({this.currentIndex = 0});
 
   NavigationTab get currentTab {
     switch (currentIndex) {
@@ -23,7 +21,7 @@ class NavigationState extends Equatable {
       case 1:
         return NavigationTab.fridge;
       case 2:
-        return NavigationTab.cart;
+        return NavigationTab.kitchen;
       case 3:
         return NavigationTab.profile;
       default:
@@ -31,12 +29,8 @@ class NavigationState extends Equatable {
     }
   }
 
-  NavigationState copyWith({
-    int? currentIndex,
-  }) {
-    return NavigationState(
-      currentIndex: currentIndex ?? this.currentIndex,
-    );
+  NavigationState copyWith({int? currentIndex}) {
+    return NavigationState(currentIndex: currentIndex ?? this.currentIndex);
   }
 
   @override

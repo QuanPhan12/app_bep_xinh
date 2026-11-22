@@ -1,3 +1,9 @@
+import '../../recipe_detail/services/recipe_detail_service.dart';
+import '../services/recipe_remix_service.dart';
+import '../models/recipe_draft.dart';
+import 'recipe_remix_gate.dart';
+
+import 'package:app_bep_xinh/core/widgets/app_sliver_app_bar.dart';
 import 'package:app_bep_xinh/core/widgets/app_feature_theme.dart';
 
 import '../widgets/recipe_editor_skeleton.dart';
@@ -5,7 +11,7 @@ import '../widgets/recipe_editor_skeleton.dart';
 import 'package:app_bep_xinh/core/utils/app_layout.dart';
 import 'package:app_bep_xinh/core/router/app_router.dart';
 import 'package:app_bep_xinh/core/tap/tap_extension.dart';
-import 'package:app_bep_xinh/core/widgets/app_app_bar.dart';
+import 'package:app_bep_xinh/core/widgets/app_page_scaffold.dart';
 import 'package:app_bep_xinh/core/widgets/app_load_state.dart';
 import 'package:app_bep_xinh/core/widgets/app_messenger.dart';
 import 'package:flutter/material.dart';
@@ -19,16 +25,39 @@ import '../widgets/recipe_editor_actions.dart';
 import '../widgets/recipe_editor_form.dart';
 
 class RecipeEditorScreen extends StatelessWidget {
-  const RecipeEditorScreen({super.key});
+  const RecipeEditorScreen({
+    super.key,
+    this.remixRecipeId,
+    this.seedDraft,
+    this.expectedDraft,
+  });
+  final String? remixRecipeId;
+  final RecipeDraft? seedDraft, expectedDraft;
 
   @override
-  Widget build(BuildContext context) => BlocProvider(
-    create: (context) => RecipeEditorCubit(
-      service: context.read<RecipeEditorService>(),
-      coverPicker: context.read<RecipeCoverPicker>(),
-    )..loadDraft(),
-    child: const AppFeatureTheme(child: _RecipeEditorPage()),
-  );
+  Widget build(BuildContext context) {
+    final id = remixRecipeId;
+    if (id != null) {
+      return RecipeRemixGate(
+        recipeId: id,
+        service: RecipeRemixService(
+          details: context.read<RecipeDetailService>(),
+          editor: context.read<RecipeEditorService>(),
+        ),
+        editorBuilder: (draft, previous) =>
+            RecipeEditorScreen(seedDraft: draft, expectedDraft: previous),
+      );
+    }
+    return BlocProvider(
+      create: (context) => RecipeEditorCubit(
+        service: context.read<RecipeEditorService>(),
+        coverPicker: context.read<RecipeCoverPicker>(),
+        seedDraft: seedDraft,
+        expectedDraft: expectedDraft,
+      )..loadDraft(),
+      child: const AppFeatureTheme(child: _RecipeEditorPage()),
+    );
+  }
 }
 
 class _RecipeEditorPage extends StatelessWidget {
@@ -123,12 +152,14 @@ class _RecipeEditorPage extends StatelessWidget {
         onPopInvokedWithResult: (didPop, _) {
           if (!didPop) _leave(context);
         },
-        child: Scaffold(
+        child: AppPageScaffold(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          appBar: AppAppBar(
-            title: 'Đăng món',
+          appBar: AppSliverAppBar(
+            title: state.draft.remix == null
+                ? 'Đăng món'
+                : 'Biến tấu công thức',
             backEnabled: !state.isBusy,
-            onBack: () => _leave(context),
+            onBackPressed: () => _leave(context),
           ),
           body: SafeArea(
             top: false,

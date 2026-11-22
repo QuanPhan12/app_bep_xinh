@@ -13,8 +13,9 @@ class RegisterMobileView extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = context.appSize;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: CustomScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         slivers: [
           const AppSliverAppBar(title: 'Đăng ký tài khoản', pinned: true),
           SliverPadding(

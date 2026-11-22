@@ -1,4 +1,5 @@
-import 'package:flutter/cupertino.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+import 'package:flutter/material.dart';
 
 import '../colors/app_colors.dart';
 import '../text_styles/app_text_styles.dart';
@@ -25,7 +26,7 @@ class AppServingSelector extends StatelessWidget {
       ),
       _ServingButton(
         label: 'Giảm khẩu phần',
-        icon: CupertinoIcons.minus,
+        icon: PhosphorIconsRegular.minus,
         onTap: onChanged == null || value <= min
             ? null
             : () => onChanged!(value - 1),
@@ -36,7 +37,7 @@ class AppServingSelector extends StatelessWidget {
       ),
       _ServingButton(
         label: 'Tăng khẩu phần',
-        icon: CupertinoIcons.plus,
+        icon: PhosphorIconsRegular.plus,
         onTap: onChanged == null || value >= max
             ? null
             : () => onChanged!(value + 1),
@@ -58,17 +59,17 @@ class _ServingButton extends StatelessWidget {
       actionName: 'recipe_servings_$label',
       onTap: onTap,
       child: Container(
-        width: 36,
-        height: 36,
+        width: 48,
+        height: 48,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: AppColors.background,
+          color: context.colors.background,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(
           icon,
           size: 16,
-          color: onTap == null ? AppColors.textMuted : AppColors.primary,
+          color: onTap == null ? context.colors.textMuted : AppColors.primary,
         ),
       ),
     ),

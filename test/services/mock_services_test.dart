@@ -1,4 +1,8 @@
 import 'package:app_bep_xinh/features/recipes/services/recipe_favorites_service.dart';
+
+import 'dart:ui' as ui;
+
+import 'package:app_bep_xinh/features/recipe_detail/services/recipe_detail_service.dart';
 import 'package:app_bep_xinh/features/ingredients/services/ingredient_catalog_service.dart';
 import 'package:app_bep_xinh/core/services/mock_api_client.dart';
 import 'package:app_bep_xinh/features/fridge/services/fridge_service.dart';
@@ -18,6 +22,35 @@ class InvalidJsonBundle extends FixtureAssetBundle {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  test(
+    'every fridge photo decodes from the bundle and matches its detail cover',
+    () async {
+      final api = MockApiClient(bundle: rootBundle, latency: Duration.zero);
+      final catalog = MockIngredientCatalogService(api);
+      final fridge = MockFridgeService(api, catalog);
+      final favorites = MockRecipeFavoritesService(api);
+      addTearDown(fridge.dispose);
+      addTearDown(favorites.dispose);
+      final detail = MockRecipeDetailService(api, catalog, fridge, favorites);
+      for (final recipe in (await fridge.fetchFridge()).recipes) {
+        expect(recipe.image, isNotNull, reason: recipe.id);
+        final bytes = await rootBundle.load(recipe.image!);
+        final codec = await ui.instantiateImageCodec(
+          bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes),
+        );
+        final frame = await codec.getNextFrame();
+        expect(frame.image.width, greaterThan(0), reason: recipe.id);
+        frame.image.dispose();
+        codec.dispose();
+        expect(
+          (await detail.fetchRecipe(recipe.id)).recipe.cover?.assetPath,
+          recipe.image,
+          reason: recipe.id,
+        );
+      }
+    },
+  );
 
   test('bundled fixtures are loadable through the real asset bundle', () async {
     final api = MockApiClient(bundle: rootBundle, latency: Duration.zero);

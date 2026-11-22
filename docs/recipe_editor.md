@@ -40,9 +40,9 @@ số lượng thập phân, đơn vị, ghi chú và lựa chọn "Vừa đủ".
 nhưng gửi duyệt yêu cầu ít nhất một nguyên liệu.
 
 `features/ingredients` sở hữu danh mục dùng chung cho Tủ lạnh và Đăng món, inject
-qua `IngredientCatalogService`. Fixture `assets/mock/ingredients.json` chứa ID,
-tên gọi khác và đơn vị hợp lệ; `fridge.json` chỉ còn tồn kho và gợi ý món.
-Mock service gộp request tải danh mục và cache trong phiên. Tìm kiếm hỗ trợ
+qua `IngredientCatalogService`. Production tải `catalogs/ingredients` từ Firestore;
+fixture `assets/mock/ingredients.json` phục vụ kiểm thử. `fridge.json` chỉ còn tồn kho và gợi ý món.
+Service gộp request tải danh mục và cache trong phiên. Tìm kiếm hỗ trợ
 không dấu và alias (đậu phụ/đậu hũ, thịt lợn/thịt heo). Thêm tên trùng chính xác
 với alias sẽ chọn nguyên liệu chuẩn thay vì tạo một nguyên liệu tự nhập.
 
@@ -53,23 +53,34 @@ payload. `groupId` liên kết đến `RecipeDraft.ingredientGroups`. Ghi chú k
 ID và đơn vị với danh mục. Chưa tự quy đổi giữa thìa, gram, ml hoặc tính dinh
 dưỡng; các phép tính đó cần dữ liệu quy đổi riêng theo nguyên liệu.
 
-`RecipeEditorService` được inject ở app. Implementation hiện tại mô phỏng độ
-trễ và lưu bản nháp trong phiên chạy; chưa gửi bài lên backend thật và chưa lưu
-qua lần khởi động app. Lưu nháp chấp nhận form chưa hoàn tất; gửi duyệt kiểm tra
-tên, ảnh, thời gian, khẩu phần, nguyên liệu và bước nấu. Gửi thành công đóng form.
+`RecipeEditorService` được inject theo UID ở app. Production dùng
+`FirestoreRecipeEditorService` → `RecipeImageUploader` / `RecipeAuthoringRepository`;
+HTTP và Firestore nằm ở adapter, không nằm trong Cubit/widget.
+Lưu nháp chấp nhận form chưa hoàn tất, tải ảnh lên Cloudinary rồi ghi
+`users/{uid}/recipe_drafts/current`; mở lại sẽ khôi phục URL ảnh và dữ liệu form.
+Gửi duyệt kiểm tra tên, ảnh, thời gian, khẩu phần, nguyên liệu và bước nấu trước
+khi upload. Gửi thành công đóng form, tạo bài `pending` và xóa nháp bằng transaction.
 Snapshot lưu nháp không đánh dấu những thay đổi phát sinh trong request là đã lưu.
+Revision chặn ghi đè từ phiên khác; submission ID và content hash giúp thử lại
+sau khi mất phản hồi mà không tạo bài trùng. Nút hành động hiển thị tiến độ upload/lưu/gửi.
 
 Khi gửi, form chuyển qua `RecipeDraft.toRecipeContent()` rồi được kiểm tra bằng
 reader `RecipeContent` dùng chung với Chi tiết món và chế độ nấu. Giới hạn field,
 enum, nhóm và ảnh nằm trong `features/recipes`; editor không sở hữu một schema
-công thức xuất bản riêng. Mock giữ snapshot chờ duyệt qua `lastSubmittedContent`,
-chưa tự công bố nó trong Home/Chi tiết. Xem `recipe_detail.md` cho luồng đọc/nấu.
+công thức xuất bản riêng. Tất cả bài nằm trong `recipes`; pending/rejected chỉ tác giả
+đọc được, approved được đọc công khai. Client không có quyền tự duyệt. Admin chỉ
+cần đổi status thành approved trên cùng document để Home lấy realtime. “Bài đã gửi” trong Cài đặt
+hiển thị trạng thái và lý do từ chối; sửa bài bị từ chối tạo phiên bản mới, giữ lịch sử cũ.
+Xem [RECIPE_PUBLISHING.md](RECIPE_PUBLISHING.md) cho contract, duyệt bài và vận hành.
+Xem `recipe_detail.md` cho luồng đọc/nấu. Mock service chỉ phục vụ test/fixture.
 
 `RecipeCoverPicker` tách khỏi Cubit để kiểm thử và thay implementation, dùng cho
 cả ảnh bìa và ảnh minh họa bước nấu. Hủy hoặc chọn ảnh lỗi giữ ảnh trước đó. Adapter
 `image_picker` chọn ảnh thư viện, giới hạn dung lượng, kiểm tra ảnh bằng codec có
 kích thước giải mã nhỏ và phục hồi kết quả picker bị gián đoạn trên Android.
-Ảnh lưu bằng bytes thay vì dùng đường dẫn tạm xuyên phiên. iOS đã khai báo mục
+Ảnh chọn được giữ bằng bytes trong form; trước khi lưu Firestore phải upload và
+thay bằng HTTPS URL/publicId. Không ghi base64 hoặc đường dẫn tạm vào document.
+iOS đã khai báo mục
 đích truy cập thư viện ảnh; không yêu cầu camera/microphone vì màn này chỉ chọn ảnh.
 
 Các test bao phủ validation, gõ/xóa/nhập lại, thêm/xóa dòng, chọn/hủy/lỗi ảnh,
@@ -95,3 +106,5 @@ Tải form dùng `RecipeEditorSkeleton`; tải/tìm nguyên liệu dùng `Skelet
 `AppSkeleton` có một ticker cho cả bố cục, dừng khi route bị ẩn, app rời foreground
 hoặc người dùng bật giảm chuyển động. Skeleton chặn thao tác và có nhãn đọc màn
 hình "Đang tải". Loading khi lưu/gửi vẫn thuộc nút hành động.
+
+Biến tấu và đăng lại từ bài công khai: xem [RECIPE_REMIX.md](RECIPE_REMIX.md) cho luồng nháp, ghi nguồn, schema và kiểm thử.

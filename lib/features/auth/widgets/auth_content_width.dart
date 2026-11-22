@@ -11,7 +11,29 @@ class AuthContentWidth extends StatelessWidget {
     heightFactor: 1,
     child: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: AppLayout.compactMaxWidth),
-      child: child,
+      // Giữ nguyên cây form khi resize để không mất focus, selection và nội dung.
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: MediaQuery.sizeOf(context).width >= AppLayout.tabletBreakpoint
+              ? Theme.of(context).colorScheme.surfaceContainerLow
+              : Colors.transparent,
+          border: Border.all(
+            color:
+                MediaQuery.sizeOf(context).width >= AppLayout.tabletBreakpoint
+                ? Theme.of(context).colorScheme.outlineVariant
+                      .withValues(alpha: .45)
+                : Colors.transparent,
+          ),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding:
+              MediaQuery.sizeOf(context).width >= AppLayout.tabletBreakpoint
+              ? const EdgeInsets.all(24)
+              : EdgeInsets.zero,
+          child: child,
+        ),
+      ),
     ),
   );
 }

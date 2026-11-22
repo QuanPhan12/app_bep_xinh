@@ -4,8 +4,8 @@
 món và Chi tiết món. Quay lại giữ nguyên tab Công thức/Đã lưu và vị trí cuộn.
 Route factory thuộc từng feature; Cubit không phụ thuộc router hoặc BuildContext.
 
-Tab Cá nhân không có AppBar, cùng bố cục các tab Home/Tủ lạnh. Nút Cài đặt nằm
-trong hàng thông tin hồ sơ. Trang Cài đặt dùng `AppAppBar` để quay lại.
+Tab Cá nhân dùng ProfileAppBar cuộn như Home/Tủ lạnh, có nút Cài đặt.
+Màn Cài đặt và Sửa hồ sơ dùng AppPageScaffold với AppSliverAppBar cố định.
 Hồ sơ dùng `AppButton`, `AppTextField`, `AppSectionHeader`,
 `ProductGrid`/`ProductCard` của Home, skeleton và `AppMessenger` có sẵn. Không
 tạo bản sao của thẻ món hoặc giao diện thông báo. Avatar dùng chữ đầu tên khi
@@ -67,3 +67,34 @@ và hồ sơ công khai. Món chưa có ảnh dùng placeholder của `ProductCa
 Các test bổ sung bao phủ định danh tác giả, lọc đúng người, tùy chọn giới thiệu,
 favorite dùng chung, route có ID encode, response muộn, lỗi/thử lại, trạng thái
 trống và layout 320/800/1024/1280px với chữ 150%.
+
+
+## Nâng cấp UI/UX
+
+Hồ sơ thu gọn dùng ProfileIdentityInfo, không có badge xác minh vô điều kiện.
+Sửa hồ sơ so sánh với dữ liệu đã tải; xác nhận bỏ thay đổi khi Back, không gọi
+service ghi nếu người dùng chọn bỏ. Đang lưu chặn Back; lưu thành công rời màn
+như trước. Xem UI_UX_IMPLEMENTATION.md cho phạm vi và kiểm thử.
+
+## Cá nhân: bố cục gọn và trạng thái trống (17/11/2026)
+
+- Tên hiển thị dùng titleLarge đậm; thống kê nhỏ hơn và nhãn dùng màu phụ.
+- ProfileIdentity chỉ nhận dữ liệu/callback. ProfileContent sở hữu điều hướng,
+  reload khi quay về từ editor; không mang router vào widget danh tính.
+- Chỉnh sửa và Đăng món nằm cùng cụm, chuyển hàng khi màn hẹp/chữ lớn.
+  Khi tab Đã đăng chưa có bài, chỉ hiện CTA “Đăng công thức đầu tiên” trong empty state.
+- Quản lý bài đăng truy cập qua Cài đặt > Quản lý bài đăng, không lặp ở body profile.
+- Không hiện bộ lọc khi collection chưa có món. Nếu bộ lọc làm kết quả rỗng,
+  vẫn giữ bộ lọc và có nút Xóa bộ lọc. Tab Đã lưu trống có nút Khám phá công thức.
+- Số Công thức/Đã lưu chuyển tab và reset bộ lọc để khớp số tổng. Đã nấu mở nhật ký
+  khi có KitchenScope thật; fallback không cung cấp liên kết chưa có dữ liệu.
+- Handle đúng dạng `bep_<UID của tài khoản>` được ẩn khỏi màn Cá nhân vì là mã kỹ thuật.
+  Handle khác giữ nguyên. Đây không phải chức năng đổi/đặt username: contract hiện tại
+  vẫn giữ handle bất biến. Không đổi schema, rules hay tạo username giả.
+
+Kiểm chứng: analyzer không có issue. Suite hồ sơ + tablet đạt 68 test (1 audit skip
+mặc định); sau rút gọn nhãn và bổ sung kiểm tra điều hướng nhật ký, 41 test hồ sơ đạt.
+Ảnh fixture ở `build/ui_ux/profile_refine_light/`, `profile_refine_dark/`,
+`profile_refine_empty_light/`, `profile_refine_empty_dark/` cho 390×844, 800×1100,
+1024×768. Các lần capture chạy riêng để kiểm tra cả hồ sơ có bài và chưa có bài.
+Đã kiểm tra trực tiếp ảnh mobile light và empty tablet dark. Chưa deploy đợt sửa này.

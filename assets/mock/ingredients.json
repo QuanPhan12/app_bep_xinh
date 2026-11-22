@@ -110,8 +110,9 @@
       "group": "Rau củ",
       "aliases": [],
       "unitIds": [
-        "fruit",
-        "g"
+        "bulb",
+        "g",
+        "kg"
       ]
     },
     {
@@ -254,6 +255,10 @@
     {
       "id": "tbsp",
       "label": "thìa canh"
+    },
+    {
+      "id": "bulb",
+      "label": "củ"
     }
   ]
 }

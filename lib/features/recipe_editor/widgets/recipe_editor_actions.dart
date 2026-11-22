@@ -18,6 +18,7 @@ class RecipeEditorActions extends StatelessWidget {
     buildWhen: (previous, current) =>
         previous.step != current.step ||
         previous.operation != current.operation ||
+        previous.workLabel != current.workLabel ||
         previous.hasUnsavedChanges != current.hasUnsavedChanges ||
         previous.errors.isNotEmpty != current.errors.isNotEmpty,
     builder: (context, state) {
@@ -27,13 +28,18 @@ class RecipeEditorActions extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (state.isBusy && state.workLabel.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(state.workLabel, style: AppTextStyles.bodySmall),
+              ),
             if (state.errors.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Text(
                   'Kiểm tra các mục chưa hợp lệ để tiếp tục.',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.error,
+                    color: context.colors.error,
                   ),
                 ),
               ),

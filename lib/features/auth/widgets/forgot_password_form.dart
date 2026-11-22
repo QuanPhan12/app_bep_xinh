@@ -1,3 +1,4 @@
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +9,7 @@ import '../../../core/text_styles/app_text_styles.dart';
 import '../../../core/widgets/widgets.dart';
 import '../cubits/forgot_password/forgot_password.dart';
 import 'login_text_field.dart';
+import '../validation/validation.dart';
 
 /// Form xử lý quy trình quên mật khẩu (Chuẩn BLoC & Design System Bếp Xinh)
 class ForgotPasswordForm extends StatelessWidget {
@@ -25,7 +27,7 @@ class ForgotPasswordForm extends StatelessWidget {
         switch (state.status) {
           case ForgotPasswordStatus.success:
             context.showSuccess(
-              'Đã gửi liên kết khôi phục mật khẩu đến email của bạn!',
+              'Nếu email đã đăng ký, bạn sẽ nhận được hướng dẫn khôi phục mật khẩu.',
               title: 'Thành công',
             );
             onSuccess?.call();
@@ -67,7 +69,7 @@ class ForgotPasswordForm extends StatelessWidget {
           'Nhập địa chỉ email liên kết với tài khoản Bếp Xinh của bạn. Chúng tôi sẽ gửi hướng dẫn khôi phục mật khẩu.',
           textAlign: TextAlign.left,
           style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
+            color: context.colors.textSecondary,
             height: 1.5,
           ),
         ),
@@ -75,9 +77,11 @@ class ForgotPasswordForm extends StatelessWidget {
 
         // Ô nhập Email
         LoginTextField(
+          enabled: state.status != ForgotPasswordStatus.loading,
           label: 'Email đã đăng ký',
+          validator: (value) => Validation.validateEmail(value?.trim()),
           initialValue: state.email,
-          prefixIcon: Icons.email_outlined,
+          prefixIcon: PhosphorIconsRegular.envelopeSimple,
           keyboardType: TextInputType.emailAddress,
           height: 50.h(context),
           onChanged: context.read<ForgotPasswordCubit>().emailChanged,
@@ -90,7 +94,7 @@ class ForgotPasswordForm extends StatelessWidget {
           builder: (context, isLoading) {
             return AppButton(
               text: 'Gửi liên kết khôi phục',
-              icon: Icons.send_rounded,
+              icon: PhosphorIconsRegular.paperPlaneTilt,
               isLoading: isLoading,
               height: 50.h(context),
               actionName: 'btn_submit_forgot_password',
@@ -113,7 +117,7 @@ class ForgotPasswordForm extends StatelessWidget {
             Text(
               'Nhớ mật khẩu? ',
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
+                color: context.colors.textSecondary,
               ),
             ),
             AppTap(
@@ -148,9 +152,9 @@ class ForgotPasswordForm extends StatelessWidget {
       children: [
         // Icon thành công
         Center(
-          child: const Icon(
-            Icons.mark_email_read_rounded,
-            color: AppColors.secondary,
+          child: Icon(
+            PhosphorIconsRegular.envelopeSimpleOpen,
+            color: context.colors.secondary,
             size: 38,
           ),
         ),
@@ -158,10 +162,10 @@ class ForgotPasswordForm extends StatelessWidget {
 
         // Tiêu đề
         Text(
-          'Đã gửi email khôi phục!',
+          'Kiểm tra email của bạn',
           textAlign: TextAlign.center,
           style: AppTextStyles.headlineMedium.copyWith(
-            color: AppColors.secondary,
+            color: context.colors.secondary,
           ),
         ),
         SizedBox(height: size.space8.h(context)),
@@ -169,9 +173,9 @@ class ForgotPasswordForm extends StatelessWidget {
         // Nội dung mô tả kèm email người dùng
         Text.rich(
           TextSpan(
-            text: 'Chúng tôi đã gửi hướng dẫn đặt lại mật khẩu đến:\n',
+            text: 'Nếu email đã được đăng ký, hướng dẫn khôi phục sẽ được gửi đến:\n',
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
+              color: context.colors.textSecondary,
               height: 1.5,
             ),
             children: [
@@ -194,7 +198,7 @@ class ForgotPasswordForm extends StatelessWidget {
         // Nút quay lại đăng nhập
         AppButton(
           text: 'Quay lại Đăng nhập',
-          icon: Icons.arrow_back_rounded,
+          icon: PhosphorIconsRegular.arrowLeft,
           height: 50.h(context),
           actionName: 'btn_back_to_login_success',
           onPressed: () => context.pop(),
@@ -210,7 +214,7 @@ class ForgotPasswordForm extends StatelessWidget {
             Text(
               'Chưa nhận được email? ',
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
+                color: context.colors.textSecondary,
               ),
             ),
             AppTap(

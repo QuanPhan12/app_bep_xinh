@@ -1,3 +1,6 @@
+import 'package:app_bep_xinh/core/colors/app_colors.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -5,7 +8,6 @@ import 'package:flutter/material.dart';
 import '../text_styles/app_text_styles.dart';
 import 'app_button.dart';
 import 'app_skeleton.dart';
-import 'app_feature_theme.dart';
 
 /// Trạng thái tải/lỗi/rỗng dùng chung, giữ callback để có thể thử lại.
 class AppLoadState extends StatelessWidget {
@@ -31,28 +33,33 @@ class AppLoadState extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (AppFeatureTheme.isActive(context)) ...[
+                ...[
                   Container(
-                    width: 72,
-                    height: 72,
-                    decoration: const BoxDecoration(
-                      color: AppFeatureTheme.herbWash,
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       onRetry == null
-                          ? Icons.restaurant_menu_rounded
-                          : Icons.refresh_rounded,
-                      size: 30,
-                      color: AppFeatureTheme.herb,
+                          ? PhosphorIconsRegular.forkKnife
+                          : PhosphorIconsRegular.arrowClockwise,
+                      size: 26,
+                      color: context.colors.textSecondary,
                     ),
                   ),
                   const SizedBox(height: 20),
                 ],
-                Text(
-                  message ?? 'Chưa có dữ liệu.',
-                  style: AppTextStyles.bodyMedium,
-                  textAlign: TextAlign.center,
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 440),
+                  child: Text(
+                    message ?? 'Chưa có dữ liệu.',
+                    style: AppTextStyles.bodyMedium.copyWith(height: 1.55),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
                 if (onRetry != null) ...[
                   const SizedBox(height: 16),

@@ -21,6 +21,11 @@ class RecipeStepPhotoField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        AppTextAction(
+          label: 'Chụp ảnh bước nấu',
+          actionName: 'recipe_capture_step_photo',
+          onTap: busy ? null : () => cubit.pickStepPhoto(step.id, camera: true),
+        ),
         if (step.photo case final photo?) ...[
           RecipePhoto(photo: photo),
           const SizedBox(height: 8),

@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_bep_xinh/core/widgets/app_selection_controls.dart';
+import 'package:app_bep_xinh/core/widgets/app_text_action.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import 'package:app_bep_xinh/features/recipes/presentation/recipe_labels.dart';
 
 import '../models/recipe_search_request.dart';
@@ -33,6 +35,14 @@ class RecipeSearchFilters extends StatelessWidget {
                 selected: selected == filter,
                 onSelected: (_) => unawaited(
                   context.read<RecipeSearchCubit>().selectFilter(filter),
+                ),
+              ),
+            if (selected != RecipeSearchFilter.all)
+              AppTextAction(
+                label: 'Bỏ lọc',
+                leadingIcon: PhosphorIconsRegular.x,
+                onTap: () => context.read<RecipeSearchCubit>().selectFilter(
+                  RecipeSearchFilter.all,
                 ),
               ),
           ],

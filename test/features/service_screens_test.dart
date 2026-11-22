@@ -63,7 +63,7 @@ void main() {
   );
 
   testWidgets(
-    'Home shows loading then renders service categories and fridge summary',
+    'Home shows loading then renders service categories and discovery search',
     (tester) async {
       tester.view.physicalSize = const Size(440, 1000);
       tester.view.devicePixelRatio = 1;
@@ -78,7 +78,8 @@ void main() {
       pending.complete(response());
       await tester.pumpAndSettle();
       expect(find.text('Danh mục từ service'), findsOneWidget);
-      expect(find.text('Nấu được 7 món ngon'), findsOneWidget);
+      expect(find.byKey(const ValueKey('home_search')), findsOneWidget);
+      expect(find.text('Nấu được 7 món ngon'), findsNothing);
       expect(find.text('Món mới'), findsNothing);
     },
   );
@@ -119,8 +120,11 @@ void main() {
       service.onFetch = null;
       await tester.tap(find.text('Thử lại'));
       await tester.pumpAndSettle();
-      expect(find.byKey(const ValueKey('fridge_add_ingredients')), findsOneWidget);
-      expect(find.text('Trong tủ lạnh (4)'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('fridge_add_ingredients')),
+        findsOneWidget,
+      );
+      expect(find.text('Nguyên liệu · 4'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );

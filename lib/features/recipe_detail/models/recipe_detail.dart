@@ -1,3 +1,5 @@
+import '../../recipes/models/recipe_remix.dart';
+
 import 'package:equatable/equatable.dart';
 import 'package:app_bep_xinh/core/services/json_reader.dart';
 import 'package:app_bep_xinh/features/ingredients/models/ingredient_catalog.dart';
@@ -11,6 +13,8 @@ typedef RecipeDetailIngredient = RecipeIngredient;
 typedef RecipeDetailStep = RecipeStep;
 
 class RecipeDetail extends Equatable {
+  final RecipeRemix? remix;
+  final String? contentHash;
   final String id;
   final RecipeAuthor author;
   final RecipeContent content;
@@ -18,6 +22,8 @@ class RecipeDetail extends Equatable {
   final int? calories;
   final bool isFavorite;
   const RecipeDetail({
+    this.remix,
+    this.contentHash,
     required this.id,
     required this.author,
     required this.content,
@@ -46,6 +52,12 @@ class RecipeDetail extends Equatable {
   ) {
     final reader = JsonReader(json);
     return RecipeDetail(
+      remix: json['remix'] == null
+          ? null
+          : RecipeRemix.fromJson(
+              Map<String, dynamic>.from(json['remix'] as Map),
+            ),
+      contentHash: reader.optionalString('contentHash'),
       id: reader.string('id'),
       author: RecipeAuthor.read(json['author']),
       content: RecipeContent.fromJson(json, catalog),
@@ -57,6 +69,8 @@ class RecipeDetail extends Equatable {
   @override
   List<Object?> get props => [
     id,
+    remix,
+    contentHash,
     author,
     content,
     rating,

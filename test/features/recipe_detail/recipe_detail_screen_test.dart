@@ -1,3 +1,5 @@
+import '../../support/auth_fake.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -8,7 +10,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
 import 'package:app_bep_xinh/core/router/app_router.dart';
 import 'package:app_bep_xinh/core/tap/tap.dart';
-import 'package:app_bep_xinh/core/widgets/app_app_bar.dart';
+import 'package:app_bep_xinh/core/widgets/app_sliver_app_bar.dart';
 import 'package:app_bep_xinh/core/widgets/app_messenger.dart';
 import 'package:app_bep_xinh/core/widgets/app_skeleton.dart';
 import 'package:app_bep_xinh/core/widgets/app_serving_selector.dart';
@@ -28,6 +30,7 @@ import 'package:app_bep_xinh/features/recipes/widgets/recipe_image_view.dart';
 import '../../support/test_text_styles.dart';
 
 void main() {
+  setUp(configureAuthenticatedTaps);
   setUpAll(configureTestTextStyles);
   late StubRecipeDetailService service;
   late StubRecipeFavoritesService favorites;
@@ -110,7 +113,7 @@ void main() {
       await open(tester, router(), id: 'salad_uc_ga_me_rang');
       expect(find.text('Salad ức gà sốt mè rang'), findsOneWidget);
       expect(find.text('Bò né sốt tiêu đen bánh mì'), findsNothing);
-      expect(find.byType(AppAppBar), findsOneWidget);
+      expect(find.byType(AppSliverAppBar), findsOneWidget);
       expect(find.byType(AppServingSelector), findsOneWidget);
       expect(find.text('250 g'), findsOneWidget);
       await tap(tester, find.bySemanticsLabel('Tăng khẩu phần'));
@@ -162,7 +165,8 @@ void main() {
     (tester) async {
       await open(tester, router());
       favorites.onSet = (_, _) => Future.error(StateError('offline'));
-      await tap(tester, find.byTooltip('Lưu món'));
+      await tap(tester, find.byTooltip('Tùy chọn công thức'));
+      await tap(tester, find.text('Lưu món'));
       expect(find.byType(SnackBar), findsNothing);
       expect(find.text('Đã có lỗi xảy ra'), findsOneWidget);
       expect(
@@ -172,8 +176,12 @@ void main() {
       favorites.onSet = null;
       AppMessenger.hide();
       await tester.pumpAndSettle();
-      await tap(tester, find.byTooltip('Lưu món'));
-      expect(find.byTooltip('Bỏ lưu món'), findsOneWidget);
+      await tap(tester, find.byTooltip('Tùy chọn công thức'));
+      await tap(tester, find.text('Lưu món'));
+      await tap(tester, find.byTooltip('Tùy chọn công thức'));
+      expect(find.text('Bỏ lưu món'), findsOneWidget);
+      await tap(tester, find.text('Bỏ lưu món'));
+      expect(favorites.values['bo_ne_tieu_den'], false);
       await tap(tester, find.text('Bắt đầu nấu'));
       expect(find.text('Đang nấu'), findsOneWidget);
       expect(

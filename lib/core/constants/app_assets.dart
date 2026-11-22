@@ -8,6 +8,5 @@ class AppAssets {
   static const String dishBoNe = 'assets/images/bo_ne.jpg';
   static const String dishSaladGa = 'assets/images/salad_uc_ga.jpg';
   static const String dishCaHoi = 'assets/images/ca_hoi_ap_chao.png';
-  static const String dishCanhKimChi = 'assets/images/canh_kimchi.png';
+  static const String dishCanhKimChi = 'assets/images/fridge_kimchi_soup.webp';
 }
-

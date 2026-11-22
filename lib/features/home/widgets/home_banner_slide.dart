@@ -1,3 +1,5 @@
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+
 import 'dart:async';
 
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
@@ -45,16 +47,25 @@ class HomeBannerSlide extends StatelessWidget {
               return Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.asset(
-                    banner.image,
+                  Image(
+                    image: ResizeImage.resizeIfNeeded(
+                      pixels,
+                      null,
+                      banner.image.startsWith('https://')
+                          ? NetworkImage(
+                              banner.image,
+                              webHtmlElementStrategy:
+                                  WebHtmlElementStrategy.fallback,
+                            )
+                          : AssetImage(banner.image) as ImageProvider,
+                    ),
                     fit: BoxFit.cover,
-                    cacheWidth: pixels,
-                    errorBuilder: (_, _, _) => const ColoredBox(
-                      color: AppColors.surfaceVariant,
+                    errorBuilder: (_, _, _) => ColoredBox(
+                      color: context.colors.surfaceVariant,
                       child: Center(
                         child: Icon(
-                          Icons.restaurant_rounded,
-                          color: AppColors.textTertiary,
+                          PhosphorIconsRegular.forkKnife,
+                          color: context.colors.textTertiary,
                           size: 32,
                         ),
                       ),

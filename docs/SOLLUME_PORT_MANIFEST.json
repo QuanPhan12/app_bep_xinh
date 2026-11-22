@@ -1,0 +1,149 @@
+[
+  {
+    "source": "lib/core/theme/app_theme.dart",
+    "target": "lib/sollume/core/theme/app_theme.dart",
+    "source_sha256": "c04012f776471d5baca6359ba7564e51f2338537cba820554f1576d5a1a15ea7",
+    "ported_sha256": "c04012f776471d5baca6359ba7564e51f2338537cba820554f1576d5a1a15ea7",
+    "adaptation": "namespace imports only"
+  },
+  {
+    "source": "lib/core/theme/app_colors.dart",
+    "target": "lib/sollume/core/theme/app_colors.dart",
+    "source_sha256": "f6f9e91f679b176629d426131b8012d267c6dc88d929676a885126de6298f70e",
+    "ported_sha256": "d7736d36b3c441a5e6d7de225dba44ff0107b862ebabf73351511c16150fd7c3",
+    "adaptation": "Bep Xinh orange brand palette replaces Sollume teal/mint; neutral surfaces and component structure preserved"
+  },
+  {
+    "source": "lib/core/theme/app_text_styles.dart",
+    "target": "lib/sollume/core/theme/app_text_styles.dart",
+    "source_sha256": "cd244cdb2746ff47a04497f19870cd79243918b866ddaa936dd9e00f5a924f77",
+    "ported_sha256": "cd244cdb2746ff47a04497f19870cd79243918b866ddaa936dd9e00f5a924f77",
+    "adaptation": "namespace imports only"
+  },
+  {
+    "source": "lib/core/theme/app_sizes.dart",
+    "target": "lib/sollume/core/theme/app_sizes.dart",
+    "source_sha256": "6a533c0b74daffd818ce75ba57b7d774649b9826eaf2959c358795c7a036ad17",
+    "ported_sha256": "6a533c0b74daffd818ce75ba57b7d774649b9826eaf2959c358795c7a036ad17",
+    "adaptation": "namespace imports only"
+  },
+  {
+    "source": "lib/core/theme/app_spacing.dart",
+    "target": "lib/sollume/core/theme/app_spacing.dart",
+    "source_sha256": "d4a51447ee5bfc14d52f6d95a8e57ab5b87dcc1fdb02e1af95bc8a6379034f66",
+    "ported_sha256": "d4a51447ee5bfc14d52f6d95a8e57ab5b87dcc1fdb02e1af95bc8a6379034f66",
+    "adaptation": "namespace imports only"
+  },
+  {
+    "source": "lib/core/theme/app_radius.dart",
+    "target": "lib/sollume/core/theme/app_radius.dart",
+    "source_sha256": "864ca25d39d83c728188c4436bf472ddd7f182d213a32252cb428145dfe08b8a",
+    "ported_sha256": "864ca25d39d83c728188c4436bf472ddd7f182d213a32252cb428145dfe08b8a",
+    "adaptation": "namespace imports only"
+  },
+  {
+    "source": "lib/core/theme/app_responsive.dart",
+    "target": "lib/sollume/core/theme/app_responsive.dart",
+    "source_sha256": "f0fffbfd8423854c87de097f26aa82c15abeba9be12864518f80116592280e4c",
+    "ported_sha256": "f0fffbfd8423854c87de097f26aa82c15abeba9be12864518f80116592280e4c",
+    "adaptation": "namespace imports only"
+  },
+  {
+    "source": "lib/core/interaction/app_route_tooltip_scope.dart",
+    "target": "lib/sollume/core/interaction/app_route_tooltip_scope.dart",
+    "source_sha256": "295e4c48857803d0bde0d118a17d0728c58f03d0637d5e69df5ddc2309d82614",
+    "ported_sha256": "295e4c48857803d0bde0d118a17d0728c58f03d0637d5e69df5ddc2309d82614",
+    "adaptation": "namespace imports only"
+  },
+  {
+    "source": "lib/core/animation/app_motion.dart",
+    "target": "lib/sollume/core/animation/app_motion.dart",
+    "source_sha256": "3288d1f49203afdafb21c04f2e06f6d8c61dd772106a4ac9484d2c39cc277134",
+    "ported_sha256": "3288d1f49203afdafb21c04f2e06f6d8c61dd772106a4ac9484d2c39cc277134",
+    "adaptation": "namespace imports only"
+  },
+  {
+    "source": "lib/core/animation/app_animated_switcher.dart",
+    "target": "lib/sollume/core/animation/app_animated_switcher.dart",
+    "source_sha256": "5e81e82b9a905e4ba7837103f4960ed5fc2e3468788b104bb3929c4fcf68bc93",
+    "ported_sha256": "5e81e82b9a905e4ba7837103f4960ed5fc2e3468788b104bb3929c4fcf68bc93",
+    "adaptation": "namespace imports only"
+  },
+  {
+    "source": "lib/shared/app_tab_bar.dart",
+    "target": "lib/sollume/shared/app_tab_bar.dart",
+    "source_sha256": "bef0cecc8b458bff776414bea3ef62106dd20027daaf20039cda3d05a2e39c1e",
+    "ported_sha256": "5c4edca68a46d5abee94da9785ae36fa62667414752ce92269563b46e5b79866",
+    "adaptation": "namespace imports only"
+  },
+  {
+    "source": "lib/shared/app_button.dart",
+    "target": "lib/sollume/shared/app_button.dart",
+    "source_sha256": "3505d69a6d1851ba2c3b3cfe47c3649ba0004e5f537d205ec357ff9f5a61a847",
+    "ported_sha256": "8ca9995e9591541b81ed386224fa526e54b7b4d24d128046256650628dc029d0",
+    "adaptation": "namespace imports, narrowed animation import, optional icon"
+  },
+  {
+    "source": "lib/shared/app_button_label.dart",
+    "target": "lib/sollume/shared/app_button_label.dart",
+    "source_sha256": "d8a0a3bc33344f009706f60e331fad05099ccc689948bf6c22e835827a6cdebf",
+    "ported_sha256": "d8a0a3bc33344f009706f60e331fad05099ccc689948bf6c22e835827a6cdebf",
+    "adaptation": "namespace imports only"
+  },
+  {
+    "source": "lib/shared/app_loading_indicator.dart",
+    "target": "lib/sollume/shared/app_loading_indicator.dart",
+    "source_sha256": "d5beaf1bff363c359aa53e97f023210ad55fafa74d2760dc51f64035ef765dd3",
+    "ported_sha256": "1d10fe909d3b845ce9568a356a817c7d2333e10204d0e75e443e11c35564a0b3",
+    "adaptation": "namespace imports only"
+  },
+  {
+    "source": "lib/shared/app_text_field.dart",
+    "target": "lib/sollume/shared/app_text_field.dart",
+    "source_sha256": "2011b87b9c77e56169c85ccd45d24eb5359de53fbf94f05e91476a1eb649a1f2",
+    "ported_sha256": "b11ceaf9e0e9b6e59fcc3551d56fe683079da8559718ea61f0b963e3c72d8db3",
+    "adaptation": "namespace imports only"
+  },
+  {
+    "source": "lib/shared/app_menu_tile.dart",
+    "target": "lib/sollume/shared/app_menu_tile.dart",
+    "source_sha256": "43ad04f9f93eea6428889c802d592b81408df454e1ef4dbf424cf85e1a203742",
+    "ported_sha256": "b2a958fca40927a125205cc20da919a7b36848f1d7a157e427d35dc2dfa28a9d",
+    "adaptation": "namespace imports only"
+  },
+  {
+    "source": "lib/shared/app_menu_section.dart",
+    "target": "lib/sollume/shared/app_menu_section.dart",
+    "source_sha256": "6d495c3e6ce8f1f1461d948394162fb711a8b541db690a51212d6e065b4754fd",
+    "ported_sha256": "a1888c51f09629f2b7f31898b051f7cf2a47d8036eee9887f23de4d1c6c96cc4",
+    "adaptation": "namespace imports only"
+  },
+  {
+    "source": "lib/shared/app_tap.dart",
+    "target": "lib/sollume/shared/app_tap.dart",
+    "source_sha256": "b0b644699a81c3b6794828d2d319b6260bc675677c838039b1094d830d77b97a",
+    "ported_sha256": "a2e2e1a8dcb16cae29d352c7e5dcfad3a00e4e3ff1a966f4700075025654facb",
+    "adaptation": "namespace imports only"
+  },
+  {
+    "source": "lib/shared/app_sliver_app_bar.dart",
+    "target": "lib/sollume/shared/app_sliver_app_bar.dart",
+    "source_sha256": "32da10c126ca49a4bb85333de653a6824b96249eb1fcb1c327431a552376767d",
+    "ported_sha256": "0fea8ed833af723db80cd6348203dfa1158e9d2d2f98f0ca0f6b41fed79fa6af",
+    "adaptation": "namespace imports only"
+  },
+  {
+    "source": "lib/features/navigation/presentation/widgets/navigation_bottom_bar.dart",
+    "target": "lib/features/navigation/widgets/app_bottom_nav_bar.dart",
+    "source_sha256": "1f6eefaae463b33691fc8bdee38052751cb08e22cb740aa2b401409a0dfc0803",
+    "ported_sha256": "20cbe95a44b4eb86d3b7ee5ac1a0de54b1887dccfe65ba584ca939058180430c",
+    "adaptation": "Bep Xinh destinations and guarded callbacks replace Sollume Cubit and localization bindings"
+  },
+  {
+    "source": "lib/features/navigation/presentation/widgets/navigation_sidebar_item.dart",
+    "target": "lib/sollume/shared/app_navigation_item.dart",
+    "source_sha256": "368ec6ad0cb68608ed32e5b9b2e8821b472bd749778cf66ff3c081668ff1a402",
+    "ported_sha256": "6f50df512770453c053af76d16365c1574e4d3ba88d5fcdff08c9f5dc1d81b69",
+    "adaptation": "Bep Xinh destinations and guarded callbacks replace Sollume Cubit and localization bindings"
+  }
+]

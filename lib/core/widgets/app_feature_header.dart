@@ -1,8 +1,7 @@
+import 'package:app_bep_xinh/core/colors/app_colors.dart';
 import 'package:flutter/material.dart';
 
 import '../text_styles/app_text_styles.dart';
-import 'app_feature_theme.dart';
-import 'app_card.dart';
 
 /// A quiet editorial opening with an optional food photo, no fixed text height.
 class AppFeatureHeader extends StatelessWidget {
@@ -23,11 +22,7 @@ class AppFeatureHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     width: double.infinity,
-    padding: const EdgeInsets.all(20),
-    decoration: BoxDecoration(
-      color: green ? AppFeatureTheme.herbWash : AppFeatureTheme.peach,
-      borderRadius: BorderRadius.circular(AppCard.radius),
-    ),
+    padding: const EdgeInsets.symmetric(vertical: 8),
     child: LayoutBuilder(
       builder: (context, constraints) => Row(
         children: [
@@ -36,30 +31,19 @@ class AppFeatureHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  eyebrow,
-                  style: AppTextStyles.labelMedium.copyWith(
-                    color: green
-                        ? AppFeatureTheme.herb
-                        : const Color(0xFF995128),
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: .8,
+                  title,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: context.colors.textPrimary,
+                    letterSpacing: -.3,
+                    height: 1.2,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  title,
-                  style: AppTextStyles.headlineSmall.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: AppFeatureTheme.ink,
-                    letterSpacing: -.6,
-                    height: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
                   description,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppFeatureTheme.muted,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: context.colors.textSecondary,
                     height: 1.55,
                   ),
                 ),

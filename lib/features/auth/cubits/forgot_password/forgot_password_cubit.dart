@@ -1,3 +1,5 @@
+import '../../services/auth_service.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../validation/validation.dart';
@@ -5,10 +7,14 @@ import 'forgot_password_state.dart';
 
 /// Cubit quản lý toàn bộ nghiệp vụ quên mật khẩu (Chuẩn BLoC Architecture)
 class ForgotPasswordCubit extends Cubit<ForgotPasswordState> {
-  ForgotPasswordCubit() : super(const ForgotPasswordState());
+  final AuthService service;
+
+  ForgotPasswordCubit({required this.service})
+    : super(const ForgotPasswordState());
 
   /// Người dùng thay đổi Email
   void emailChanged(String email) {
+    if (isClosed || state.status == ForgotPasswordStatus.loading) return;
     emit(
       state.copyWith(
         email: email,
@@ -20,11 +26,13 @@ class ForgotPasswordCubit extends Cubit<ForgotPasswordState> {
 
   /// Đặt lại trạng thái để gửi lại hoặc nhập email khác
   void resetState() {
+    if (isClosed || state.status == ForgotPasswordStatus.loading) return;
     emit(const ForgotPasswordState());
   }
 
   /// Thực hiện gửi yêu cầu khôi phục mật khẩu
   Future<void> submitForgotPassword() async {
+    if (isClosed || state.status == ForgotPasswordStatus.loading) return;
     final email = state.email.trim();
 
     final validationMessage = Validation.getForgotPasswordValidationErrors(
@@ -44,20 +52,19 @@ class ForgotPasswordCubit extends Cubit<ForgotPasswordState> {
     emit(state.copyWith(status: ForgotPasswordStatus.loading));
 
     try {
-      // Giả lập gọi API gửi email khôi phục mật khẩu
-      await Future.delayed(const Duration(seconds: 1));
+      // Không suy ra sự tồn tại của tài khoản từ phản hồi gửi email.
+      await service.sendPasswordReset(email);
+      if (isClosed) return;
 
       emit(
-        state.copyWith(
-          status: ForgotPasswordStatus.success,
-          isEmailSent: true,
-        ),
+        state.copyWith(status: ForgotPasswordStatus.success, isEmailSent: true),
       );
     } catch (e) {
+      if (isClosed) return;
       emit(
         state.copyWith(
           status: ForgotPasswordStatus.failure,
-          errorMessage: 'Đã có lỗi xảy ra: ${e.toString()}',
+          errorMessage: authErrorMessage(e),
         ),
       );
     }

@@ -1,97 +1,107 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/colors/app_colors.dart';
 import '../../../core/text_styles/app_text_styles.dart';
-import '../../../core/widgets/widgets.dart';
+import '../../../core/widgets/app_tap.dart';
 import '../cubits/register/register.dart';
 
-/// Widget Checkbox xác nhận đồng ý với Điều khoản dịch vụ và Chính sách bảo mật Bếp Xinh
-class RegisterCheckboxPolicy extends StatelessWidget {
+class RegisterCheckboxPolicy extends StatefulWidget {
   const RegisterCheckboxPolicy({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocSelector<RegisterCubit, RegisterState, bool>(
-      selector: (state) => state.isTermsAccepted,
-      builder: (context, isAccepted) {
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Checkbox với animation mượt mà
-            AppTap(
-              actionName: 'toggle_terms_checkbox',
-              onTap: () => context.read<RegisterCubit>().toggleTermsAccepted(),
-              child: Padding(
-                padding: const EdgeInsets.only(top: 2, right: 10, bottom: 2),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeOutCubic,
-                  width: 22,
-                  height: 22,
-                  decoration: BoxDecoration(
-                    color: isAccepted ? AppColors.primary : Colors.transparent,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(
-                      color: isAccepted
-                          ? AppColors.primary
-                          : AppColors.borderDark,
-                      width: 1.8,
-                    ),
-                    boxShadow: isAccepted
-                        ? [
-                            BoxShadow(
-                              color: AppColors.primary.withValues(alpha: 0.3),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                          ]
-                        : null,
-                  ),
-                  child: isAccepted
-                      ? const Icon(
-                          Icons.check_rounded,
-                          size: 16,
-                          color: Colors.white,
-                        )
-                      : null,
-                ),
-              ),
-            ),
+  State<RegisterCheckboxPolicy> createState() => _RegisterCheckboxPolicyState();
+}
 
-            // Đoạn văn bản đồng ý với clickable links
-            Expanded(
-              child: Text.rich(
-                TextSpan(
-                  text: 'Tôi đồng ý với ',
-                  style: AppTextStyles.labelMedium.copyWith(height: 1.45),
-                  children: [
-                    TextSpan(
-                      text: 'Điều khoản dịch vụ',
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                        decoration: TextDecoration.underline,
-                        decorationColor: AppColors.primary,
+class _RegisterCheckboxPolicyState extends State<RegisterCheckboxPolicy> {
+  late final TapGestureRecognizer _termsRecognizer;
+  late final TapGestureRecognizer _privacyRecognizer;
+
+  @override
+  void initState() {
+    super.initState();
+    _termsRecognizer = TapGestureRecognizer()
+      ..onTap = () => context.push('/legal/terms');
+    _privacyRecognizer = TapGestureRecognizer()
+      ..onTap = () => context.push('/legal/privacy');
+  }
+
+  @override
+  void dispose() {
+    _termsRecognizer.dispose();
+    _privacyRecognizer.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      BlocSelector<RegisterCubit, RegisterState, (bool, bool)>(
+        selector: (state) =>
+            (state.isTermsAccepted, state.status == RegisterStatus.loading),
+        builder: (context, value) {
+          final baseStyle = AppTextStyles.bodySmall.copyWith(
+            color: context.colors.textSecondary,
+            height: 1.5,
+          );
+          final linkStyle = baseStyle.copyWith(
+            color: AppColors.action,
+            fontWeight: FontWeight.w600,
+            // decoration: TextDecoration.underline,
+            decorationColor: AppColors.action,
+          );
+
+          return Semantics(
+            checked: value.$1,
+            enabled: !value.$2,
+            label: 'Đồng ý với Điều khoản dịch vụ và Chính sách bảo mật',
+            child: AppTap(
+              actionName: 'toggle_terms_checkbox',
+              onTap: value.$2
+                  ? null
+                  : context.read<RegisterCubit>().toggleTermsAccepted,
+              child: Row(
+                children: [
+                  ExcludeSemantics(
+                    child: IgnorePointer(
+                      child: Checkbox(
+                        value: value.$1,
+                        activeColor: AppColors.action,
+                        onChanged: value.$2 ? null : (_) {},
                       ),
                     ),
-                    const TextSpan(text: ' & '),
-                    TextSpan(
-                      text: 'Chính sách bảo mật',
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                        decoration: TextDecoration.underline,
-                        decorationColor: AppColors.primary,
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Text.rich(
+                        TextSpan(
+                          style: baseStyle,
+                          children: [
+                            const TextSpan(text: 'Tôi đồng ý với '),
+                            TextSpan(
+                              text: 'Điều khoản dịch vụ',
+                              style: linkStyle,
+                              recognizer: _termsRecognizer,
+                            ),
+                            const TextSpan(text: ' và '),
+                            TextSpan(
+                              text: 'Chính sách bảo mật',
+                              style: linkStyle,
+                              recognizer: _privacyRecognizer,
+                            ),
+                            const TextSpan(text: '.'),
+                          ],
+                        ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
-        );
-      },
-    );
-  }
+          );
+        },
+      );
 }

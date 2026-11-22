@@ -1,3 +1,4 @@
+import 'package:app_bep_xinh/core/widgets/app_content_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:app_bep_xinh/core/utils/app_layout.dart';
 import 'package:app_bep_xinh/core/widgets/app_skeleton.dart';
@@ -10,7 +11,7 @@ class FridgeSkeleton extends StatelessWidget {
     child: ConstrainedBox(
       constraints: BoxConstraints(maxWidth: AppLayout.pageWidth(context)),
       child: AppSkeleton(
-        child: ListView(
+        child: AppContentScrollView(
           padding: const EdgeInsets.all(16),
           children: [
             const SkeletonLines(),
@@ -18,7 +19,7 @@ class FridgeSkeleton extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.colors.surface,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Column(

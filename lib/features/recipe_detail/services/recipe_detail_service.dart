@@ -1,3 +1,5 @@
+import '../../recipes/services/published_recipe_source.dart';
+
 import 'package:app_bep_xinh/core/services/json_reader.dart';
 import 'package:app_bep_xinh/core/services/mock_api_client.dart';
 import 'package:app_bep_xinh/features/fridge/services/fridge_service.dart';
@@ -19,12 +21,14 @@ class MockRecipeDetailService implements RecipeDetailService {
   final IngredientCatalogService catalogService;
   final FridgeService fridgeService;
   final RecipeFavoritesService favorites;
+  final PublishedRecipeSource? published;
   MockRecipeDetailService(
     this.api,
     this.catalogService,
     this.fridgeService,
-    this.favorites,
-  );
+    this.favorites, {
+    this.published,
+  });
 
   @override
   Future<RecipeDetailData> fetchRecipe(String id) async {
@@ -43,6 +47,9 @@ class MockRecipeDetailService implements RecipeDetailService {
       if (keys.contains(id)) matching = entry;
     }
     requireUniqueIds(ids, 'recipe detail ids and aliases');
+    if (matching == null && published != null && id.startsWith('r_')) {
+      matching = await published!.find(id);
+    }
     if (matching == null) throw const RecipeNotFoundException();
     final recipe = RecipeDetail.fromJson(matching, catalog);
     return RecipeDetailData(

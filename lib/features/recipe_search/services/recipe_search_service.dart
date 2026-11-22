@@ -1,3 +1,5 @@
+import '../../recipes/services/published_recipe_source.dart';
+
 import 'dart:async';
 
 import 'package:app_bep_xinh/core/services/mock_api_client.dart';
@@ -19,7 +21,13 @@ class MockRecipeSearchService implements RecipeSearchService {
   final MockApiClient api;
   final IngredientCatalogService catalogService;
   final RecipeFavoritesService favorites;
-  MockRecipeSearchService(this.api, this.catalogService, this.favorites);
+  final PublishedRecipeSource? published;
+  MockRecipeSearchService(
+    this.api,
+    this.catalogService,
+    this.favorites, {
+    this.published,
+  });
 
   @override
   Future<List<RecipeItem>> search(RecipeSearchRequest request) async {
@@ -27,7 +35,10 @@ class MockRecipeSearchService implements RecipeSearchService {
       catalogService.fetchCatalog(),
       api.get('recipe_details'),
     ).wait;
-    final records = JsonReader(json).objects('recipes');
+    final records = [
+      ...await published?.fetchPublished() ?? <Map<String, dynamic>>[],
+      ...JsonReader(json).objects('recipes'),
+    ];
     requireUniqueIds(
       records.map((item) => JsonReader(item).string('id')),
       'recipes',

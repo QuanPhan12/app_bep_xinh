@@ -11,12 +11,17 @@ abstract interface class RecipeCoverPicker {
   Future<RecipeCover?> recoverLostCover();
 }
 
+abstract interface class CameraRecipeCoverPicker {
+  Future<RecipeCover?> captureCover();
+}
+
 class RecipeCoverException implements Exception {
   final String message;
   const RecipeCoverException(this.message);
 }
 
-class ImagePickerRecipeCoverPicker implements RecipeCoverPicker {
+class ImagePickerRecipeCoverPicker
+    implements RecipeCoverPicker, CameraRecipeCoverPicker {
   final ImagePicker picker;
   int _sequence = 0;
 
@@ -25,8 +30,15 @@ class ImagePickerRecipeCoverPicker implements RecipeCoverPicker {
 
   @override
   Future<RecipeCover?> pickCover() async {
+    return _pick(ImageSource.gallery);
+  }
+
+  @override
+  Future<RecipeCover?> captureCover() => _pick(ImageSource.camera);
+
+  Future<RecipeCover?> _pick(ImageSource source) async {
     final file = await picker.pickImage(
-      source: ImageSource.gallery,
+      source: source,
       maxWidth: 1920,
       maxHeight: 1920,
       imageQuality: 85,

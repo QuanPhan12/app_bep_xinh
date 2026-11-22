@@ -55,7 +55,9 @@ class RecipeIngredientsFields extends StatelessWidget {
             if (value.$3['ingredients'] ?? value.$3['groups'] case final error?)
               Text(
                 error,
-                style: AppTextStyles.bodySmall.copyWith(color: AppColors.error),
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: context.colors.error,
+                ),
               ),
             for (final group in value.$2) ...[
               RecipeEditorSection(
@@ -84,7 +86,7 @@ class RecipeIngredientsFields extends StatelessWidget {
                       Text(
                         error,
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.error,
+                          color: context.colors.error,
                         ),
                       ),
                     if (!value.$1.any((item) => item.groupId == group.id))
@@ -231,7 +233,7 @@ class _IngredientRow extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: EdgeInsets.zero,
     decoration: BoxDecoration(
-      border: Border(bottom: BorderSide(color: AppColors.border)),
+      border: Border(bottom: BorderSide(color: context.colors.border)),
     ),
     child: Row(
       children: [
@@ -252,14 +254,14 @@ class _IngredientRow extends StatelessWidget {
                       if (item.note.isNotEmpty) item.note,
                     ].join(' · '),
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
+                      color: context.colors.textSecondary,
                     ),
                   ),
                   if (error != null)
                     Text(
                       error!,
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.error,
+                        color: context.colors.error,
                       ),
                     ),
                 ],

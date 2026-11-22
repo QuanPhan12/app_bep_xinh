@@ -1,7 +1,11 @@
+import 'package:app_bep_xinh/core/widgets/app_selection_controls.dart';
+
+import '../../support/auth_fake.dart';
+
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
 import 'package:app_bep_xinh/core/router/app_router.dart';
 import 'package:app_bep_xinh/core/tap/tap.dart';
-import 'package:app_bep_xinh/core/widgets/app_search_bar.dart';
 import 'package:app_bep_xinh/features/fridge/services/fridge_service.dart';
 import 'package:app_bep_xinh/features/home/services/home_service.dart';
 import 'package:app_bep_xinh/features/ingredients/services/ingredient_catalog_service.dart';
@@ -24,6 +28,7 @@ import '../../support/recipe_search_fakes.dart';
 import '../../support/test_text_styles.dart';
 
 void main() {
+  setUp(configureAuthenticatedTaps);
   setUpAll(configureTestTextStyles);
   setUp(AppTapHandler.resetLock);
   late StubRecipeFavoritesService favorites;
@@ -94,7 +99,7 @@ void main() {
     'Home search and all six shortcuts open the same route with the right filter',
     (tester) async {
       final router = await open(tester, path: '/home');
-      await tap(tester, find.byType(AppSearchBar));
+      await tap(tester, find.byKey(const ValueKey('home_search')));
       expect(find.byType(RecipeSearchScreen), findsOneWidget);
       expect(service.requests.last.filter, RecipeSearchFilter.all);
       expect(router.canPop(), isTrue);
@@ -113,7 +118,7 @@ void main() {
         expect(service.requests.last.filter, entry.value);
         expect(
           tester
-              .widget<ChoiceChip>(
+              .widget<AppChoiceChip>(
                 find.byKey(ValueKey('search_filter_${entry.value.id}')),
               )
               .selected,
@@ -122,7 +127,12 @@ void main() {
         router.pop();
         await tester.pumpAndSettle();
       }
-      await tap(tester, find.text('Xem tất cả').first);
+      await tester.drag(
+        find.byKey(const PageStorageKey('home_content')),
+        const Offset(0, 800),
+      );
+      await tester.pumpAndSettle();
+      await tap(tester, find.byKey(const ValueKey('home_search')));
       expect(find.byType(RecipeSearchScreen), findsOneWidget);
       expect(service.requests.last.filter, RecipeSearchFilter.all);
     },
@@ -132,14 +142,26 @@ void main() {
     'search clears and retypes, opens detail and back preserves query, filter and favorites',
     (tester) async {
       final router = await open(tester, path: '/home');
-      await tap(tester, find.byType(AppSearchBar));
+      await tap(tester, find.byKey(const ValueKey('home_search')));
       final field = find.byKey(const ValueKey('recipe_search_query'));
       await tester.enterText(field, 'ca hoi');
       await tester.pump(const Duration(milliseconds: 350));
       await tester.pumpAndSettle();
       expect(find.text('1 món ăn'), findsOneWidget);
       await tap(tester, find.byTooltip('Xóa tìm kiếm'));
-      expect(tester.widget<TextFormField>(field).controller!.text, '');
+      expect(
+        tester
+            .widget<TextFormField>(
+              find.descendant(
+                of: field,
+                matching: find.byType(TextFormField),
+                matchRoot: true,
+              ),
+            )
+            .controller!
+            .text,
+        '',
+      );
       expect(find.text('8 món ăn'), findsOneWidget);
       await tester.enterText(field, 'ca hoi');
       await tester.pump(const Duration(milliseconds: 350));
@@ -151,7 +173,7 @@ void main() {
       final card = find.byType(ProductCard).first;
       final favorite = find.descendant(
         of: card,
-        matching: find.byIcon(Icons.favorite_border_rounded),
+        matching: find.byIcon(PhosphorIconsRegular.heart),
       );
       // No global lock reset here: a navigation callback must not lock the route.
       await tester.ensureVisible(favorite);
@@ -173,7 +195,19 @@ void main() {
             .read<RecipeSearchCubit>(),
         same(original),
       );
-      expect(tester.widget<TextFormField>(field).controller!.text, 'ca hoi');
+      expect(
+        tester
+            .widget<TextFormField>(
+              find.descendant(
+                of: field,
+                matching: find.byType(TextFormField),
+                matchRoot: true,
+              ),
+            )
+            .controller!
+            .text,
+        'ca hoi',
+      );
       expect(original.state.request.filter, RecipeSearchFilter.eatClean);
       expect(original.state.recipes.single.isFavorite, isTrue);
       expect(tester.takeException(), isNull);

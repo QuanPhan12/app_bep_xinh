@@ -1,10 +1,12 @@
+import 'dart:async';
+
+import '../../sollume/shared/app_sliver_app_bar.dart' as sollume;
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 
 import '../colors/app_colors.dart';
 import '../text_styles/app_text_styles.dart';
-import 'app_tap.dart';
+import 'app_bar_style.dart';
 
 /// SliverAppBar chuẩn hóa dùng chung cho toàn bộ ứng dụng Bếp Xinh trong [CustomScrollView].
 ///
@@ -48,7 +50,7 @@ class AppSliverAppBar extends StatelessWidget {
   /// Gradient nền AppBar (Mặc định: [AppColors.primaryGradient] khi [backgroundColor] == null)
   final Gradient? gradient;
 
-  /// Màu chữ tiêu đề và icon (Mặc định: trắng trên gradient, hoặc [AppColors.textPrimary] trên nền sáng)
+  /// Màu chữ tiêu đề và icon (Mặc định: trắng trên gradient, hoặc [context.colors.textPrimary] trên nền sáng)
   final Color? foregroundColor;
 
   /// Chiều cao mở rộng (dành cho màn hình có ảnh bìa / banner lớn)
@@ -64,7 +66,9 @@ class AppSliverAppBar extends StatelessWidget {
   final double? scrolledUnderElevation;
 
   /// Callback tùy biến khi ấn nút quay lại
-  final VoidCallback? onBackPressed;
+  final FutureOr<void> Function()? onBackPressed;
+
+  final bool backEnabled;
 
   const AppSliverAppBar({
     super.key,
@@ -85,7 +89,31 @@ class AppSliverAppBar extends StatelessWidget {
     this.bottom,
     this.scrolledUnderElevation,
     this.onBackPressed,
+    this.backEnabled = true,
   });
+
+  /// Tab gốc không có nút quay lại; thanh tiêu đề ẩn khi cuộn xuống
+  /// và hiện ngay khi cuộn ngược để người dùng nhận biết màn đang mở.
+  const AppSliverAppBar.tab({
+    super.key,
+    required this.title,
+    this.actions,
+    this.titleWidget,
+  }) : leading = null,
+       automaticallyImplyLeading = false,
+       centerTitle = false,
+       pinned = false,
+       floating = true,
+       snap = true,
+       backgroundColor = null,
+       gradient = null,
+       foregroundColor = null,
+       expandedHeight = null,
+       flexibleSpace = null,
+       bottom = null,
+       scrolledUnderElevation = 0,
+       onBackPressed = null,
+       backEnabled = true;
 
   /// Factory tạo SliverAppBar dạng Large Title co giãn mượt mà khi cuộn
   factory AppSliverAppBar.large({
@@ -107,8 +135,7 @@ class AppSliverAppBar extends StatelessWidget {
         ? gradient
         : (gradient ?? AppColors.primaryGradient);
     final effectiveForeground =
-        foregroundColor ??
-        (effectiveGradient != null ? Colors.white : AppColors.textPrimary);
+        foregroundColor ?? (effectiveGradient != null ? Colors.white : null);
 
     return AppSliverAppBar(
       key: key,
@@ -141,123 +168,63 @@ class AppSliverAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final canPop =
-        context.canPop() || (ModalRoute.of(context)?.canPop ?? false);
+    final style = AppBarStyle(
+      backgroundColor: backgroundColor ?? context.colors.surface,
+      gradient: gradient,
+      foregroundColor:
+          foregroundColor ??
+          (gradient == null ? context.colors.textPrimary : null),
+    );
+    final leadingWidget =
+        leading ??
+        (automaticallyImplyLeading &&
+                (onBackPressed != null || appBarCanPop(context))
+            ? AppBarBackButton(
+                style: style,
+                enabled: backEnabled,
+                onBack: onBackPressed ?? () => appBarPop(context),
+              )
+            : null);
 
-    // Xác định gradient hoặc màu nền
-    final bool hasExplicitBg = backgroundColor != null;
-    final Gradient? effectiveGradient = hasExplicitBg
-        ? gradient
-        : (gradient ?? AppColors.primaryGradient);
-
-    final Color effectiveForeground =
-        foregroundColor ??
-        (effectiveGradient != null ? Colors.white : AppColors.textPrimary);
-
-    final Color effectiveBg = effectiveGradient != null
-        ? Colors.transparent
-        : (backgroundColor ?? AppColors.surface);
-
-    // Xử lý nút Back chuẩn UI/UX
-    Widget? leadingWidget = leading;
-    if (leadingWidget == null && automaticallyImplyLeading && canPop) {
-      leadingWidget = AppTap(
-        actionName: 'app_bar_back',
-        allowConcurrent: true,
-        onTap: () {
-          if (onBackPressed != null) {
-            onBackPressed!();
-          } else if (context.canPop()) {
-            context.pop();
-          } else {
-            Navigator.of(context).maybePop();
-          }
-        },
-        child: Center(
-          child: Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: effectiveGradient != null
-                  ? Colors.white.withValues(alpha: 0.2)
-                  : (effectiveBg == Colors.transparent
-                        ? Colors.black.withValues(alpha: 0.25)
-                        : Colors.transparent),
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: effectiveForeground,
-              size: 18,
-            ),
-          ),
-        ),
+    if (expandedHeight == null &&
+        flexibleSpace == null &&
+        bottom == null &&
+        !snap &&
+        gradient == null) {
+      return sollume.AppSliverAppBar(
+        title: titleWidget ?? Text(title ?? ''),
+        leading: leadingWidget,
+        actions: actions ?? const [],
+        centerTitle: centerTitle,
+        pinned: pinned,
+        floating: floating,
+        showDivider: leadingWidget != null,
+        variant: leadingWidget == null
+            ? sollume.AppSliverAppBarVariant.root
+            : sollume.AppSliverAppBarVariant.detail,
       );
     }
-
-    // Tích hợp gradient vào flexibleSpace
-    Widget? effectiveFlexibleSpace = flexibleSpace;
-    if (effectiveGradient != null) {
-      if (effectiveFlexibleSpace == null) {
-        effectiveFlexibleSpace = Container(
-          decoration: BoxDecoration(gradient: effectiveGradient),
-        );
-      } else {
-        effectiveFlexibleSpace = Stack(
-          fit: StackFit.expand,
-          children: [
-            Container(decoration: BoxDecoration(gradient: effectiveGradient)),
-            effectiveFlexibleSpace,
-          ],
-        );
-      }
-    }
-
-    // Xác định style cho StatusBar
-    final SystemUiOverlayStyle overlayStyle = effectiveGradient != null
-        ? SystemUiOverlayStyle.light.copyWith(
-            statusBarColor: Colors.transparent,
-          )
-        : (ThemeData.estimateBrightnessForColor(effectiveBg) == Brightness.dark
-              ? SystemUiOverlayStyle.light.copyWith(
-                  statusBarColor: Colors.transparent,
-                )
-              : SystemUiOverlayStyle.dark.copyWith(
-                  statusBarColor: Colors.transparent,
-                ));
-
     return SliverAppBar(
       pinned: pinned,
       floating: floating,
       snap: snap,
       elevation: 0,
-      scrolledUnderElevation: effectiveGradient != null
+      scrolledUnderElevation: style.gradient != null
           ? 0
           : (scrolledUnderElevation ?? 0.5),
-      backgroundColor: effectiveBg,
+      backgroundColor: style.background,
       surfaceTintColor: Colors.transparent,
       centerTitle: centerTitle,
       automaticallyImplyLeading: false,
       leading: leadingWidget,
-      iconTheme: IconThemeData(color: effectiveForeground),
-      actionsIconTheme: IconThemeData(color: effectiveForeground),
-      title:
-          titleWidget ??
-          (title != null
-              ? Text(
-                  title!,
-                  style: AppTextStyles.titleLarge.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: effectiveForeground,
-                  ),
-                )
-              : null),
+      iconTheme: IconThemeData(color: style.foreground),
+      actionsIconTheme: IconThemeData(color: style.foreground),
+      title: titleWidget ?? (title != null ? style.title(title!) : null),
       actions: actions,
       expandedHeight: expandedHeight,
-      flexibleSpace: effectiveFlexibleSpace,
+      flexibleSpace: style.flexibleSpace(flexibleSpace),
       bottom: bottom,
-      systemOverlayStyle: overlayStyle,
+      systemOverlayStyle: style.overlay,
     );
   }
 }

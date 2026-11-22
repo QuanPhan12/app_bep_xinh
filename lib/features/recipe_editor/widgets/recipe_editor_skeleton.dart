@@ -1,3 +1,4 @@
+import 'package:app_bep_xinh/core/widgets/app_content_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:app_bep_xinh/core/widgets/app_skeleton.dart';
 
@@ -5,7 +6,7 @@ class RecipeEditorSkeleton extends StatelessWidget {
   const RecipeEditorSkeleton({super.key});
   @override
   Widget build(BuildContext context) => AppSkeleton(
-    child: ListView(
+    child: AppContentScrollView(
       padding: const EdgeInsets.all(16),
       children: [
         const Row(

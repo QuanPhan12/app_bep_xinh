@@ -11,6 +11,11 @@ abstract interface class RecipeEditorService {
   Future<void> submit(RecipeDraft draft);
 }
 
+abstract interface class RecipeEditorProgressSource {
+  Stream<String> get progress;
+  Future<void> dispose();
+}
+
 /// Chỉ mô phỏng backend trong phiên, không công bố bài viết ra hệ thống thật.
 class MockRecipeEditorService implements RecipeEditorService {
   final MockApiClient api;

@@ -1,3 +1,9 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
+
+import '../../recipes/models/recipe_remix.dart';
+
 import 'package:equatable/equatable.dart';
 import 'package:app_bep_xinh/features/ingredients/models/ingredient_catalog.dart';
 import 'package:app_bep_xinh/features/ingredients/models/ingredient_quantity.dart';
@@ -91,7 +97,7 @@ class RecipeStepDraft extends Equatable {
   final String title;
   final String minutes;
   final String tip;
-  final RecipeCover? photo;
+  final RecipeImage? photo;
   const RecipeStepDraft({
     required this.id,
     this.instruction = '',
@@ -106,7 +112,7 @@ class RecipeStepDraft extends Equatable {
     String? title,
     String? minutes,
     String? tip,
-    RecipeCover? photo,
+    RecipeImage? photo,
     bool removePhoto = false,
   }) => RecipeStepDraft(
     id: id,
@@ -133,8 +139,14 @@ class RecipeStepDraft extends Equatable {
 }
 
 class RecipeDraft extends Equatable {
+  final RecipeRemix? remix;
+  final String? remixBaseline;
+  String get contentFingerprint => sha256
+      .convert(utf8.encode(jsonEncode(toRecipeContent().toJson())))
+      .toString();
+
   final String title;
-  final RecipeCover? cover;
+  final RecipeImage? cover;
   final String preparationMinutes;
   final String cookingMinutes;
   final int servings;
@@ -148,6 +160,8 @@ class RecipeDraft extends Equatable {
   final List<RecipeIngredientGroup> ingredientGroups;
 
   RecipeDraft({
+    this.remix,
+    this.remixBaseline,
     this.title = '',
     this.cover,
     this.preparationMinutes = '15',
@@ -171,8 +185,10 @@ class RecipeDraft extends Equatable {
        steps = List.unmodifiable(steps);
 
   RecipeDraft copyWith({
+    RecipeRemix? remix,
+    String? remixBaseline,
     String? title,
-    RecipeCover? cover,
+    RecipeImage? cover,
     bool removeCover = false,
     String? preparationMinutes,
     String? cookingMinutes,
@@ -186,6 +202,8 @@ class RecipeDraft extends Equatable {
     Set<RecipeCategory>? categories,
     List<RecipeIngredientGroup>? ingredientGroups,
   }) => RecipeDraft(
+    remix: remix ?? this.remix,
+    remixBaseline: remixBaseline ?? this.remixBaseline,
     title: title ?? this.title,
     cover: removeCover ? null : cover ?? this.cover,
     preparationMinutes: preparationMinutes ?? this.preparationMinutes,
@@ -201,7 +219,48 @@ class RecipeDraft extends Equatable {
     ingredientGroups: ingredientGroups ?? this.ingredientGroups,
   );
 
+  factory RecipeDraft.fromContent(RecipeContent content) => RecipeDraft(
+    title: content.title,
+    cover: content.cover,
+    description: content.description,
+    preparationMinutes: content.preparationMinutes.toString(),
+    cookingMinutes: content.cookingMinutes.toString(),
+    servings: content.servings,
+    difficulty: content.difficulty,
+    storageNotes: content.storageNotes,
+    meals: content.meals,
+    categories: content.categories,
+    ingredientGroups: content.ingredientGroups,
+    ingredients: content.ingredients
+        .map(
+          (i) => RecipeIngredientDraft(
+            id: i.id,
+            ingredientId: i.ingredientId,
+            name: i.name,
+            amount: i.amount,
+            unit: i.unit,
+            toTaste: i.toTaste,
+            note: i.note,
+            groupId: i.groupId,
+          ),
+        )
+        .toList(),
+    steps: content.steps
+        .map(
+          (s) => RecipeStepDraft(
+            id: s.id,
+            instruction: s.instruction,
+            title: s.title,
+            minutes: s.minutes?.toString() ?? '',
+            tip: s.tip,
+            photo: s.photo,
+          ),
+        )
+        .toList(),
+  );
+
   RecipeDraft normalized() => copyWith(
+    remix: remix?.withChanges(remix!.changes.trim()),
     title: title.trim(),
     preparationMinutes: preparationMinutes.trim(),
     cookingMinutes: cookingMinutes.trim(),
@@ -261,6 +320,8 @@ class RecipeDraft extends Equatable {
 
   @override
   List<Object?> get props => [
+    remix,
+    remixBaseline,
     title,
     cover,
     preparationMinutes,

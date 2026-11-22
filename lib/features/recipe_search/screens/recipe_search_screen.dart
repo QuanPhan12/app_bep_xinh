@@ -1,10 +1,11 @@
+import 'package:app_bep_xinh/core/widgets/app_sliver_app_bar.dart';
 import 'package:app_bep_xinh/core/widgets/app_feature_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_bep_xinh/core/router/app_router.dart';
 import 'package:app_bep_xinh/core/utils/app_layout.dart';
-import 'package:app_bep_xinh/core/widgets/app_app_bar.dart';
+import 'package:app_bep_xinh/core/widgets/app_page_scaffold.dart';
 import 'package:app_bep_xinh/core/widgets/app_messenger.dart';
 import 'package:app_bep_xinh/features/recipes/services/recipe_favorites_service.dart';
 
@@ -37,11 +38,11 @@ class RecipeSearchScreen extends StatelessWidget {
 class _RecipeSearchPage extends StatelessWidget {
   const _RecipeSearchPage();
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => AppPageScaffold(
     backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-    appBar: AppAppBar(
+    appBar: AppSliverAppBar(
       title: 'Tìm món ngon',
-      onBack: () {
+      onBackPressed: () {
         if (context.canPop()) {
           context.pop();
         } else {
@@ -62,21 +63,26 @@ class _RecipeSearchPage extends StatelessWidget {
                 AppMessenger.showError(context, state.message!);
               }
             },
-            child: const Column(
-              children: [
-                RecipeSearchIntro(),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
-                  child: RecipeSearchInput(),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: RecipeSearchFilters(),
+            // Một vùng cuộn cho cả bộ lọc và kết quả để bàn phím trên tablet
+            // ngang không ép phần kết quả xuống chiều cao âm.
+            child: const RecipeSearchResults(
+              headerSlivers: [
+                SliverToBoxAdapter(child: RecipeSearchIntro()),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
+                    child: RecipeSearchInput(),
                   ),
                 ),
-                Expanded(child: RecipeSearchResults()),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: RecipeSearchFilters(),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

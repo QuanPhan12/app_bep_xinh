@@ -10,6 +10,8 @@ import 'package:app_bep_xinh/features/fridge/screens/fridge_screen.dart';
 import 'package:app_bep_xinh/features/fridge/widgets/fridge_card.dart';
 import 'package:app_bep_xinh/features/fridge/widgets/fridge_content.dart';
 import 'package:app_bep_xinh/features/fridge/widgets/fridge_recipe_suggestions.dart';
+import 'package:app_bep_xinh/features/fridge/widgets/fridge_inventory_card.dart';
+import 'package:app_bep_xinh/features/product/widgets/product_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -67,6 +69,20 @@ void main() {
     final search = find.byKey(const ValueKey('fridge_ingredient_search'));
     expect(search, findsNothing);
     final firstRecipe = find.text('Đậu hũ sốt cà chua');
+    expect(
+      tester.getSize(find.byType(FridgeInventoryCard)).height,
+      lessThanOrEqualTo(144),
+    );
+    expect(find.text('Đủ nguyên liệu'), findsNothing);
+    final firstCard = find.byType(ProductCard).first;
+    final firstTime = find.descendant(
+      of: firstCard,
+      matching: find.text('15p'),
+    );
+    expect(
+      tester.getBottomRight(firstCard).dy - tester.getBottomRight(firstTime).dy,
+      lessThan(26),
+    );
     expect(tester.getBottomLeft(firstRecipe).dy, lessThan(760));
     await tap(tester, find.byKey(const ValueKey('fridge_add_ingredients')));
 
@@ -86,13 +102,18 @@ void main() {
     expect(find.text('Nấu được ngay · 3 món'), findsOneWidget);
 
     // Throttle uses wall time; isolate successive interaction assertions.
-    await tap(tester, find.byKey(const ValueKey('remove_beef')));
+    await tap(tester, find.byKey(const ValueKey('fridge_add_ingredients')));
+    await tap(tester, find.byKey(const ValueKey('pick_beef')));
+    await tap(tester, find.text('Xem gợi ý'));
     expect(cubit.state.selectedIds, isNot(contains('beef')));
     expect(find.text('Nấu được ngay · 2 món'), findsOneWidget);
 
+    expect(find.text('Xóa hết'), findsNothing);
+    await tap(tester, find.byKey(const ValueKey('fridge_add_ingredients')));
     await tap(tester, find.text('Xóa hết'));
+    await tap(tester, find.text('Xem gợi ý'));
     expect(cubit.state.selectedIds, isEmpty);
-    expect(find.text('Trong tủ lạnh (0)'), findsOneWidget);
+    expect(find.text('Nguyên liệu · 0'), findsOneWidget);
     expect(
       find.text('Thêm nguyên liệu để xem món có thể nấu nhé.'),
       findsOneWidget,
@@ -111,9 +132,21 @@ void main() {
     await tester.pumpAndSettle();
     await tap(tester, find.byKey(const ValueKey('pick_beef')));
     await tap(tester, find.byTooltip('Đóng bảng nguyên liệu'));
-    expect(find.byKey(const ValueKey('remove_beef')), findsOneWidget);
+    expect(find.byKey(const ValueKey('inventory_beef')), findsOneWidget);
     await tap(tester, find.byKey(const ValueKey('fridge_add_ingredients')));
-    expect(tester.widget<TextFormField>(search).controller!.text, '');
+    expect(
+      tester
+          .widget<TextFormField>(
+            find.descendant(
+              of: search,
+              matching: find.byType(TextFormField),
+              matchRoot: true,
+            ),
+          )
+          .controller!
+          .text,
+      '',
+    );
     expect(
       tester
           .widget<FridgeIngredientChip>(find.byKey(const ValueKey('pick_beef')))
@@ -122,7 +155,7 @@ void main() {
     );
     await tap(tester, find.byKey(const ValueKey('pick_beef')));
     await tap(tester, find.text('Xem gợi ý'));
-    expect(find.byKey(const ValueKey('remove_beef')), findsNothing);
+    expect(find.byKey(const ValueKey('inventory_beef')), findsNothing);
     expect(find.text('Nấu được ngay · 2 món'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
@@ -149,7 +182,7 @@ void main() {
     service.onSave = null;
     await tap(tester, find.byKey(const ValueKey('pick_beef')));
     await tap(tester, find.text('Xem gợi ý'));
-    expect(find.byKey(const ValueKey('remove_beef')), findsOneWidget);
+    expect(find.byKey(const ValueKey('inventory_beef')), findsOneWidget);
     await tester.pump(const Duration(seconds: 4));
     AppMessenger.hide();
     expect(tester.takeException(), isNull);
@@ -182,9 +215,21 @@ void main() {
       tester.view.resetViewInsets();
       tester.view.physicalSize = Size(size.height, size.width);
       await tester.pumpAndSettle();
-      expect(tester.widget<TextFormField>(search).controller!.text, 'thit bo');
+      expect(
+        tester
+            .widget<TextFormField>(
+              find.descendant(
+                of: search,
+                matching: find.byType(TextFormField),
+                matchRoot: true,
+              ),
+            )
+            .controller!
+            .text,
+        'thit bo',
+      );
       await tap(tester, find.text('Xem gợi ý'));
-      expect(find.byKey(const ValueKey('remove_beef')), findsOneWidget);
+      expect(find.byKey(const ValueKey('inventory_beef')), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }
@@ -224,7 +269,10 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       for (var i = 0; i < 7; i++) {
-        await tester.drag(find.byType(ListView), const Offset(0, -350));
+        await tester.drag(
+          find.byType(CustomScrollView).last,
+          const Offset(0, -350),
+        );
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
       }

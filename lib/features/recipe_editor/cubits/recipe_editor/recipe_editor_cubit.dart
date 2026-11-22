@@ -2,9 +2,13 @@ import 'package:app_bep_xinh/core/utils/search_utils.dart';
 import 'package:app_bep_xinh/core/models/app_notification_type.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'dart:async';
+
 import '../../models/recipe_draft.dart';
 import '../../services/recipe_cover_picker.dart';
 import '../../services/recipe_editor_service.dart';
+import '../../services/recipe_image_uploader.dart';
+import '../../services/recipe_authoring_repository.dart';
 import '../../validation/recipe_editor_validation.dart';
 import 'recipe_editor_state.dart';
 
@@ -13,13 +17,36 @@ export 'recipe_editor_state.dart';
 class RecipeEditorCubit extends Cubit<RecipeEditorState> {
   final RecipeEditorService service;
   final RecipeCoverPicker coverPicker;
+  final RecipeDraft? seedDraft;
+  final RecipeDraft? expectedDraft;
   Future<void>? _loadTask;
   Future<bool>? _exitTask;
   int _nextId = 1;
   int _coverRevision = 0;
+  StreamSubscription<String>? _progressSubscription;
 
-  RecipeEditorCubit({required this.service, required this.coverPicker})
-    : super(RecipeEditorState());
+  RecipeEditorCubit({
+    required this.service,
+    required this.coverPicker,
+    this.seedDraft,
+    this.expectedDraft,
+  }) : super(RecipeEditorState()) {
+    final source = service;
+    if (source is RecipeEditorProgressSource) {
+      _progressSubscription = (source as RecipeEditorProgressSource).progress
+          .listen((label) {
+            if (!isClosed && state.isBusy) {
+              emit(state.copyWith(workLabel: label));
+            }
+          });
+    }
+  }
+
+  @override
+  Future<void> close() async {
+    await _progressSubscription?.cancel();
+    await super.close();
+  }
 
   Future<void> loadDraft() {
     if (isClosed || state.status == RecipeEditorStatus.ready) {
@@ -32,14 +59,19 @@ class RecipeEditorCubit extends Cubit<RecipeEditorState> {
     emit(state.copyWith(status: RecipeEditorStatus.loading));
     try {
       final savedDraft = await service.loadDraft();
-      final draft = savedDraft ?? RecipeDraft();
+      if (seedDraft != null && savedDraft != expectedDraft) {
+        throw const RecipeAuthoringException(
+          'Bản nháp vừa thay đổi. Hãy quay lại và mở bản biến tấu lần nữa.',
+        );
+      }
+      final draft = seedDraft ?? savedDraft ?? RecipeDraft();
       if (isClosed) return;
       // Form chỉ được dựng sau load, tránh ghi đè dữ liệu người dùng đang nhập.
       emit(
         state.copyWith(
           status: RecipeEditorStatus.ready,
           draft: draft,
-          savedDraft: draft,
+          savedDraft: seedDraft == null ? draft : savedDraft ?? RecipeDraft(),
           hasSavedDraft: savedDraft != null,
         ),
       );
@@ -49,7 +81,9 @@ class RecipeEditorCubit extends Cubit<RecipeEditorState> {
         emit(
           state.copyWith(
             status: RecipeEditorStatus.loadFailure,
-            message: 'Không tải được bản nháp. Vui lòng thử lại.',
+            message: error is RecipeAuthoringException
+                ? error.message
+                : 'Không tải được bản nháp. Vui lòng thử lại.',
           ),
         );
       }
@@ -89,6 +123,13 @@ class RecipeEditorCubit extends Cubit<RecipeEditorState> {
             : const {},
       ),
     );
+  }
+
+  void changeRemixChanges(String value) {
+    final remix = state.draft.remix;
+    if (remix != null) {
+      _update(state.draft.copyWith(remix: remix.withChanges(value)));
+    }
   }
 
   void changeTitle(String value) => _update(state.draft.copyWith(title: value));
@@ -324,11 +365,11 @@ class RecipeEditorCubit extends Cubit<RecipeEditorState> {
     _update(state.draft.copyWith(steps: items));
   }
 
-  Future<void> pickStepPhoto(String id) async {
+  Future<void> pickStepPhoto(String id, {bool camera = false}) async {
     if (!_canOperate || !state.draft.steps.any((step) => step.id == id)) return;
     emit(state.copyWith(operation: RecipeEditorOperation.pickingStepPhoto));
     try {
-      final photo = await coverPicker.pickCover();
+      final photo = await _pickPhoto(camera);
       if (!isClosed && photo != null) updateStep(id, photo: photo);
     } catch (error, stack) {
       if (!isClosed) {
@@ -371,12 +412,23 @@ class RecipeEditorCubit extends Cubit<RecipeEditorState> {
     );
   }
 
-  Future<void> pickCover() async {
+  Future<RecipeCover?> _pickPhoto(bool camera) {
+    if (!camera) return coverPicker.pickCover();
+    final picker = coverPicker;
+    if (picker is CameraRecipeCoverPicker) {
+      return (picker as CameraRecipeCoverPicker).captureCover();
+    }
+    throw const RecipeCoverException(
+      'Thiết bị chưa hỗ trợ chụp ảnh. Hãy chọn ảnh từ thư viện.',
+    );
+  }
+
+  Future<void> pickCover({bool camera = false}) async {
     if (!_canOperate) return;
     _coverRevision++;
     emit(state.copyWith(operation: RecipeEditorOperation.pickingCover));
     try {
-      final photo = await coverPicker.pickCover();
+      final photo = await _pickPhoto(camera);
       if (!isClosed && photo != null) {
         _update(state.draft.copyWith(cover: photo));
       }
@@ -412,7 +464,13 @@ class RecipeEditorCubit extends Cubit<RecipeEditorState> {
     } catch (error, stack) {
       if (!isClosed) {
         addError(error, stack);
-        _notice('Chưa lưu được bản nháp. Vui lòng thử lại.');
+        _notice(
+          error is RecipeUploadException
+              ? error.message
+              : error is RecipeAuthoringException
+              ? error.message
+              : 'Chưa lưu được bản nháp. Vui lòng thử lại.',
+        );
       }
     } finally {
       if (!isClosed) {
@@ -449,7 +507,13 @@ class RecipeEditorCubit extends Cubit<RecipeEditorState> {
       if (!isClosed) {
         addError(error, stack);
         emit(state.copyWith(operation: RecipeEditorOperation.idle));
-        _notice('Chưa gửi được công thức. Vui lòng thử lại.');
+        _notice(
+          error is RecipeUploadException
+              ? error.message
+              : error is RecipeAuthoringException
+              ? error.message
+              : 'Chưa gửi được công thức. Vui lòng thử lại.',
+        );
       }
     }
   }

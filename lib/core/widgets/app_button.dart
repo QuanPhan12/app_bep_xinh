@@ -1,18 +1,15 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../colors/app_colors.dart';
-import '../dimensions/dimensions.dart';
-import '../text_styles/app_text_styles.dart';
+import '../../sollume/shared/app_button.dart' as sollume;
+
 import '../tap/app_tap_handler.dart';
 import '../tap/tap_config.dart';
 
 enum AppButtonVariant { primary, secondary, ghost }
 
-/// Nút bấm chuẩn hóa toàn app Bếp Xinh tích hợp sẵn hệ thống kiểm soát onTap tập trung
-/// và tự động tính toán kích thước co giãn thích ứng theo từng dòng máy qua AppSize.
+/// Adapter giữ guard của Bếp Xinh và giao diện/loading từ AppButton Sollume.
 class AppButton extends StatelessWidget {
   final String text;
   final IconData? icon;
@@ -67,12 +64,6 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDisabled = onPressed == null || isLoading;
-    final effectiveHeight = math.max(
-      48.0,
-      height ?? context.appSize.buttonHeight,
-    );
-    final effectiveRadius = borderRadius ?? context.r(12);
-
     final resolvedOnPressed = isDisabled
         ? null
         : AppTapHandler.wrap(
@@ -92,127 +83,35 @@ class AppButton extends StatelessWidget {
             config: config,
           );
 
-    Widget content = Row(
-      mainAxisSize: isFullWidth ? MainAxisSize.max : MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (isLoading) ...[
-          SizedBox(
-            width: 18,
-            height: 18,
-            child: CircularProgressIndicator(
-              strokeWidth: 2.2,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                variant == AppButtonVariant.primary
-                    ? Colors.white
-                    : AppColors.primary,
-              ),
+    final style = FilledButton.styleFrom(
+      minimumSize: height == null ? null : Size(0, height!),
+      backgroundColor: customColor,
+      shape: borderRadius == null
+          ? null
+          : RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(borderRadius!),
             ),
-          ),
-          const SizedBox(width: 10),
-        ] else ...[
-          Flexible(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(text, style: _getTextStyle(), maxLines: 1),
-            ),
-          ),
-        ],
-
-        // Dùng FittedBox để trên máy màn hình hẹp chữ tự động co lại thay vì rớt dòng đẩy phình nút
-      ],
     );
-
-    Widget buttonWidget;
-    switch (variant) {
-      case AppButtonVariant.primary:
-        buttonWidget = Container(
-          height: effectiveHeight,
-          decoration: BoxDecoration(
-            gradient: isDisabled ? null : AppColors.primaryGradient,
-            color: isDisabled ? AppColors.borderDark : null,
-            borderRadius: BorderRadius.circular(effectiveRadius),
-            boxShadow: isDisabled
-                ? null
-                : [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: .28),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-          ),
-          child: ElevatedButton(
+    final content = variant == AppButtonVariant.ghost
+        ? icon == null
+              ? TextButton(onPressed: resolvedOnPressed, child: Text(text))
+              : TextButton.icon(
+                  onPressed: resolvedOnPressed,
+                  icon: Icon(icon, size: 20),
+                  label: Text(text),
+                )
+        : sollume.AppButton(
+            label: text,
+            icon: icon,
             onPressed: resolvedOnPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              shadowColor: Colors.transparent,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(effectiveRadius),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-            ),
-            child: content,
-          ),
-        );
-        break;
-
-      case AppButtonVariant.secondary:
-        buttonWidget = SizedBox(
-          height: effectiveHeight,
-          child: ElevatedButton(
-            onPressed: resolvedOnPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: customColor ?? AppColors.primary50,
-              foregroundColor: AppColors.primary,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(effectiveRadius),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-            ),
-            child: content,
-          ),
-        );
-        break;
-
-      case AppButtonVariant.ghost:
-        buttonWidget = SizedBox(
-          height: effectiveHeight,
-          child: TextButton(
-            onPressed: resolvedOnPressed,
-            style: TextButton.styleFrom(
-              foregroundColor: customColor ?? AppColors.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(effectiveRadius),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-            ),
-            child: content,
-          ),
-        );
-        break;
-    }
-
-    if (isFullWidth) {
-      return SizedBox(width: double.infinity, child: buttonWidget);
-    }
-    return buttonWidget;
-  }
-
-  TextStyle _getTextStyle() {
-    switch (variant) {
-      case AppButtonVariant.primary:
-        return AppTextStyles.labelLarge.copyWith(
-          color: AppColors.textWhite,
-          fontWeight: FontWeight.w600,
-        );
-      case AppButtonVariant.secondary:
-      case AppButtonVariant.ghost:
-        return AppTextStyles.labelLarge.copyWith(
-          color: customColor ?? AppColors.primary,
-          fontWeight: FontWeight.w600,
-        );
-    }
+            isLoading: isLoading,
+            variant: variant == AppButtonVariant.primary
+                ? sollume.AppButtonVariant.primary
+                : sollume.AppButtonVariant.secondary,
+            style: style,
+          );
+    return isFullWidth
+        ? SizedBox(width: double.infinity, child: content)
+        : content;
   }
 }

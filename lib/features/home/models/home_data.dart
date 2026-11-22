@@ -54,6 +54,13 @@ class HomeData extends Equatable {
     fridgeSummary: fridgeSummary,
   );
 
+  HomeData withBanners(List<HomeBannerItem> banners) => HomeData._(
+    banners: List.unmodifiable(banners),
+    categories: categories,
+    recipes: recipes,
+    fridgeSummary: fridgeSummary,
+  );
+
   HomeData withFridgeSummary(FridgeSummary summary) => HomeData._(
     banners: banners,
     categories: categories,

@@ -2,6 +2,19 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>GIDClientID</key>
+    <string>955775168150-jsju1g6j7alecatk52jn1n6qcidubtfu.apps.googleusercontent.com</string>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>com.googleusercontent.apps.955775168150-jsju1g6j7alecatk52jn1n6qcidubtfu</string>
+            </array>
+        </dict>
+    </array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
@@ -27,7 +40,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Chọn ảnh món ăn để tạo và chia sẻ công thức của bạn.</string>
+	<string>Chọn ảnh đại diện hoặc ảnh món ăn để chia sẻ trên Bếp Xinh.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Chụp ảnh món ăn và các bước nấu cho công thức của bạn.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

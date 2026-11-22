@@ -23,22 +23,26 @@ class AppAdaptiveColumns extends StatelessWidget {
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
-      if (constraints.maxWidth < breakpoint) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            primary,
-            SizedBox(height: spacing),
-            secondary,
-          ],
-        );
-      }
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      final split = constraints.maxWidth >= breakpoint;
+      // Giữ cùng cây widget khi xoay máy để ô nhập không mất focus/controller.
+      return Flex(
+        direction: split ? Axis.horizontal : Axis.vertical,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: split
+            ? CrossAxisAlignment.start
+            : CrossAxisAlignment.stretch,
         children: [
-          Expanded(flex: primaryFlex, child: primary),
-          SizedBox(width: spacing),
-          Expanded(flex: secondaryFlex, child: secondary),
+          Flexible(
+            flex: split ? primaryFlex : 0,
+            fit: split ? FlexFit.tight : FlexFit.loose,
+            child: primary,
+          ),
+          SizedBox(width: split ? spacing : 0, height: split ? 0 : spacing),
+          Flexible(
+            flex: split ? secondaryFlex : 0,
+            fit: split ? FlexFit.tight : FlexFit.loose,
+            child: secondary,
+          ),
         ],
       );
     },

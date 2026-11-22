@@ -1,5 +1,13 @@
+import 'package:go_router/go_router.dart';
+
+import '../../recipes/widgets/recipe_remix_attribution.dart';
+
+import 'package:app_bep_xinh/core/widgets/app_content_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../core/widgets/app_card.dart';
+
 import 'package:app_bep_xinh/core/widgets/app_adaptive_columns.dart';
 import 'package:app_bep_xinh/features/recipes/widgets/recipe_notes.dart';
 
@@ -13,21 +21,39 @@ import 'recipe_cooking_content.dart';
 class RecipeDetailContent extends StatelessWidget {
   const RecipeDetailContent({super.key});
   @override
-  Widget build(BuildContext context) =>
-      BlocBuilder<RecipeDetailCubit, RecipeDetailState>(
-        buildWhen: (a, b) =>
-            a.recipe != b.recipe ||
-            a.tab != b.tab ||
-            (a.cookingStep == null) != (b.cookingStep == null),
-        builder: (context, state) {
-          if (state.cookingStep != null) return const RecipeCookingContent();
-          final recipe = state.recipe!;
-          return SingleChildScrollView(
-            key: PageStorageKey('detail_${recipe.id}_false'),
-            padding: const EdgeInsets.all(16),
-            child: AppAdaptiveColumns(
-              primary: RecipeDetailOverview(recipe: recipe),
-              secondary: Column(
+  Widget build(
+    BuildContext context,
+  ) => BlocBuilder<RecipeDetailCubit, RecipeDetailState>(
+    buildWhen: (a, b) =>
+        a.recipe != b.recipe ||
+        a.tab != b.tab ||
+        (a.cookingStep == null) != (b.cookingStep == null),
+    builder: (context, state) {
+      if (state.cookingStep != null) return const RecipeCookingContent();
+      final recipe = state.recipe!;
+      return AppContentScrollView(
+        key: PageStorageKey('detail_${recipe.id}_false'),
+        padding: const EdgeInsets.all(16),
+        children: [
+          AppAdaptiveColumns(
+            primary: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                RecipeDetailOverview(recipe: recipe),
+                if (recipe.remix != null) ...[
+                  const SizedBox(height: 16),
+                  RecipeRemixAttribution(
+                    remix: recipe.remix!,
+                    onOpen: () => context.push(
+                      '/recipe/${Uri.encodeComponent(recipe.remix!.recipeId)}',
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            secondary: AppCard(
+              padding: const EdgeInsets.all(16),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const RecipeDetailTabs(),
@@ -46,7 +72,9 @@ class RecipeDetailContent extends StatelessWidget {
                 ],
               ),
             ),
-          );
-        },
+          ),
+        ],
       );
+    },
+  );
 }

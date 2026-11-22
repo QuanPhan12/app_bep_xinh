@@ -7,7 +7,6 @@ import '../models/recipe_content.dart';
 import 'recipe_image_view.dart';
 import 'recipe_notes.dart';
 
-import 'package:app_bep_xinh/core/widgets/app_feature_theme.dart';
 
 class RecipeStepContent extends StatelessWidget {
   final RecipeStep step;
@@ -34,13 +33,13 @@ class RecipeStepContent extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: AppFeatureTheme.herbWash,
+                color: context.colors.secondaryLight,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
                 total == null ? 'Bước $number' : 'Bước $number / $total',
                 style: AppTextStyles.labelMedium.copyWith(
-                  color: AppFeatureTheme.herb,
+                  color: context.colors.secondary,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -54,7 +53,7 @@ class RecipeStepContent extends StatelessWidget {
           Text(
             step.title,
             style: AppTextStyles.titleSmall.copyWith(
-              color: AppColors.textPrimary,
+              color: context.colors.textPrimary,
             ),
           ),
         ],

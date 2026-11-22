@@ -32,7 +32,7 @@ class ProfileIdentityInfo extends StatelessWidget {
                 Text(
                   name,
                   style: AppTextStyles.headlineSmall.copyWith(
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -40,7 +40,9 @@ class ProfileIdentityInfo extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     '@$handle',
-                    style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: context.colors.textSecondary,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -53,8 +55,13 @@ class ProfileIdentityInfo extends StatelessWidget {
       ),
       if (bio.isNotEmpty) ...[
         const SizedBox(height: 12),
-        Text(bio, style: AppTextStyles.bodyMedium.copyWith(
-          color: AppColors.textSecondary, height: 1.5)),
+        Text(
+          bio,
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: context.colors.textSecondary,
+            height: 1.5,
+          ),
+        ),
       ],
     ],
   );

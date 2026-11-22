@@ -1,3 +1,5 @@
+import '../../recipes/models/recipe_remix.dart';
+
 import 'package:equatable/equatable.dart';
 import 'package:app_bep_xinh/core/services/json_reader.dart';
 import 'package:app_bep_xinh/features/recipes/models/recipe_content.dart';
@@ -5,6 +7,7 @@ import 'package:app_bep_xinh/features/recipes/presentation/recipe_labels.dart';
 
 /// Model đại diện cho một món ăn trên màn hình Trang chủ & Khám phá
 class RecipeItem extends Equatable {
+  final RecipeRemix? remix;
   final String id;
   final String title;
   final String image;
@@ -14,8 +17,11 @@ class RecipeItem extends Equatable {
   final String difficulty;
   final int? calories;
   final bool isFavorite;
+  final String? authorId;
+  final String? authorName;
 
   const RecipeItem({
+    this.remix,
     required this.id,
     required this.title,
     required this.image,
@@ -25,6 +31,8 @@ class RecipeItem extends Equatable {
     this.difficulty = 'Dễ làm',
     this.calories,
     this.isFavorite = false,
+    this.authorId,
+    this.authorName,
   });
 
   RecipeItem copyWith({
@@ -39,6 +47,7 @@ class RecipeItem extends Equatable {
     bool? isFavorite,
   }) {
     return RecipeItem(
+      remix: remix,
       id: id ?? this.id,
       title: title ?? this.title,
       image: image ?? this.image,
@@ -48,10 +57,15 @@ class RecipeItem extends Equatable {
       difficulty: difficulty ?? this.difficulty,
       calories: calories ?? this.calories,
       isFavorite: isFavorite ?? this.isFavorite,
+      authorId: authorId,
+      authorName: authorName,
     );
   }
 
   factory RecipeItem.fromJson(Map<String, dynamic> json) => RecipeItem(
+    remix: json['remix'] == null
+        ? null
+        : RecipeRemix.fromJson(Map<String, dynamic>.from(json['remix'] as Map)),
     id: JsonReader(json).string('id'),
     title: JsonReader(json).string('title'),
     image: JsonReader(json).string('image'),
@@ -74,11 +88,24 @@ class RecipeItem extends Equatable {
     }
     final image = cover == null
         ? reader.optionalString('image')
-        : RecipeImage.fromJson(cover as Map<String, dynamic>).assetPath;
+        : RecipeImage.fromJson(cover as Map<String, dynamic>).source;
     final difficulty = RecipeDifficulty.parse(reader.string('difficulty'))
         .label;
     return RecipeItem(
+      remix: json['remix'] == null
+          ? null
+          : RecipeRemix.fromJson(
+              Map<String, dynamic>.from(json['remix'] as Map),
+            ),
       id: reader.string('id'),
+      authorId: json['author'] is Map
+          ? (json['author'] as Map)['id'] as String?
+          : null,
+      authorName: json['author'] is Map
+          ? (json['author'] as Map)['name'] as String?
+          : json['author'] is String
+          ? json['author'] as String
+          : null,
       title: reader.string('title'),
       image: image ?? '',
       rating: json['rating'] == null ? 0 : reader.number('rating', max: 5),
@@ -94,6 +121,7 @@ class RecipeItem extends Equatable {
 
   @override
   List<Object?> get props => [
+    remix,
     id,
     title,
     image,
@@ -103,5 +131,7 @@ class RecipeItem extends Equatable {
     difficulty,
     calories,
     isFavorite,
+    authorId,
+    authorName,
   ];
 }

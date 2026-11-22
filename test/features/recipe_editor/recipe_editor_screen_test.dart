@@ -1,3 +1,11 @@
+import 'package:app_bep_xinh/features/profile/services/profile_service.dart';
+import 'package:app_bep_xinh/features/recipes/services/recipe_favorites_service.dart';
+
+import '../../support/profile_fakes.dart';
+import '../../support/recipe_detail_fakes.dart';
+
+import 'package:app_bep_xinh/core/widgets/app_selection_controls.dart';
+import 'package:app_bep_xinh/features/recipe_editor/widgets/recipe_editor_form.dart';
 import 'package:app_bep_xinh/features/ingredients/models/ingredient_catalog.dart';
 import 'package:app_bep_xinh/features/ingredients/services/ingredient_catalog_service.dart';
 import 'package:app_bep_xinh/core/themes/app_theme.dart';
@@ -46,6 +54,10 @@ void main() {
 
   Widget host(GoRouter router, {double scale = 1}) => MultiRepositoryProvider(
     providers: [
+      RepositoryProvider<ProfileService>(create: (_) => StubProfileService()),
+      RepositoryProvider<RecipeFavoritesService>(
+        create: (_) => StubRecipeFavoritesService(),
+      ),
       RepositoryProvider<IngredientCatalogService>(
         create: (_) => MockIngredientCatalogService(fixtureApi()),
       ),
@@ -106,6 +118,7 @@ void main() {
       service.saved = validRecipeDraft();
       final router = createRouter();
       await open(tester, router, width: 800, scale: 1.5);
+      expect(find.byKey(const ValueKey('recipe_is_banner')), findsNothing);
       for (final category in RecipeCategory.values) {
         await tap(
           tester,
@@ -115,7 +128,7 @@ void main() {
       await tap(tester, find.byKey(const ValueKey('recipe_category_quick')));
       expect(
         tester
-            .widget<FilterChip>(
+            .widget<AppFilterChip>(
               find.byKey(const ValueKey('recipe_category_quick')),
             )
             .selected,
@@ -133,7 +146,7 @@ void main() {
         final chip = find.byKey(ValueKey('recipe_category_${category.id}'));
         await tester.ensureVisible(chip);
         await tester.pumpAndSettle();
-        expect(tester.widget<FilterChip>(chip).selected, isTrue);
+        expect(tester.widget<AppFilterChip>(chip).selected, isTrue);
       }
       expect(tester.takeException(), isNull);
     },
@@ -382,7 +395,16 @@ void main() {
         final firstTitle = find.byKey(
           const ValueKey('recipe_step_title_step_0'),
         );
-        await tester.ensureVisible(firstTitle);
+        await tester.scrollUntilVisible(
+          firstTitle,
+          120,
+          scrollable: find
+              .descendant(
+                of: find.byType(RecipeEditorForm),
+                matching: find.byType(Scrollable),
+              )
+              .first,
+        );
         await tester.enterText(firstTitle, 'Chuẩn bị');
         await tap(tester, find.text('Thêm bước'));
         final secondInstruction = find.byKey(
@@ -393,7 +415,15 @@ void main() {
         await tap(tester, find.byTooltip('Tùy chọn bước 2'));
         await tap(tester, find.text('Chuyển bước 2 lên'));
         expect(
-          tester.widget<TextFormField>(secondInstruction).initialValue,
+          tester
+              .widget<TextFormField>(
+                find.descendant(
+                  of: secondInstruction,
+                  matching: find.byType(TextFormField),
+                  matchRoot: true,
+                ),
+              )
+              .initialValue,
           'Chiên vàng hai mặt.',
         );
         await tap(tester, find.byKey(const ValueKey('recipe_continue')));
@@ -406,13 +436,38 @@ void main() {
           tester,
           find.byKey(const ValueKey('recipe_review_edit_instructions')),
         );
-        await tester.ensureVisible(firstTitle);
+        await tester.scrollUntilVisible(
+          firstTitle,
+          120,
+          scrollable: find
+              .descendant(
+                of: find.byType(RecipeEditorForm),
+                matching: find.byType(Scrollable),
+              )
+              .first,
+        );
         expect(
-          tester.widget<TextFormField>(firstTitle).initialValue,
+          tester
+              .widget<TextFormField>(
+                find.descendant(
+                  of: firstTitle,
+                  matching: find.byType(TextFormField),
+                  matchRoot: true,
+                ),
+              )
+              .initialValue,
           'Chuẩn bị',
         );
         expect(
-          tester.widget<TextFormField>(secondInstruction).initialValue,
+          tester
+              .widget<TextFormField>(
+                find.descendant(
+                  of: secondInstruction,
+                  matching: find.byType(TextFormField),
+                  matchRoot: true,
+                ),
+              )
+              .initialValue,
           'Chiên vàng hai mặt.',
         );
         await tap(tester, find.byTooltip('Quay lại'));
@@ -471,14 +526,17 @@ void main() {
       await open(tester, createRouter(), width: width, scale: 1.5);
       await tap(tester, find.byKey(const ValueKey('recipe_continue')));
       for (var i = 0; i < 5; i++) {
-        await tester.drag(find.byType(ListView), const Offset(0, -300));
+        await tester.drag(
+          find.byType(CustomScrollView).first,
+          const Offset(0, -300),
+        );
         await tester.pumpAndSettle();
       }
       expect(tester.takeException(), isNull);
     });
   }
 
-  testWidgets('global add button opens recipe editor through app routing', (
+  testWidgets('profile add action opens recipe editor through app routing', (
     tester,
   ) async {
     final router = GoRouter(
@@ -493,7 +551,8 @@ void main() {
     addTearDown(() => tester.pumpWidget(const SizedBox.shrink()));
     await tester.pumpWidget(host(router));
     await tester.pumpAndSettle();
-    await tap(tester, find.byIcon(Icons.add_rounded));
+    await tap(tester, find.byKey(const ValueKey('nav_item_3')));
+    await tap(tester, find.text('Đăng món'));
     expect(find.byType(RecipeEditorScreen), findsOneWidget);
     expect(find.text('Đăng món'), findsOneWidget);
     expect(tester.takeException(), isNull);

@@ -1,12 +1,12 @@
+import 'package:app_bep_xinh/core/widgets/app_content_scroll_view.dart';
+import 'package:app_bep_xinh/core/widgets/app_sliver_app_bar.dart';
 import 'package:app_bep_xinh/core/widgets/app_feature_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:app_bep_xinh/core/colors/app_colors.dart';
 import 'package:app_bep_xinh/core/utils/app_layout.dart';
 import 'package:app_bep_xinh/core/router/app_router.dart';
-import 'package:app_bep_xinh/core/tap/tap_extension.dart';
-import 'package:app_bep_xinh/core/widgets/app_app_bar.dart';
+import 'package:app_bep_xinh/core/widgets/app_page_scaffold.dart';
 import 'package:app_bep_xinh/core/widgets/app_load_state.dart';
 import 'package:app_bep_xinh/core/widgets/app_messenger.dart';
 import 'package:app_bep_xinh/core/widgets/app_skeleton.dart';
@@ -16,6 +16,7 @@ import '../cubits/recipe_detail/recipe_detail_cubit.dart';
 import '../services/recipe_detail_service.dart';
 import '../widgets/recipe_detail_content.dart';
 import '../widgets/recipe_detail_actions.dart';
+import '../widgets/recipe_detail_more_menu.dart';
 
 class RecipeDetailScreen extends StatelessWidget {
   final String recipeId;
@@ -65,6 +66,7 @@ class _RecipeDetailPage extends StatelessWidget {
         a.status != b.status ||
         a.isFavorite != b.isFavorite ||
         a.savingFavorite != b.savingFavorite ||
+        a.servings != b.servings ||
         (a.cookingStep == null) != (b.cookingStep == null),
     builder: (context, state) {
       final ready = state.status == RecipeDetailStatus.ready;
@@ -74,29 +76,20 @@ class _RecipeDetailPage extends StatelessWidget {
         onPopInvokedWithResult: (didPop, _) {
           if (!didPop) cubit.pauseCooking();
         },
-        child: Scaffold(
+        child: AppPageScaffold(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          appBar: AppAppBar(
+          appBar: AppSliverAppBar(
             title: state.cookingStep == null ? 'Chi tiết món ăn' : 'Đang nấu',
-            onBack: () => _back(context),
+            onBackPressed: () => _back(context),
             actions: ready
                 ? [
-                    IconButton(
-                      tooltip: state.isFavorite ? 'Bỏ lưu món' : 'Lưu món',
-                      icon: Icon(
-                        state.isFavorite
-                            ? Icons.bookmark_rounded
-                            : Icons.bookmark_border_rounded,
-                        color: state.isFavorite
-                            ? AppColors.primary
-                            : AppColors.textSecondary,
-                      ),
-                      onPressed: state.savingFavorite
-                          ? null
-                          : context.onAppTap(
-                              cubit.toggleFavorite,
-                              actionName: 'recipe_detail_favorite',
-                            ),
+                    RecipeDetailMoreMenu(
+                      recipe: state.recipe!,
+                      servings: state.servings,
+                      isFavorite: state.isFavorite,
+                      savingFavorite: state.savingFavorite,
+                      onToggleFavorite: cubit.toggleFavorite,
+                      isCooking: state.cookingStep != null,
                     ),
                     const SizedBox(width: 8),
                   ]
@@ -122,7 +115,7 @@ class _RecipeDetailPage extends StatelessWidget {
                             ? null
                             : cubit.load,
                         skeleton: AppSkeleton(
-                          child: ListView(
+                          child: AppContentScrollView(
                             padding: const EdgeInsets.all(16),
                             children: const [
                               AspectRatio(

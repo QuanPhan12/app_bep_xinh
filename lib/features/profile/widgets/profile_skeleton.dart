@@ -1,3 +1,4 @@
+import 'package:app_bep_xinh/core/widgets/app_content_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:app_bep_xinh/core/widgets/app_skeleton.dart';
 
@@ -5,7 +6,7 @@ class ProfileSkeleton extends StatelessWidget {
   const ProfileSkeleton({super.key});
   @override
   Widget build(BuildContext context) => AppSkeleton(
-    child: ListView(
+    child: AppContentScrollView(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
       children: [
         const Row(

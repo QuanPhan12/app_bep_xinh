@@ -1,3 +1,5 @@
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+
 import 'dart:async';
 
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
@@ -20,7 +22,11 @@ class RecipeEditorMenu extends StatelessWidget {
   Widget build(BuildContext context) => PopupMenuButton<int>(
     tooltip: label,
     enabled: enabled,
-    icon: const Icon(Icons.more_horiz, size: 22, color: AppColors.textTertiary),
+    icon: Icon(
+      PhosphorIconsRegular.dotsThree,
+      size: 22,
+      color: context.colors.textTertiary,
+    ),
     onSelected: (index) => context
         .onAppTap(actions[index].onTap, actionName: 'recipe_editor_menu_action')
         ?.call(),

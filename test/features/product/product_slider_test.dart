@@ -1,6 +1,8 @@
+import '../../support/auth_fake.dart';
+
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import 'package:app_bep_xinh/core/tap/tap.dart';
 import 'package:app_bep_xinh/features/product/widgets/product_slider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -10,6 +12,7 @@ import '../../support/mock_services.dart';
 import '../../support/test_text_styles.dart';
 
 void main() {
+  setUp(configureAuthenticatedTaps);
   setUpAll(configureTestTextStyles);
   setUp(AppTapHandler.resetLock);
 
@@ -42,7 +45,7 @@ void main() {
             .activeIndex,
         0,
       );
-      await tester.tap(find.byIcon(CupertinoIcons.chevron_right));
+      await tester.tap(find.byIcon(PhosphorIconsRegular.caretRight));
       await tester.pumpAndSettle();
       expect(
         tester

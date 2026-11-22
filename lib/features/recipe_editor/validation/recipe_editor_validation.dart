@@ -113,11 +113,25 @@ class RecipeEditorValidation {
         errors[stepInstruction(item.id)] = 'Mỗi bước tối đa 2000 ký tự.';
       }
     }
+    if (draft.remix != null) {
+      if (draft.remix!.changes.trim().length < 10 ||
+          draft.remix!.changes.length > 500) {
+        errors['remixChanges'] =
+            'Mô tả điều chỉnh của bạn từ 10 đến 500 ký tự.';
+      }
+      if (errors.isEmpty &&
+          (draft.remixBaseline == null ||
+              draft.contentFingerprint == draft.remixBaseline)) {
+        errors['remixContent'] =
+            'Hãy chỉnh sửa công thức trước khi gửi bản biến tấu.';
+      }
+    }
     return Map.unmodifiable(errors);
   }
 
   /// Stage indexes belong to the authoring flow, without UI dependencies.
   static int stageForError(String key) {
+    if (key == 'remixContent') return 3;
     if (key == 'ingredients' ||
         key == 'groups' ||
         key.startsWith('group.') ||

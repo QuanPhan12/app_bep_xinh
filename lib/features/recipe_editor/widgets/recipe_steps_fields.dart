@@ -49,7 +49,7 @@ class RecipeStepsFields extends StatelessWidget {
                   Text(
                     error,
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.error,
+                      color: context.colors.error,
                     ),
                   ),
                 LayoutBuilder(

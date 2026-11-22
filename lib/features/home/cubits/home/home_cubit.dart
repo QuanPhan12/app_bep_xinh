@@ -7,6 +7,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_bep_xinh/features/fridge/models/fridge_summary.dart';
 
 import '../../services/home_service.dart';
+import '../../models/home_feed.dart';
+import '../../models/home_data.dart';
 import 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
@@ -16,9 +18,38 @@ class HomeCubit extends Cubit<HomeState> {
   late final StreamSubscription<FridgeSummary> _summarySubscription;
   late final StreamSubscription<RecipeFavoriteChange> _favoriteSubscription;
   FridgeSummary? _latestSummary;
+  HomeFeed? _latestFeed;
+  StreamSubscription<HomeFeed>? _feedSubscription;
   int _summaryRevision = 0;
 
   HomeCubit({required this.service}) : super(const HomeState()) {
+    final source = service;
+    if (source is HomeRealtimeSource) {
+      _feedSubscription = (source as HomeRealtimeSource).watchFeed().listen(
+        (feed) {
+          if (isClosed) return;
+          _latestFeed = feed;
+          final data = state.data;
+          if (data != null) {
+            emit(
+              state.copyWith(data: _applyFavoriteUpdates(feed.applyTo(data))),
+            );
+          }
+        },
+        onError: (Object error, StackTrace stack) {
+          if (isClosed) return;
+          addError(error, stack);
+          if (state.data != null) {
+            emit(
+              state.copyWith(
+                errorMessage:
+                    'Chưa đồng bộ được công thức mới. Vui lòng thử lại.',
+              ),
+            );
+          }
+        },
+      );
+    }
     _favoriteSubscription = service.favoriteChanges.listen(
       _onFavorite,
       onError: (Object error, StackTrace stack) {
@@ -46,6 +77,8 @@ class HomeCubit extends Cubit<HomeState> {
     try {
       var data = await service.fetchHome();
       if (isClosed) return;
+      final feed = _latestFeed;
+      if (feed != null) data = feed.applyTo(data);
       // Chỉ bảo vệ write xảy ra trong request này; request sau vẫn tin server.
       if (_refreshFavorites.isNotEmpty) {
         data = data.withRecipes(
@@ -109,6 +142,16 @@ class HomeCubit extends Cubit<HomeState> {
       ),
     );
   }
+
+  HomeData _applyFavoriteUpdates(HomeData data) => data.withRecipes(
+    data.recipes
+        .map(
+          (recipe) => _refreshFavorites.containsKey(recipe.id)
+              ? recipe.copyWith(isFavorite: _refreshFavorites[recipe.id])
+              : recipe,
+        )
+        .toList(),
+  );
 
   void _onSummary(FridgeSummary summary) {
     if (isClosed) return;
@@ -181,6 +224,7 @@ class HomeCubit extends Cubit<HomeState> {
     final cancellation = Future.wait([
       _summarySubscription.cancel(),
       _favoriteSubscription.cancel(),
+      if (_feedSubscription != null) _feedSubscription!.cancel(),
     ]);
     await super.close();
     await cancellation;

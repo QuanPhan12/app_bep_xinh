@@ -31,3 +31,10 @@ Giao diện dùng AppSearchBar, AppAppBar, AppLoadState và ProductGrid sẵn c�
 Chiều rộng trang và số cột dùng AppLayout. Danh mục Home xếp 3 cột trên màn hẹp,
 6 cột khi đủ rộng. Kiểm thử bao gồm màn 320–1280 px, chữ 150%, bàn phím,
 điều hướng Home → Tìm kiếm → Chi tiết → quay lại và lưu/khôi phục danh mục form.
+
+
+## UI/UX hiện tại
+
+Ô nhập, bộ lọc và kết quả dùng một vùng cuộn để bàn phím tablet ngang không
+ép nội dung. Khi chọn danh mục khác Tất cả, nút Bỏ lọc đưa về Tất cả và giữ
+nguyên từ khóa. UI dùng theme toàn app; xem feature_presentation.md.

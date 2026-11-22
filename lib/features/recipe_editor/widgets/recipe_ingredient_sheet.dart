@@ -1,6 +1,7 @@
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import 'package:app_bep_xinh/core/widgets/app_skeleton.dart';
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
-import 'package:app_bep_xinh/core/utils/app_layout.dart';
+import 'package:app_bep_xinh/core/widgets/app_adaptive_sheet.dart';
 import 'package:app_bep_xinh/core/tap/tap_extension.dart';
 import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
 import 'package:app_bep_xinh/core/widgets/app_load_state.dart';
@@ -19,31 +20,30 @@ Future<RecipeIngredientDraft?> showRecipeIngredientSheet(
   RecipeIngredientDraft? initial,
 }) {
   final service = context.read<IngredientCatalogService>();
-  return showModalBottomSheet<RecipeIngredientDraft>(
+  return showAppAdaptiveSheet<RecipeIngredientDraft>(
     context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
     showDragHandle: true,
-    backgroundColor: AppColors.surface,
-    constraints: BoxConstraints(maxWidth: AppLayout.sheetWidth(context)),
-    builder: (context) {
-      final media = MediaQuery.of(context);
-      return Padding(
-        padding: EdgeInsets.only(bottom: media.viewInsets.bottom),
-        child: SizedBox(
-          height: (media.size.height * .82 - media.viewInsets.bottom).clamp(
-            180,
-            media.size.height * .82,
+    backgroundColor: context.colors.surface,
+    builder: (context) => LayoutBuilder(
+      builder: (context, constraints) {
+        final media = MediaQuery.of(context);
+        return Padding(
+          padding: EdgeInsets.only(bottom: media.viewInsets.bottom),
+          child: SizedBox(
+            height: (constraints.maxHeight - media.viewInsets.bottom).clamp(
+              0.0,
+              media.size.height * .82,
+            ),
+            child: BlocProvider(
+              create: (_) =>
+                  IngredientPickerCubit(service: service, initial: initial)
+                    ..load(),
+              child: _IngredientSheet(editing: initial != null),
+            ),
           ),
-          child: BlocProvider(
-            create: (_) =>
-                IngredientPickerCubit(service: service, initial: initial)
-                  ..load(),
-            child: _IngredientSheet(editing: initial != null),
-          ),
-        ),
-      );
-    },
+        );
+      },
+    ),
   );
 }
 
@@ -78,7 +78,7 @@ class _IngredientSheet extends StatelessWidget {
                           actionName: 'ingredient_close',
                           allowConcurrent: true,
                         ),
-                        icon: const Icon(Icons.close, size: 20),
+                        icon: const Icon(PhosphorIconsRegular.x, size: 20),
                       ),
                     ],
                   ),

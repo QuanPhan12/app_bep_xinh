@@ -11,6 +11,9 @@ class RecipeImage extends Equatable {
   final String id;
   final String name;
   final String? assetPath;
+  final String? url;
+  final String? publicId;
+  String? get source => url ?? assetPath;
   final Uint8List? _bytes;
   Uint8List? get bytes => _bytes;
 
@@ -18,7 +21,16 @@ class RecipeImage extends Equatable {
     required this.id,
     required String this.assetPath,
     this.name = '',
-  }) : _bytes = null;
+  }) : _bytes = null,
+       url = null,
+       publicId = null;
+  const RecipeImage.remote({
+    required this.id,
+    required this.url,
+    required this.publicId,
+    this.name = '',
+  }) : assetPath = null,
+       _bytes = null;
   factory RecipeImage.memory({
     required String id,
     required String name,
@@ -30,6 +42,8 @@ class RecipeImage extends Equatable {
     required this.name,
     required Uint8List bytes,
   }) : assetPath = null,
+       url = null,
+       publicId = null,
        _bytes = Uint8List.fromList(bytes).asUnmodifiableView();
 
   factory RecipeImage.fromJson(Map<String, dynamic> json) {
@@ -38,6 +52,27 @@ class RecipeImage extends Equatable {
     final name = reader.string('name', fallback: '', allowEmpty: true);
     final asset = reader.optionalString('assetPath');
     final encoded = reader.optionalString('bytesBase64');
+    final url = reader.optionalString('url');
+    if (url != null) {
+      final uri = Uri.tryParse(url);
+      if (asset != null ||
+          encoded != null ||
+          uri == null ||
+          uri.scheme != 'https' ||
+          uri.host != 'res.cloudinary.com' ||
+          !uri.path.startsWith('/ddqouziau/image/upload/') ||
+          uri.userInfo.isNotEmpty ||
+          uri.hasQuery ||
+          uri.hasFragment) {
+        throw const FormatException('Invalid remote recipe image');
+      }
+      return RecipeImage.remote(
+        id: id,
+        name: name,
+        url: url,
+        publicId: reader.string('publicId'),
+      );
+    }
     if ((asset == null) == (encoded == null)) {
       throw const FormatException('Image needs exactly one source');
     }
@@ -59,10 +94,12 @@ class RecipeImage extends Equatable {
     'name': name,
     if (assetPath != null) 'assetPath': assetPath,
     if (_bytes != null) 'bytesBase64': base64Encode(_bytes),
+    if (url != null) 'url': url,
+    if (publicId != null) 'publicId': publicId,
   };
 
   @override
-  List<Object?> get props => [id, assetPath];
+  List<Object?> get props => [id, assetPath, url, publicId];
 }
 
 /// Kept as the editor's byte-only image type.

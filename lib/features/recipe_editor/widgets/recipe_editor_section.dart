@@ -1,8 +1,8 @@
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
 import 'package:app_bep_xinh/core/widgets/app_section_header.dart';
 import 'package:app_bep_xinh/core/widgets/app_card.dart';
 import 'package:app_bep_xinh/core/widgets/app_tap.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class RecipeEditorSection extends StatelessWidget {
@@ -48,13 +48,13 @@ class RecipeEditorRemoveAction extends StatelessWidget {
       child: AppTap(
         actionName: 'recipe_editor_remove',
         onTap: onTap,
-        child: const SizedBox(
+        child: SizedBox(
           width: 32,
           height: 44,
           child: Icon(
-            CupertinoIcons.xmark,
+            PhosphorIconsRegular.x,
             size: 15,
-            color: AppColors.textTertiary,
+            color: context.colors.textTertiary,
           ),
         ),
       ),
