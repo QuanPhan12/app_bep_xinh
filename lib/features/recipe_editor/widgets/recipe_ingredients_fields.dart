@@ -14,8 +14,6 @@ import 'recipe_editor_section.dart';
 import 'recipe_ingredient_sheet.dart';
 import 'recipe_editor_menu.dart';
 
-import 'package:app_bep_xinh/core/widgets/app_card.dart';
-
 class RecipeIngredientsFields extends StatelessWidget {
   const RecipeIngredientsFields({super.key});
 
@@ -190,8 +188,8 @@ class RecipeIngredientSummary extends StatelessWidget {
       BlocSelector<RecipeEditorCubit, RecipeEditorState, (String, int, bool)>(
         selector: (state) =>
             (state.draft.title, state.draft.servings, state.isSubmitting),
-        builder: (context, value) => AppCard(
-          padding: const EdgeInsets.all(16),
+        builder: (context, value) => RecipeEditorSection(
+          title: 'Khẩu phần',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

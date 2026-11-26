@@ -13,5 +13,6 @@ class RecipeLimits {
   static const ingredients = 30;
   static const steps = 20;
   static const maxServings = 50;
+  static const maxPostPhotos = 10;
   static const maxCoverBytes = 8 * 1024 * 1024;
 }

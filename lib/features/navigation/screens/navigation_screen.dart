@@ -12,7 +12,7 @@ class NavigationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Cùng một shell khi vượt mốc 600 để giữ navigation stack và state các tab.
+    // Giữ cùng shell khi xoay hoặc đổi kiểu điều hướng để không mất stack/state tab.
     return NavigationTabletView(navigationShell: navigationShell);
   }
 }

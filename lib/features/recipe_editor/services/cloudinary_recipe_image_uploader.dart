@@ -33,16 +33,26 @@ class CloudinaryRecipeImageUploader implements RecipeImageUploader {
     }
     final hash = sha256.convert(bytes).toString();
     final cached = _completed[hash];
-    if (cached != null) return cached;
-    return _pending[hash] ??= _upload(image)
+    if (cached != null) return _withIdentity(cached, image);
+    final uploaded = await (_pending[hash] ??= _upload(image)
         .then((value) {
           _completed[hash] = value;
           return value;
         })
         .whenComplete(() {
           _pending.remove(hash);
-        });
+        }));
+    return _withIdentity(uploaded, image);
   }
+
+  // Cache dùng bytes để tránh upload lại; ID của từng ô ảnh vẫn thuộc bản nháp.
+  RecipeImage _withIdentity(RecipeImage uploaded, RecipeImage original) =>
+      RecipeImage.remote(
+        id: original.id,
+        name: original.name,
+        url: uploaded.url,
+        publicId: uploaded.publicId,
+      );
 
   Future<RecipeImage> _upload(RecipeImage image) async {
     try {

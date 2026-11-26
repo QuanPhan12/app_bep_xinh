@@ -9,6 +9,8 @@ abstract final class RecipeDraftCodec {
     if (draft.remixBaseline != null) 'remixBaseline': draft.remixBaseline,
     'title': draft.title,
     'cover': draft.cover?.toJson(),
+    if (draft.photos.isNotEmpty)
+      'photos': draft.photos.map((image) => image.toJson()).toList(),
     'description': draft.description,
     'preparationMinutes': draft.preparationMinutes,
     'cookingMinutes': draft.cookingMinutes,
@@ -52,6 +54,7 @@ abstract final class RecipeDraftCodec {
       remixBaseline: r.optionalString('remixBaseline'),
       title: r.string('title', allowEmpty: true),
       cover: image(json['cover']),
+      photos: decodeRecipePhotos(json['photos']),
       description: r.string('description', allowEmpty: true),
       preparationMinutes: r.string('preparationMinutes', allowEmpty: true),
       cookingMinutes: r.string('cookingMinutes', allowEmpty: true),

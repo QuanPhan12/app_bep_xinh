@@ -6,8 +6,6 @@ import 'package:app_bep_xinh/core/widgets/app_content_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/widgets/app_card.dart';
-
 import 'package:app_bep_xinh/core/widgets/app_adaptive_columns.dart';
 import 'package:app_bep_xinh/features/recipes/widgets/recipe_notes.dart';
 
@@ -51,26 +49,23 @@ class RecipeDetailContent extends StatelessWidget {
                 ],
               ],
             ),
-            secondary: AppCard(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const RecipeDetailTabs(),
-                  const SizedBox(height: 20),
-                  if (state.tab == RecipeDetailTab.ingredients)
-                    const RecipeDetailIngredients()
-                  else
-                    const RecipeDetailSteps(),
-                  if (recipe.storageNotes.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    RecipeNotes(
-                      title: 'Lưu ý & bí quyết bảo quản',
-                      text: recipe.storageNotes,
-                    ),
-                  ],
+            secondary: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const RecipeDetailTabs(),
+                const SizedBox(height: 20),
+                if (state.tab == RecipeDetailTab.ingredients)
+                  const RecipeDetailIngredients()
+                else
+                  const RecipeDetailSteps(),
+                if (recipe.storageNotes.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  RecipeNotes(
+                    title: 'Lưu ý & bí quyết bảo quản',
+                    text: recipe.storageNotes,
+                  ),
                 ],
-              ),
+              ],
             ),
           ),
         ],

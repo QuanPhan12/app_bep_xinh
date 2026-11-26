@@ -196,6 +196,7 @@ Model: [RecipeContent](lib/features/recipes/models/recipe_content.dart).
 | `isBanner` | Boolean | Khi tác giả gửi luôn `false`; cờ quản trị có hiệu lực là `recipes.isBanner` ở cấp gốc |
 | `description` | String | Tối đa 500 ký tự |
 | `cover` | Map ảnh | Ảnh bìa bắt buộc khi gửi bài; schema ảnh ở phần 11 |
+| `photos` | List<Map ảnh>, tùy chọn | Tối đa 9 ảnh món bổ sung theo thứ tự, không bao gồm bìa; thiếu trường này đọc thành danh sách rỗng. Cùng schema ảnh phần 11 |
 | `preparationMinutes` | Integer | 0–240 phút |
 | `cookingMinutes` | Integer | 1–720 phút |
 | `servings` | Integer | 1–50 khẩu phần |
@@ -268,6 +269,7 @@ Một tài khoản có một vị trí bản nháp `current`.
 ```text
 title: String
 cover: Map ảnh | null
+photos: List<Map ảnh> (tùy chọn, tối đa 9 ảnh bổ sung)
 description: String
 preparationMinutes: String
 cookingMinutes: String
@@ -388,7 +390,7 @@ Chỉ thành viên active được đọc lịch sử.
 
 ## 11. Dữ liệu ảnh dùng trong Firebase
 
-Áp dụng cho `content.cover`, `content.steps[].photo`, ảnh trong nháp đã lưu và `messages.image`.
+Áp dụng cho `content.cover`, `content.photos[]`, `content.steps[].photo`, ảnh trong nháp đã lưu và `messages.image`.
 
 | Trường | Kiểu | Ý nghĩa |
 |---|---|---|

@@ -8,6 +8,7 @@ import 'package:app_bep_xinh/features/cooking_timers/services/cooking_timer_serv
 
 import 'package:app_bep_xinh/features/kitchen/services/kitchen_services.dart';
 import 'package:app_bep_xinh/features/profile/widgets/profile_content.dart';
+import 'package:app_bep_xinh/features/navigation/widgets/app_bottom_nav_bar.dart';
 import 'package:app_bep_xinh/features/profile/cubits/profile/profile_cubit.dart';
 
 import 'dart:io';
@@ -247,45 +248,121 @@ void main() {
     return router;
   }
 
-  for (final size in [const Size(390, 844), const Size(1024, 768)]) {
-    testWidgets(
-      'four destinations and profile creation preserve shell at $size',
-      (tester) async {
-        final router = await open(tester, size, path: '/home');
-        for (var i = 0; i < 4; i++) {
-          AppTapHandler.resetLock();
-          final target = size.width < 600
-              ? find.byKey(ValueKey('nav_item_$i'))
-              : find.byTooltip(
-                  'Đi đến ${['Trang chủ', 'Tủ lạnh', 'Bếp của tôi', 'Cá nhân'][i]}',
-                );
-          await tester.tap(target);
-          await tester.pumpAndSettle();
-          expect(
-            router.routerDelegate.currentConfiguration.last.matchedLocation,
-            ['/home', '/fridge', '/kitchen', '/profile'][i],
-          );
-          expect(tester.takeException(), isNull);
-        }
-        await tester.ensureVisible(find.text('Đăng món'));
-        await tester.tap(find.text('Đăng món'));
+  testWidgets(
+    'rotation keeps phone navigation visible and preserves the active shell',
+    (tester) async {
+      final router = await open(
+        tester,
+        const Size(390, 844),
+        path: '/profile?tab=saved',
+      );
+      final profile = tester
+          .element(find.byType(ProfileContent))
+          .read<ProfileCubit>();
+      for (final size in [
+        const Size(844, 390),
+        const Size(390, 844),
+        const Size(1024, 768),
+        const Size(844, 390),
+      ]) {
+        tester.view.physicalSize = size;
         await tester.pumpAndSettle();
-        expect(find.byType(RecipeEditorScreen), findsOneWidget);
-        await tester.tap(find.byTooltip('Quay lại'));
+        expect(
+          tester.element(find.byType(ProfileContent)).read<ProfileCubit>(),
+          same(profile),
+        );
+        expect(profile.state.tab, ProfileTab.saved);
+        expect(
+          router.routeInformationProvider.value.uri.toString(),
+          '/profile?tab=saved',
+        );
+        if (size.shortestSide < 600) {
+          expect(find.byType(AppBottomNavBar), findsOneWidget);
+          for (final key in [
+            'nav_item_0',
+            'nav_item_1',
+            'nav_create_recipe',
+            'nav_item_2',
+            'nav_item_3',
+          ]) {
+            final rect = tester.getRect(find.byKey(ValueKey(key)));
+            expect(rect.top, greaterThanOrEqualTo(0));
+            expect(rect.bottom, lessThanOrEqualTo(size.height));
+          }
+        } else {
+          expect(find.byType(AppBottomNavBar), findsNothing);
+          expect(find.byTooltip('Đi đến Cá nhân'), findsOneWidget);
+        }
+        expect(tester.takeException(), isNull);
+      }
+      AppTapHandler.resetLock();
+      await tester.tap(find.byKey(const ValueKey('nav_create_recipe')));
+      await tester.pumpAndSettle();
+      expect(find.byType(RecipeEditorScreen), findsOneWidget);
+      await tester.tap(find.byTooltip('Quay lại'));
+      await tester.pumpAndSettle();
+      expect(
+        tester.element(find.byType(ProfileContent)).read<ProfileCubit>(),
+        same(profile),
+      );
+      expect(profile.state.tab, ProfileTab.saved);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  for (final size in [
+    const Size(390, 844),
+    const Size(844, 390),
+    const Size(926, 428),
+    const Size(568, 320),
+    const Size(1024, 768),
+  ]) {
+    testWidgets('four destinations and creation preserve shell at $size', (
+      tester,
+    ) async {
+      final router = await open(tester, size, path: '/home');
+      for (var i = 0; i < 4; i++) {
+        AppTapHandler.resetLock();
+        final target = size.shortestSide < 600
+            ? find.byKey(ValueKey('nav_item_$i'))
+            : find.byTooltip(
+                'Đi đến ${['Trang chủ', 'Tủ lạnh', 'Bếp của tôi', 'Cá nhân'][i]}',
+              );
+        await tester.tap(target);
         await tester.pumpAndSettle();
         expect(
           router.routerDelegate.currentConfiguration.last.matchedLocation,
-          '/profile',
+          ['/home', '/fridge', '/kitchen', '/profile'][i],
         );
-        router.go('/profile?tab=saved');
-        await tester.pumpAndSettle();
-        final cubit = tester
-            .element(find.byType(ProfileContent))
-            .read<ProfileCubit>();
-        expect(cubit.state.tab, ProfileTab.saved);
-        await tester.pumpWidget(const SizedBox.shrink());
-      },
-    );
+        expect(tester.takeException(), isNull);
+      }
+      final createRecipe = size.width > size.height && size.shortestSide < 600
+          ? find.byKey(const ValueKey('nav_create_recipe'))
+          : find.descendant(
+              of: find.byType(ProfileContent),
+              matching: find.text('Đăng món'),
+            );
+      await tester.ensureVisible(createRecipe);
+      await tester.pumpAndSettle();
+      AppTapHandler.resetLock();
+      await tester.tap(createRecipe);
+      await tester.pumpAndSettle();
+      expect(find.byType(RecipeEditorScreen), findsOneWidget);
+      await tester.tap(find.byTooltip('Quay lại'));
+      await tester.pumpAndSettle();
+      expect(
+        router.routerDelegate.currentConfiguration.last.matchedLocation,
+        '/profile',
+      );
+      router.go('/profile?tab=saved');
+      await tester.pumpAndSettle();
+      final cubit = tester
+          .element(find.byType(ProfileContent))
+          .read<ProfileCubit>();
+      expect(cubit.state.tab, ProfileTab.saved);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
   }
 
   for (final size in [

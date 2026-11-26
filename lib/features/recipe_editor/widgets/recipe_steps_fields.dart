@@ -1,7 +1,6 @@
 import 'package:app_bep_xinh/core/widgets/app_text_action.dart';
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
 import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
-import 'package:app_bep_xinh/core/widgets/app_card.dart';
 import 'package:app_bep_xinh/core/utils/app_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,7 +32,6 @@ class RecipeStepsFields extends StatelessWidget {
           final items = value.$1;
           return RecipeEditorSection(
             title: 'Cách thực hiện',
-            framed: false,
 
             action: AppTextAction(
               padding: const EdgeInsets.symmetric(vertical: 8),
@@ -109,45 +107,30 @@ class _StepFields extends StatelessWidget {
           final item = value.$1;
           if (item == null) return const SizedBox.shrink();
           final cubit = context.read<RecipeEditorCubit>();
-          return AppCard(
-            padding: const EdgeInsets.all(16),
+          return RecipeEditorSection(
+            title: 'Bước $number',
+            action: RecipeEditorMenu(
+              label: 'Tùy chọn bước $number',
+              enabled: !value.$3,
+              actions: [
+                (
+                  label: 'Chuyển bước $number lên',
+                  onTap: number == 1 ? null : () => cubit.moveStep(id, -1),
+                ),
+                (
+                  label: 'Chuyển bước $number xuống',
+                  onTap: isLast ? null : () => cubit.moveStep(id, 1),
+                ),
+                if (canRemove)
+                  (
+                    label: 'Xóa bước $number',
+                    onTap: () => cubit.removeStep(id),
+                  ),
+              ],
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Bước $number',
-                        style: AppTextStyles.titleSmall.copyWith(
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ),
-                    RecipeEditorMenu(
-                      label: 'Tùy chọn bước $number',
-                      enabled: !value.$3,
-                      actions: [
-                        (
-                          label: 'Chuyển bước $number lên',
-                          onTap: number == 1
-                              ? null
-                              : () => cubit.moveStep(id, -1),
-                        ),
-                        (
-                          label: 'Chuyển bước $number xuống',
-                          onTap: isLast ? null : () => cubit.moveStep(id, 1),
-                        ),
-                        if (canRemove)
-                          (
-                            label: 'Xóa bước $number',
-                            onTap: () => cubit.removeStep(id),
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
                 AppTextField(
                   fieldId: 'recipe_step_title_$id',
                   initialValue: item.title,

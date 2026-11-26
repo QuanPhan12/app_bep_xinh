@@ -6,6 +6,7 @@ import '../../support/recipe_detail_fakes.dart';
 
 import 'package:app_bep_xinh/core/widgets/app_selection_controls.dart';
 import 'package:app_bep_xinh/features/recipe_editor/widgets/recipe_editor_form.dart';
+import 'package:app_bep_xinh/features/recipe_editor/widgets/recipe_ingredients_fields.dart';
 import 'package:app_bep_xinh/features/ingredients/models/ingredient_catalog.dart';
 import 'package:app_bep_xinh/features/ingredients/services/ingredient_catalog_service.dart';
 import 'package:app_bep_xinh/core/themes/app_theme.dart';
@@ -471,7 +472,7 @@ void main() {
           'Chiên vàng hai mặt.',
         );
         await tap(tester, find.byTooltip('Quay lại'));
-        expect(find.text('Nguyên liệu & định lượng'), findsOneWidget);
+        expect(find.byType(RecipeIngredientsFields), findsOneWidget);
         expect(find.text('Rời màn hình?'), findsNothing);
         expect(tester.takeException(), isNull);
       },
@@ -558,7 +559,7 @@ void main() {
     await tester.pumpWidget(host(router));
     await tester.pumpAndSettle();
     await tap(tester, find.byKey(const ValueKey('nav_item_3')));
-    await tap(tester, find.text('Đăng món'));
+    await tap(tester, find.widgetWithText(FilledButton, 'Đăng món'));
     expect(find.byType(RecipeEditorScreen), findsOneWidget);
     expect(find.text('Đăng món'), findsOneWidget);
     expect(tester.takeException(), isNull);

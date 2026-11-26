@@ -7,6 +7,7 @@ import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import '../models/recipe_content.dart';
 import '../presentation/recipe_labels.dart';
 import 'recipe_image_view.dart';
+import 'recipe_image_gallery.dart';
 
 class RecipeContentOverview extends StatelessWidget {
   final RecipeContent content;
@@ -14,6 +15,7 @@ class RecipeContentOverview extends StatelessWidget {
   final double? rating;
   final int? calories;
   final Widget? action;
+  final bool framed;
   const RecipeContentOverview({
     super.key,
     required this.content,
@@ -21,17 +23,25 @@ class RecipeContentOverview extends StatelessWidget {
     this.rating,
     this.calories,
     this.action,
+    this.framed = true,
   });
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    child: Column(
+  Widget build(BuildContext context) {
+    final contentView = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (content.cover case final cover?)
-          RecipeImageView(image: cover, aspectRatio: 1.5),
+        if (content.images.isNotEmpty)
+          RecipeImageGallery(
+            itemCount: content.images.length,
+            aspectRatio: 1.5,
+            itemBuilder: (context, index) =>
+                RecipeImageView(image: content.images[index]),
+          ),
         Padding(
-          padding: const EdgeInsets.all(20),
+          padding: framed
+              ? const EdgeInsets.all(20)
+              : const EdgeInsets.only(top: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -61,11 +71,15 @@ class RecipeContentOverview extends StatelessWidget {
               ?action,
               const SizedBox(height: 16),
               Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                padding: framed ? const EdgeInsets.all(14) : EdgeInsets.zero,
+                decoration: framed
+                    ? BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(12),
+                      )
+                    : null,
                 child: LayoutBuilder(
                   builder: (context, constraints) => Wrap(
                     spacing: 12,
@@ -172,6 +186,7 @@ class RecipeContentOverview extends StatelessWidget {
           ),
         ),
       ],
-    ),
-  );
+    );
+    return framed ? AppCard(child: contentView) : contentView;
+  }
 }

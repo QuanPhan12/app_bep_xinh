@@ -7,12 +7,13 @@ import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:app_bep_xinh/core/colors/app_colors.dart';
 import 'package:app_bep_xinh/core/constants/app_constants.dart';
 import 'package:app_bep_xinh/core/utils/app_layout.dart';
 import 'package:app_bep_xinh/core/router/app_router.dart';
 import 'package:app_bep_xinh/core/tap/tap_extension.dart';
-import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
+
+import '../../../sollume/core/theme/app_theme.dart';
+
 import 'package:app_bep_xinh/core/widgets/widgets.dart';
 import 'package:app_bep_xinh/core/widgets/app_load_state.dart';
 import 'package:app_bep_xinh/core/widgets/app_appearance_picker.dart';
@@ -101,13 +102,18 @@ class _SettingsPage extends StatelessWidget {
                 );
               }
               return AppContentScrollView(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.fromLTRB(
+                  AppSizes.gutter(MediaQuery.sizeOf(context).width),
+                  AppSpacing.resolve(context, AppSpacing.xxl),
+                  AppSizes.gutter(MediaQuery.sizeOf(context).width),
+                  AppSpacing.resolve(context, AppSpacing.xl),
+                ),
                 children: [
                   AppMenuGroup(
                     title: 'Tài khoản',
                     children: [
                       AppMenuTile(
-                        leadingIcon: PhosphorIconsRegular.userCircle,
+                        leadingIcon: PhosphorIconsBold.userCircle,
                         title: 'Chỉnh sửa hồ sơ',
                         subtitle: state.account!.name,
                         onTap: context.onAppTap(() {
@@ -115,7 +121,7 @@ class _SettingsPage extends StatelessWidget {
                         }, actionName: 'settings_edit_profile'),
                       ),
                       AppMenuTile(
-                        leadingIcon: PhosphorIconsRegular.article,
+                        leadingIcon: PhosphorIconsBold.article,
                         title: 'Quản lý bài đăng',
                         subtitle: 'Bài đã đăng, chờ duyệt và bài đã ẩn',
                         onTap: context.onAppTap(() {
@@ -123,7 +129,7 @@ class _SettingsPage extends StatelessWidget {
                         }, actionName: 'settings_recipe_submissions'),
                       ),
                       AppMenuTile(
-                        leadingIcon: PhosphorIconsRegular.lockKey,
+                        leadingIcon: PhosphorIconsBold.lockKey,
                         title: 'Đổi mật khẩu',
                         onTap: () {
                           context.push('/settings/password');
@@ -136,6 +142,11 @@ class _SettingsPage extends StatelessWidget {
                     children: [
                       SwitchListTile.adaptive(
                         key: const ValueKey('settings_show_bio'),
+                        contentPadding: EdgeInsets.zero,
+                        secondary: const PhosphorIcon(
+                          PhosphorIconsBold.eye,
+                          size: 22,
+                        ),
                         title: const Text('Hiển thị giới thiệu'),
                         subtitle: const Text(
                           'Cho phép người khác xem phần giới thiệu trên hồ sơ',
@@ -147,22 +158,22 @@ class _SettingsPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 28),
-                  const AppSectionHeader(title: 'Giao diện ứng dụng'),
-                  const AppAppearancePicker(),
-                  const SizedBox(height: 12),
+                  AppMenuGroup(
+                    title: 'Giao diện ứng dụng',
+                    children: const [AppAppearancePicker()],
+                  ),
                   AppMenuGroup(
                     title: 'Thông tin',
                     children: [
                       AppMenuTile(
-                        leadingIcon: PhosphorIconsRegular.fileText,
+                        leadingIcon: PhosphorIconsBold.fileText,
                         title: 'Điều khoản dịch vụ',
                         onTap: () {
                           context.push('/legal/terms');
                         },
                       ),
                       AppMenuTile(
-                        leadingIcon: PhosphorIconsRegular.shieldCheck,
+                        leadingIcon: PhosphorIconsBold.shieldCheck,
                         title: 'Chính sách bảo mật',
                         onTap: () {
                           context.push('/legal/privacy');
@@ -170,52 +181,36 @@ class _SettingsPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  AppCard(
-                    showBorder: false,
-                    child: Material(
-                      type: MaterialType.transparency,
-                      child: ListTile(
-                        leading: Icon(
-                          PhosphorIconsRegular.info,
-                          color: context.colors.textSecondary,
-                        ),
-                        title: Text(
-                          'Về ${AppConstants.appName}',
-                          style: AppTextStyles.titleSmall,
-                        ),
-                        subtitle: Text(
-                          'Phiên bản ${AppConstants.appVersion}',
-                          style: AppTextStyles.bodySmall,
-                        ),
-                        trailing: Icon(
-                          PhosphorIconsRegular.caretRight,
-                          color: context.colors.textTertiary,
-                        ),
+                  AppMenuGroup(
+                    title: 'Ứng dụng',
+                    children: [
+                      AppMenuTile(
+                        leadingIcon: PhosphorIconsBold.info,
+                        title: 'Về ${AppConstants.appName}',
+                        subtitle: 'Phiên bản ${AppConstants.appVersion}',
                         onTap: context.onAppTap(
                           () => showAboutDialog(
                             context: context,
                             applicationName: AppConstants.appName,
                             applicationVersion: AppConstants.appVersion,
-                            children: [
-                              Text(
-                                AppConstants.appSlogan,
-                                style: AppTextStyles.bodyMedium,
-                              ),
-                            ],
+                            children: [Text(AppConstants.appSlogan)],
                           ),
                           actionName: 'settings_about',
                           allowConcurrent: true,
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 28),
-                  AppButton(
-                    text: 'Đăng xuất',
-                    variant: AppButtonVariant.secondary,
-                    actionName: 'settings_logout',
-                    allowConcurrent: true,
-                    onPressed: state.saving ? null : () => _logout(context),
+                      AppMenuTile(
+                        leadingIcon: PhosphorIconsBold.signOut,
+                        title: 'Đăng xuất',
+                        onTap: state.saving
+                            ? null
+                            : context.onAppTap(
+                                () => _logout(context),
+                                actionName: 'settings_logout',
+                                allowConcurrent: true,
+                              ),
+                      ),
+                    ],
                   ),
                 ],
               );

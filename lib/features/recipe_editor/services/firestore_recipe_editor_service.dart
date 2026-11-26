@@ -46,8 +46,12 @@ class FirestoreRecipeEditorService
   }
 
   Future<RecipeDraft> _upload(RecipeDraft draft) async {
+    if (draft.photos.length >= RecipeLimits.maxPostPhotos) {
+      throw const RecipeAuthoringException('Mỗi bài đăng có tối đa 10 ảnh.');
+    }
     final total =
         (draft.cover == null ? 0 : 1) +
+        draft.photos.length +
         draft.steps.where((s) => s.photo != null).length;
     var completed = 0;
     _report('Đang tải ảnh: $completed/$total');
@@ -55,6 +59,12 @@ class FirestoreRecipeEditorService
         ? null
         : await uploader.upload(draft.cover!);
     if (draft.cover != null) {
+      completed++;
+      _report('Đang tải ảnh: $completed/$total');
+    }
+    final photos = <RecipeImage>[];
+    for (final image in draft.photos) {
+      photos.add(await uploader.upload(image));
       completed++;
       _report('Đang tải ảnh: $completed/$total');
     }
@@ -70,7 +80,7 @@ class FirestoreRecipeEditorService
         _report('Đang tải ảnh: $completed/$total');
       }
     }
-    return draft.copyWith(cover: cover, steps: steps);
+    return draft.copyWith(cover: cover, photos: photos, steps: steps);
   }
 
   RecipeDraftRecord get _current =>

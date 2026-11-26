@@ -7,6 +7,28 @@ bề mặt light/dark dùng Sollume. Bản port đầu đã hiểu sai và mang 
 
 ## Phần lấy từ source
 
+### Chuẩn menu Bếp của tôi và Cài đặt — 26/11/2026
+
+- Dùng trực tiếp `AppMenuTile` và `AppMenuSection` của bản port Sollume:
+  nhóm phẳng, không nền bo góc hoặc divider; icon Phosphor Bold, chiều cao tối
+  thiểu và typography lấy theo responsive của Sollume.
+- `AppMenuGroup` chỉ ghép section và khoảng cách giữa nhóm. `AppFeatureTile`
+  chuyển tiếp sang `AppMenuTile`, không giữ ô icon 44 px hoặc padding riêng.
+- Bếp của tôi dùng một cột menu trên cả mobile/tablet; giữ tổng quan bữa ăn,
+  timer, nhãn, mô tả và toàn bộ route tính năng.
+- Cài đặt dùng hàng menu cho Giao diện, Về ứng dụng và Đăng xuất. Công tắc
+  giới thiệu vẫn là switch; chọn theme vẫn mở sheet và giữ cơ chế lưu hiện có.
+- Không đổi contract Firebase, quyền truy cập hoặc luồng nghiệp vụ. Màu nhấn
+  tiếp tục là cam Bếp Xinh. Không thay đổi các shortcut theme dạng icon ở sidebar/hồ sơ.
+
+Xác minh đợt này: 41 test hồ sơ/Cài đặt/bố cục đạt (1 capture tùy chọn skip);
+test chọn/lưu theme đạt; các test Bếp và tổng quan bữa ăn đạt trong lượt kiểm tra
+ban đầu. Hai finder “Đăng món” đã giới hạn trong hồ sơ để không trùng nút giữa
+navigation. Analyzer còn 5 issue ở các file không sửa. Test Home trong
+`appearance_test.dart` còn lỗi tìm tooltip `Lưu công thức` đã bị comment trong
+source Home; không sửa Home trong đợt chuẩn hóa menu. Chưa kiểm tra trực quan
+trên app đang chạy hoặc phát hành Hosting.
+
 `lib/sollume/core/theme/` chứa nguyên bộ theme light/dark, màu, typography,
 spacing, radius, sizes và responsive của Sollume. Palette là adaptation có chủ đích: màu nhấn cam, nền nhấn ấm; nền trắng/đen và neutral giữ nguyên.
 Theme Bếp Xinh chỉ là facade thêm `AppPalette` cho những màn dùng API cũ.

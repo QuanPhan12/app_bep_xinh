@@ -21,7 +21,7 @@ async function request(url, body, token, expected = 200, method = "POST") {
   assert.equal(
     res.status,
     expected,
-    `${method} ${new URL(url).pathname}: ${JSON.stringify(json.error || {})}`,
+    `check ${checks}: ${method} ${new URL(url).pathname}: ${JSON.stringify(json.error || {})}`,
   );
   checks++;
   return json;
@@ -77,6 +77,7 @@ async function commit(writes, token, expected = 200) {
     title: "Test recipe",
     description: "",
     cover,
+    photos: Array.from({ length: 9 }, (_, i) => ({ ...cover, id: `photo_${i}` })),
     preparationMinutes: 5,
     cookingMinutes: 10,
     servings: 2,
@@ -147,6 +148,30 @@ async function commit(writes, token, expected = 200) {
     reviewedBy: null,
     reviewReason: null,
   };
+  for (const photos of [
+    Array.from({ length: 10 }, (_, i) => ({ ...cover, id: `photo_${i}` })),
+    [{ ...cover, url: "https://example.test/photo.jpg" }],
+    [{ ...cover, bytesBase64: "invalid" }],
+    [...content.photos.slice(0, 8), { ...cover, url: "https://example.test/last.jpg" }],
+    [{ ...cover, id: 123 }],
+    [{ ...cover, publicId: "" }],
+    [{ ...cover, url: `${cover.url}${"x".repeat(2048)}` }],
+    "invalid",
+  ]) {
+    const invalid = { ...submission, id: `${id}_invalid_${checks}`, content: { ...content, photos } };
+    assert.throws(() => validateRecipeContent(invalid.content, catalog));
+    await commit([{
+      update: { name: `${root}/recipes/${invalid.id}`, fields: encode(invalid).mapValue.fields },
+      updateTransforms: [stamp("submittedAt")],
+    }], author.idToken, 403);
+  }
+  const legacy = { ...submission, id: `${id}_legacy`, content: { ...content } };
+  delete legacy.content.photos;
+  validateRecipeContent(legacy.content, catalog);
+  await commit([{
+    update: { name: `${root}/recipes/${legacy.id}`, fields: encode(legacy).mapValue.fields },
+    updateTransforms: [stamp("submittedAt")],
+  }], author.idToken);
   const invalidBanner = structuredClone(submission);
   invalidBanner.id = `${id}_bad_banner`;
   invalidBanner.content.isBanner = "true";
@@ -216,6 +241,14 @@ async function commit(writes, token, expected = 200) {
     author.idToken,
     403,
   );
+  const moderator = await signup();
+  await commit([{
+    update: {
+      name: `${root}/users/${moderator.localId}`,
+      fields: encode({ ...profile, id: moderator.localId, role: "moderator" }).mapValue.fields,
+    },
+    updateTransforms: [stamp("createdAt"), stamp("updatedAt")],
+  }], "owner");
   const approve = buildReviewWrites({
     project,
     id,
@@ -224,10 +257,10 @@ async function commit(writes, token, expected = 200) {
     catalog,
     decision: "approve",
     reason: null,
-    reviewer: "emulator-reviewer",
+    reviewer: moderator.localId,
     updateTime: raw.updateTime,
   });
-  await commit(approve, "owner");
+  await commit(approve, moderator.idToken);
   const published = await request(
     `${base}/recipes/${id}`,
     undefined,

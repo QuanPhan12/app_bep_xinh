@@ -1,7 +1,8 @@
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
-import 'package:app_bep_xinh/core/widgets/app_section_header.dart';
-import 'package:app_bep_xinh/core/widgets/app_card.dart';
+
+import '../../recipes/widgets/recipe_section.dart';
+
 import 'package:app_bep_xinh/core/widgets/app_tap.dart';
 import 'package:flutter/material.dart';
 
@@ -9,28 +10,16 @@ class RecipeEditorSection extends StatelessWidget {
   final String title;
   final Widget child;
   final Widget? action;
-  final bool framed;
   const RecipeEditorSection({
     super.key,
     required this.title,
     required this.child,
     this.action,
-    this.framed = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    final content = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AppSectionHeader(title: title, action: action),
-        const SizedBox(height: 16),
-        child,
-      ],
-    );
-    return framed
-        ? AppCard(padding: const EdgeInsets.all(16), child: content)
-        : content;
+    return RecipeSection(title: title, action: action, child: child);
   }
 }
 

@@ -15,7 +15,7 @@ khoảng cách và nhóm menu trong source Sollume. Không sửa repo Sollume.
   từ 1180 px dùng sidebar 224 px. Tab chọn theo router, không có state chọn giả.
 - `/kitchen` là branch số 2 trong shell; các route con giữ URL và auth guard.
   `/cart` vẫn là route riêng để giữ deep link và hành vi mẫu, không quảng bá trong nav.
-- Đăng món từ nút có chữ trong Cá nhân. Quản lý bài đăng có lối vào kế bên.
+- Đăng món từ nút có chữ trong Cá nhân hoặc nút dấu cộng “Đăng món” ở chính giữa navigation bottom. Nút giữa mở route đăng món hiện có, không tạo branch/tab mới; quay lại giữ tab và stack trước đó. Bốn tab giữ nguyên thứ tự và hành vi; auth guard, bản nháp và luồng gửi duyệt không đổi. Quản lý bài đăng có lối vào kế bên nút trong Cá nhân.
 - Món đã lưu trong Bếp của tôi mở `/profile?tab=saved`; Profile Cubit chọn đúng
   tab từ route và giữ dữ liệu theo cùng service favorites.
 - Card công thức vẫn chỉ có một hành động mở chi tiết; nút lưu/đánh giá/chia sẻ

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_bep_xinh/core/widgets/app_selection_controls.dart';
-import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
-import 'package:app_bep_xinh/core/widgets/app_card.dart';
-import 'package:app_bep_xinh/core/widgets/app_section_header.dart';
+
+import 'recipe_editor_section.dart';
+
 import 'package:app_bep_xinh/features/recipes/models/recipe_category.dart';
 import 'package:app_bep_xinh/features/recipes/presentation/recipe_labels.dart';
 
@@ -20,18 +20,11 @@ class RecipeCategoryFields extends StatelessWidget {
         (Set<RecipeCategory>, bool)
       >(
         selector: (state) => (state.draft.categories, state.isSubmitting),
-        builder: (context, value) => AppCard(
-          padding: const EdgeInsets.all(16),
+        builder: (context, value) => RecipeEditorSection(
+          title: 'Danh mục món ăn',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const AppSectionHeader(title: 'Danh mục món ăn'),
-              const SizedBox(height: 4),
-              Text(
-                'Chọn các mục phù hợp để mọi người dễ tìm thấy món của bạn.',
-                style: AppTextStyles.bodySmall,
-              ),
-              const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 runSpacing: 4,

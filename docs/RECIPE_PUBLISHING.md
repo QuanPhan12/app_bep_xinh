@@ -2,6 +2,30 @@
 
 ## Luồng và ranh giới
 
+Bài đăng nhiều ảnh (26/11/2026): giữ `content.cover` và thêm trường tùy chọn
+`content.photos` gồm tối đa 9 ảnh Cloudinary; tổng tối đa 10 ảnh món. Không đổi
+schemaVersion, collection hay trạng thái duyệt. Bài cũ không cần migration.
+Nháp dùng `draft.photos` tương ứng. Rules kiểm tra từng ảnh bổ sung và giới hạn
+danh sách; công cụ duyệt `recipe_content_validation.cjs` chấp nhận trường này.
+Phải deploy `firestore.rules` mới trước khi phát hành app nhiều ảnh, vì rules cũ
+chặn field lạ. Đợt triển khai source ban đầu chưa deploy production; trạng thái
+phát hành bổ sung xem bên dưới.
+
+### Phát hành rules nhiều ảnh — 26/11/2026
+
+Đã deploy `firestore.rules` lên project `bepxinh-b0be7` theo yêu cầu cho phép
+đăng bài nhiều ảnh. Firebase CLI xác nhận compile thành công, upload và release
+rules lên Cloud Firestore, kết thúc `Deploy complete!` với exit code 0.
+Lệnh sử dụng `deploy --only firestore:rules --project bepxinh-b0be7 --non-interactive`.
+Không có ghi dữ liệu bài đăng production trong bước xác minh này. Chưa xác minh
+gửi bài từ phiên ứng dụng thực tế của người dùng sau deploy.
+
+Đồng bộ admin trong cùng ngày: đã sửa validator của `../admin_bep_xinh` để nhận
+`content.photos`, bổ sung ảnh trong màn kiểm duyệt và deploy Hosting admin.
+Validator admin cũ từ chối field `photos` với thông báo nội dung không hợp lệ,
+dù Firestore Rules đã cập nhật. 10 domain test/build production đạt; HTML và
+asset live khớp bản build. Xem [tài liệu admin](../../admin_bep_xinh/docs/FIREBASE_ADMIN.md).
+
 `Screen → RecipeEditorCubit → RecipeEditorService → uploader/repository`.
 `FirestoreRecipeEditorService` điều phối validation, upload, codec và ghi dữ liệu;
 `CloudinaryRecipeImageUploader` gọi HTTP, `FirestoreRecipeAuthoringRepository`
@@ -208,6 +232,25 @@ và status/isBanner/submittedAt. Chờ composite indexes READY trước khi phá
 Index publishedAt/recipe_submissions cũ tạm giữ cho việc chuyển đổi; app không dùng chúng.
 
 ## Kiểm thử
+
+Xác minh nhiều ảnh ngày 26/11/2026:
+
+- Bộ test Flutter liên quan đăng món/model/Home/offline: 96 đạt, 1 capture tùy
+  chọn skip. Sau khi thêm kiểm tra đóng editor lúc picker đang chờ và lỗi upload
+  ảnh bổ sung, chạy lại 13 test nhiều ảnh/service đều đạt. Test lưu offline đủ ảnh
+  và giới hạn dung lượng cũng đạt.
+- Emulator `demo-bepxinh`: 40 kiểm tra đăng/duyệt và 33 kiểm tra biến tấu đạt,
+  dùng bài đủ 10 ảnh. Có kiểm tra moderator duyệt qua rules, gửi lại bài bị từ
+  chối, tương thích bài cũ và từ chối quá số lượng/URL ngoài Cloudinary/bytes
+  nhúng/metadata sai/ảnh cuối sai. Không dùng Firebase production.
+- Rules gộp kiểm tra kiểu/độ dài chuỗi bằng `matches` và bỏ kiểm tra field lặp
+  (các field bắt buộc đều được truy cập trực tiếp, thiếu field vẫn bị từ chối),
+  để bài đủ 10 ảnh và nguồn biến tấu không vượt 1.000 biểu thức đánh giá.
+  Không đổi quyền gửi/duyệt/banner.
+- `flutter analyze --no-pub` còn 5 issue sẵn có trong AI chat/login/tổng quan
+  Bếp/messages; không có issue ở source nhiều ảnh. `git diff --check` đạt.
+- Chưa thử picker nhiều ảnh trên thiết bị Android/iOS, upload nhiều ảnh qua
+  Cloudinary thật, build release hoặc deploy rules/Hosting trong đợt này.
 
 ```powershell
 flutter analyze --no-pub

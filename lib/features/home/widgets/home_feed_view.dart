@@ -18,6 +18,7 @@ import '../../kitchen/cubits/recipe_tools_cubit.dart';
 import '../../recipe_search/models/recipe_search_request.dart';
 import '../cubits/home/home.dart';
 import '../models/recipe_item.dart';
+import '../../recipes/widgets/recipe_image_gallery.dart';
 import 'home_app_bar.dart';
 import 'home_categories.dart';
 import '../models/home_banner_item.dart';
@@ -338,9 +339,14 @@ class HomeRecipePost extends StatelessWidget {
                     ?.copyWith(fontWeight: FontWeight.w600, height: 1.35),
               ),
             ),
-            AspectRatio(
-              aspectRatio: 4 / 3,
-              child: FeedRecipeImage(source: recipe.image, label: recipe.title),
+            RecipeImageGallery(
+              key: ValueKey('post_gallery_${recipe.id}'),
+              useDots: true,
+              itemCount: recipe.imageSources.length,
+              itemBuilder: (context, index) => FeedRecipeImage(
+                source: recipe.imageSources[index],
+                label: recipe.title,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(6, 4, 14, 8),

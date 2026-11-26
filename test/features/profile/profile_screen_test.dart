@@ -277,7 +277,13 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('MA'), findsOneWidget);
-    expect(find.text('Đăng món'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(ProfileScreen),
+        matching: find.text('Đăng món'),
+      ),
+      findsOneWidget,
+    );
     expect(find.text('Chỉnh sửa hồ sơ'), findsOneWidget);
     expect(find.text('Cài đặt'), findsNothing);
     expect(find.byIcon(PhosphorIconsRegular.gearSix), findsOneWidget);

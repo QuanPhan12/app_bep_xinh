@@ -33,9 +33,10 @@ không thêm tính năng mạng xã hội hoặc số liệu chưa có dữ li�
 | Chi tiết món | Ảnh làm điểm mở đầu, thông tin nấu dùng đường phân cách trung tính; giữ chế độ nấu, timer, nhật ký và các công cụ mới. |
 | Màn khác | Cùng nền/chữ/control dark/light: auth, Cài đặt, Đi chợ mẫu, tìm kiếm, editor, thông báo, chat và các màn Góc bếp. |
 
-Dưới 600 px: thanh đáy phẳng với 5 vị trí (4 nhánh + tạo bài), không dùng ConvexAppBar.
+Cạnh ngắn viewport dưới 600 px: thanh đáy phẳng với 5 vị trí (4 nhánh + tạo bài),
+kể cả điện thoại xoay ngang; không dùng ConvexAppBar.
 Dependency `convex_bottom_bar` được gỡ khỏi app sau khi chuyển thanh điều hướng.
-Từ 600 px: thanh bên 76 px; từ 1180 px: mở nhãn và thương hiệu, rộng 224 px.
+Cạnh ngắn từ 600 px: thanh bên 100 px; chiều rộng từ 1180 px: mở nhãn và thương hiệu, rộng 224 px.
 Home giữ cột đọc tối đa 630 px; khi vùng nội dung đủ 1000 px mới thêm cột tiện ích.
 Shell giữ cùng vị trí widget chứa navigationShell khi đổi kích thước để bảo toàn
 branch stack và state; tạo bài là thao tác push, không làm đổi tab đang chọn.

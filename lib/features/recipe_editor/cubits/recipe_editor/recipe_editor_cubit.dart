@@ -91,9 +91,14 @@ class RecipeEditorCubit extends Cubit<RecipeEditorState> {
     }
     try {
       final coverRevision = _coverRevision;
-      final recovered = await coverPicker.recoverLostCover();
-      if (!isClosed && recovered != null && coverRevision == _coverRevision) {
-        _update(state.draft.copyWith(cover: recovered));
+      final picker = coverPicker;
+      final recovered = picker is RecipePhotosPicker
+          ? await (picker as RecipePhotosPicker).recoverLostPhotos()
+          : <RecipeImage>[?await picker.recoverLostCover()];
+      if (!isClosed &&
+          recovered.isNotEmpty &&
+          coverRevision == _coverRevision) {
+        _appendPhotos(recovered);
       }
     } catch (error, stack) {
       if (!isClosed) {
@@ -269,7 +274,94 @@ class RecipeEditorCubit extends Cubit<RecipeEditorState> {
   );
   void removeCover() {
     _coverRevision++;
-    _update(state.draft.copyWith(removeCover: true));
+    final photos = state.draft.photos;
+    _update(
+      state.draft.copyWith(
+        cover: photos.firstOrNull,
+        removeCover: photos.isEmpty,
+        photos: photos.skip(1).toList(),
+      ),
+    );
+  }
+
+  void removePhoto(String id) {
+    if (!_canOperate) return;
+    _coverRevision++;
+    _update(
+      state.draft.copyWith(
+        photos: state.draft.photos.where((image) => image.id != id).toList(),
+      ),
+    );
+  }
+
+  void makeCover(String id) {
+    if (!_canOperate) return;
+    final photo = state.draft.photos
+        .where((image) => image.id == id)
+        .firstOrNull;
+    if (photo == null) return;
+    _coverRevision++;
+    _update(
+      state.draft.copyWith(
+        cover: photo,
+        photos: [
+          if (state.draft.cover != null) state.draft.cover!,
+          ...state.draft.photos.where((image) => image.id != id),
+        ],
+      ),
+    );
+  }
+
+  void _appendPhotos(List<RecipeImage> images) {
+    final all = [
+      if (state.draft.cover != null) state.draft.cover!,
+      ...state.draft.photos,
+    ];
+    final ids = all.map((image) => image.id).toSet();
+    final incoming = images.where((image) => ids.add(image.id)).toList();
+    if (all.length + incoming.length > RecipeEditorLimits.maxPostPhotos) {
+      _notice('Mỗi bài đăng có tối đa 10 ảnh.');
+      return;
+    }
+    all.addAll(incoming);
+    if (all.isEmpty) return;
+    _update(
+      state.draft.copyWith(cover: all.first, photos: all.skip(1).toList()),
+    );
+  }
+
+  Future<void> addPhotos() async {
+    if (!_canOperate) return;
+    final remaining =
+        RecipeEditorLimits.maxPostPhotos -
+        state.draft.photos.length -
+        (state.draft.cover == null ? 0 : 1);
+    if (remaining <= 0) {
+      _notice('Mỗi bài đăng có tối đa 10 ảnh.');
+      return;
+    }
+    _coverRevision++;
+    emit(state.copyWith(operation: RecipeEditorOperation.pickingCover));
+    try {
+      final picker = coverPicker;
+      final photos = picker is RecipePhotosPicker
+          ? await (picker as RecipePhotosPicker).pickPhotos(remaining)
+          : <RecipeImage>[?await picker.pickCover()];
+      if (!isClosed) _appendPhotos(photos);
+    } catch (error, stack) {
+      if (!isClosed) {
+        addError(error, stack);
+        _notice(
+          error is RecipeCoverException
+              ? error.message
+              : 'Không chọn được ảnh. Vui lòng thử lại.',
+        );
+      }
+    } finally {
+      if (!isClosed) {
+        emit(state.copyWith(operation: RecipeEditorOperation.idle));
+      }
+    }
   }
 
   void upsertIngredient(RecipeIngredientDraft value, {String? groupId}) {

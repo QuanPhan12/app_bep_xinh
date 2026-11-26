@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../widgets/app_bottom_nav_bar.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../ai_chat/widgets/ai_chat_floating_layer.dart';
 
 /// Giao diện điều hướng đáy dành cho thiết bị Mobile trong ShellRoute
@@ -18,6 +19,9 @@ class NavigationMobileView extends StatelessWidget {
       body: AiChatFloatingLayer(child: navigationShell),
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: navigationShell.currentIndex,
+        onCreateRecipe: () {
+          context.push(PathRouter.recipeEditorScreen);
+        },
         onTabSelected: (index) {
           navigationShell.goBranch(
             index,

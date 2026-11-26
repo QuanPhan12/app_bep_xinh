@@ -152,6 +152,12 @@ class OfflineRecipeService {
     }
     final json = recipe.content.toJson();
     json['cover'] = (await _image(recipe.cover))?.toJson();
+    if (recipe.content.photos.isNotEmpty) {
+      json['photos'] = [
+        for (final photo in recipe.content.photos)
+          (await _image(photo))!.toJson(),
+      ];
+    }
     final steps = <Map<String, dynamic>>[];
     for (final step in recipe.steps) {
       final item = step.toJson();

@@ -44,6 +44,7 @@ void main() {
       expect(image.bytes, isNull);
       expect(image.publicId, 'test');
       expect((await uploader.upload(photo('b'))).url, image.url);
+      expect((await uploader.upload(photo('b'))).id, 'b');
       expect((await uploader.upload(image)).url, image.url);
       expect(calls, 1);
     },

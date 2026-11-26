@@ -27,6 +27,7 @@ function image(value) {
 }
 function validateRecipeContent(c, catalog) {
   exact(c, [
+    ...(Object.hasOwn(c, "photos") ? ["photos"] : []),
     ...(Object.hasOwn(c, "isBanner") ? ["isBanner"] : []),
     "title",
     "description",
@@ -47,6 +48,11 @@ function validateRecipeContent(c, catalog) {
   text(c.description, 500);
   text(c.storageNotes, 500);
   image(c.cover);
+  if (Object.hasOwn(c, "photos")) {
+    assert.ok(Array.isArray(c.photos) && c.photos.length <= 9);
+    c.photos.forEach(image);
+    unique([c.cover.id, ...c.photos.map((photo) => photo.id)]);
+  }
   integer(c.preparationMinutes, 0, 240);
   integer(c.cookingMinutes, 1, 720);
   integer(c.servings, 1, 50);

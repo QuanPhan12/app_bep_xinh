@@ -245,6 +245,13 @@ void main() {
         name: 'small',
         bytes: Uint8List.fromList([1, 2, 3]),
       ).toJson(),
+      'photos': [
+        RecipeImage.memory(
+          id: 'extra',
+          name: 'extra',
+          bytes: Uint8List.fromList([4, 5, 6]),
+        ).toJson(),
+      ],
       'steps': (json['steps'] as List)
           .map((step) => {...step as Map<String, dynamic>, 'photo': null})
           .toList(),
@@ -255,6 +262,8 @@ void main() {
     expect(saved.recipe.ingredients.length, recipe.ingredients.length);
     expect(saved.recipe.cover!.bytes, isNotEmpty);
     expect(saved.recipe.cover!.assetPath, isNull);
+    expect(saved.recipe.content.photos.single.id, 'extra');
+    expect(saved.recipe.content.photos.single.bytes, [4, 5, 6]);
     await services.offline.download(recipe);
     expect((await services.offline.list()).length, 1);
     final large = RecipeDetail(

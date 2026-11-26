@@ -200,6 +200,8 @@ class RecipeContent extends Equatable {
   final bool isBanner;
   final String description;
   final RecipeImage? cover;
+  final List<RecipeImage> photos;
+  List<RecipeImage> get images => [?cover, ...photos];
   final int preparationMinutes;
   final int cookingMinutes;
   final int servings;
@@ -215,6 +217,7 @@ class RecipeContent extends Equatable {
     this.isBanner = false,
     this.description = '',
     this.cover,
+    List<RecipeImage> photos = const [],
     required this.preparationMinutes,
     required this.cookingMinutes,
     required this.servings,
@@ -225,7 +228,8 @@ class RecipeContent extends Equatable {
     required List<RecipeIngredientGroup> ingredientGroups,
     required List<RecipeIngredient> ingredients,
     required List<RecipeStep> steps,
-  }) : categories = Set.unmodifiable(categories),
+  }) : photos = List.unmodifiable(photos),
+       categories = Set.unmodifiable(categories),
        meals = Set.unmodifiable(meals),
        ingredientGroups = List.unmodifiable(ingredientGroups),
        ingredients = List.unmodifiable(ingredients),
@@ -297,6 +301,7 @@ class RecipeContent extends Equatable {
           : legacyImage == null
           ? null
           : RecipeImage.asset(id: legacyImage, assetPath: legacyImage),
+      photos: decodeRecipePhotos(json['photos']),
       preparationMinutes: preparation,
       cookingMinutes: cooking,
       servings: servings,
@@ -317,6 +322,8 @@ class RecipeContent extends Equatable {
     'isBanner': isBanner,
     'description': description,
     'cover': cover?.toJson(),
+    if (photos.isNotEmpty)
+      'photos': photos.map((image) => image.toJson()).toList(),
     'preparationMinutes': preparationMinutes,
     'cookingMinutes': cookingMinutes,
     'servings': servings,
@@ -342,6 +349,7 @@ class RecipeContent extends Equatable {
     isBanner,
     description,
     cover,
+    photos,
     preparationMinutes,
     cookingMinutes,
     servings,
@@ -374,4 +382,18 @@ RecipeImage? _image(Object? value) {
     throw const FormatException('Invalid image');
   }
   return RecipeImage.fromJson(value);
+}
+
+List<RecipeImage> decodeRecipePhotos(Object? value) {
+  if (value == null) return const [];
+  if (value is! List || value.length >= RecipeLimits.maxPostPhotos) {
+    throw const FormatException('Invalid recipe photos');
+  }
+  final photos = value
+      .map(
+        (item) => RecipeImage.fromJson(Map<String, dynamic>.from(item as Map)),
+      )
+      .toList();
+  requireUniqueIds(photos.map((image) => image.id), 'recipe photos');
+  return List.unmodifiable(photos);
 }

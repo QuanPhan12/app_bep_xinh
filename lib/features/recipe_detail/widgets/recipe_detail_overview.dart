@@ -11,6 +11,7 @@ class RecipeDetailOverview extends StatelessWidget {
   const RecipeDetailOverview({super.key, required this.recipe});
   @override
   Widget build(BuildContext context) => RecipeContentOverview(
+    framed: false,
     content: recipe.content,
     authorInfo: RecipeAuthorInfo(
       author: recipe.author,

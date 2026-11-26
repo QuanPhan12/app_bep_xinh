@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 import '../models/recipe_remix.dart';
-import '../../../core/widgets/app_card.dart';
+import 'recipe_section.dart';
+import '../../../sollume/shared/app_menu_section.dart';
 
 class RecipeRemixAttribution extends StatelessWidget {
   const RecipeRemixAttribution({
@@ -15,17 +16,11 @@ class RecipeRemixAttribution extends StatelessWidget {
   final VoidCallback onOpen;
   final bool showChanges;
   @override
-  Widget build(BuildContext context) => AppCard(
-    padding: const EdgeInsets.all(16),
+  Widget build(BuildContext context) => RecipeSection(
+    title: 'Biến tấu từ công thức',
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Biến tấu từ công thức',
-          style: Theme.of(context).textTheme.labelMedium
-              ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
-        ),
-        const SizedBox(height: 8),
         InkWell(
           onTap: onOpen,
           borderRadius: BorderRadius.circular(8),
@@ -56,11 +51,8 @@ class RecipeRemixAttribution extends StatelessWidget {
           ),
         ),
         if (showChanges && remix.changes.isNotEmpty) ...[
-          const Divider(height: 24),
-          Text(
-            'Điều chỉnh của tác giả',
-            style: Theme.of(context).textTheme.labelLarge,
-          ),
+          const SizedBox(height: 24),
+          const AppMenuSection(title: 'Điều chỉnh của tác giả', children: []),
           const SizedBox(height: 8),
           Text(remix.changes, style: Theme.of(context).textTheme.bodyMedium),
         ],

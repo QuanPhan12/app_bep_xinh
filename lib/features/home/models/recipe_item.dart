@@ -11,6 +11,11 @@ class RecipeItem extends Equatable {
   final String id;
   final String title;
   final String image;
+  final List<RecipeImage> photos;
+  List<String> get imageSources => [
+    image,
+    ...photos.map((photo) => photo.source ?? ""),
+  ];
   final double rating;
   final int cookTimeMinutes;
   final String tag;
@@ -25,6 +30,7 @@ class RecipeItem extends Equatable {
     required this.id,
     required this.title,
     required this.image,
+    this.photos = const [],
     required this.rating,
     required this.cookTimeMinutes,
     required this.tag,
@@ -51,6 +57,7 @@ class RecipeItem extends Equatable {
       id: id ?? this.id,
       title: title ?? this.title,
       image: image ?? this.image,
+      photos: photos,
       rating: rating ?? this.rating,
       cookTimeMinutes: cookTimeMinutes ?? this.cookTimeMinutes,
       tag: tag ?? this.tag,
@@ -108,6 +115,7 @@ class RecipeItem extends Equatable {
           : null,
       title: reader.string('title'),
       image: image ?? '',
+      photos: decodeRecipePhotos(json['photos']),
       rating: json['rating'] == null ? 0 : reader.number('rating', max: 5),
       cookTimeMinutes:
           reader.integer('preparationMinutes') +
@@ -125,6 +133,7 @@ class RecipeItem extends Equatable {
     id,
     title,
     image,
+    photos,
     rating,
     cookTimeMinutes,
     tag,

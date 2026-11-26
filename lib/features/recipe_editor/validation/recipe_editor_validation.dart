@@ -36,6 +36,14 @@ class RecipeEditorValidation {
   static Map<String, String> validate(RecipeDraft draft) {
     final errors = <String, String>{};
     if (draft.cover == null) errors['cover'] = 'Thêm ảnh bìa cho món ăn.';
+    if (draft.photos.length >= RecipeEditorLimits.maxPostPhotos ||
+        {
+              if (draft.cover != null) draft.cover!.id,
+              ...draft.photos.map((image) => image.id),
+            }.length !=
+            draft.photos.length + (draft.cover == null ? 0 : 1)) {
+      errors['cover'] = 'Chọn tối đa 10 ảnh khác nhau cho bài đăng.';
+    }
     if (draft.title.trim().isEmpty) {
       errors['title'] = 'Nhập tên món ăn.';
     } else if (draft.title.length > RecipeEditorLimits.titleLength) {

@@ -18,119 +18,132 @@ class NavigationTabletView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final extended = MediaQuery.sizeOf(context).width >= 1180;
-    final tablet = AppLayout.isTablet(context);
+    final useRail = AppLayout.useNavigationRail(context);
     void switchTab(int index) => navigationShell.goBranch(
       index,
       initialLocation: index == navigationShell.currentIndex,
     );
     return Scaffold(
       backgroundColor: context.colors.background,
-      bottomNavigationBar: tablet
+      bottomNavigationBar: useRail
           ? null
           : AppBottomNavBar(
               currentIndex: navigationShell.currentIndex,
               onTabSelected: switchTab,
+              onCreateRecipe: () {
+                context.push(PathRouter.recipeEditorScreen);
+              },
             ),
       body: Row(
         children: [
           Offstage(
-            offstage: !tablet,
-            child: Material(
-              color: context.colors.surface,
-              child: Container(
-                width: extended ? 224 : 100,
-                decoration: BoxDecoration(
-                  border: Border(
-                    right: BorderSide(color: context.colors.border, width: .5),
-                  ),
-                ),
-                child: SafeArea(
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 24,
-                          horizontal: 12,
-                        ),
-                        child: extended
-                            ? Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  'Bếp Xinh',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineSmall
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.w800,
-                                        letterSpacing: -1,
-                                      ),
-                                ),
-                              )
-                            : const Icon(
-                                PhosphorIconsRegular.forkKnife,
-                                color: AppColors.primary,
-                                size: 30,
-                              ),
-                      ),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              _RailItem(
-                                label: 'Trang chủ',
-                                icon: PhosphorIconsRegular.house,
-                                selected: navigationShell.currentIndex == 0,
-                                extended: extended,
-                                onTap: () => switchTab(0),
-                              ),
-                              _RailItem(
-                                label: 'Tìm kiếm',
-                                icon: PhosphorIconsRegular.magnifyingGlass,
-                                extended: extended,
-                                onTap: () {
-                                  context.push(PathRouter.recipeSearch());
-                                },
-                              ),
-                              _RailItem(
-                                label: 'Tủ lạnh',
-                                icon: PhosphorIconsRegular.snowflake,
-                                selected: navigationShell.currentIndex == 1,
-                                extended: extended,
-                                onTap: () => switchTab(1),
-                              ),
-                              _RailItem(
-                                label: 'Bếp của tôi',
-                                icon: PhosphorIconsRegular.bookOpen,
-                                selected: navigationShell.currentIndex == 2,
-                                extended: extended,
-                                onTap: () => switchTab(2),
-                              ),
-                              _RailItem(
-                                label: 'Cá nhân',
-                                icon: PhosphorIconsRegular.userCircle,
-                                selected: navigationShell.currentIndex == 3,
-                                extended: extended,
-                                onTap: () => switchTab(3),
-                              ),
-                            ],
+            offstage: !useRail,
+            child: useRail
+                ? Material(
+                    color: context.colors.surface,
+                    child: Container(
+                      width: extended ? 224 : 100,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          right: BorderSide(
+                            color: context.colors.border,
+                            width: .5,
                           ),
                         ),
                       ),
-                      const AppAppearancePicker(compact: true),
-                      _RailItem(
-                        label: 'Cài đặt',
-                        icon: PhosphorIconsRegular.list,
-                        extended: extended,
-                        onTap: () {
-                          context.push(PathRouter.settingsScreen);
-                        },
+                      child: SafeArea(
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 24,
+                                horizontal: 12,
+                              ),
+                              child: extended
+                                  ? Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        'Bếp Xinh',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headlineSmall
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w800,
+                                              letterSpacing: -1,
+                                            ),
+                                      ),
+                                    )
+                                  : const Icon(
+                                      PhosphorIconsRegular.forkKnife,
+                                      color: AppColors.primary,
+                                      size: 30,
+                                    ),
+                            ),
+                            Expanded(
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  children: [
+                                    _RailItem(
+                                      label: 'Trang chủ',
+                                      icon: PhosphorIconsRegular.house,
+                                      selected:
+                                          navigationShell.currentIndex == 0,
+                                      extended: extended,
+                                      onTap: () => switchTab(0),
+                                    ),
+                                    _RailItem(
+                                      label: 'Tìm kiếm',
+                                      icon:
+                                          PhosphorIconsRegular.magnifyingGlass,
+                                      extended: extended,
+                                      onTap: () {
+                                        context.push(PathRouter.recipeSearch());
+                                      },
+                                    ),
+                                    _RailItem(
+                                      label: 'Tủ lạnh',
+                                      icon: PhosphorIconsRegular.snowflake,
+                                      selected:
+                                          navigationShell.currentIndex == 1,
+                                      extended: extended,
+                                      onTap: () => switchTab(1),
+                                    ),
+                                    _RailItem(
+                                      label: 'Bếp của tôi',
+                                      icon: PhosphorIconsRegular.bookOpen,
+                                      selected:
+                                          navigationShell.currentIndex == 2,
+                                      extended: extended,
+                                      onTap: () => switchTab(2),
+                                    ),
+                                    _RailItem(
+                                      label: 'Cá nhân',
+                                      icon: PhosphorIconsRegular.userCircle,
+                                      selected:
+                                          navigationShell.currentIndex == 3,
+                                      extended: extended,
+                                      onTap: () => switchTab(3),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const AppAppearancePicker(compact: true),
+                            _RailItem(
+                              label: 'Cài đặt',
+                              icon: PhosphorIconsRegular.list,
+                              extended: extended,
+                              onTap: () {
+                                context.push(PathRouter.settingsScreen);
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 16),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+                    ),
+                  )
+                : const SizedBox.shrink(),
           ),
           Expanded(child: AiChatFloatingLayer(child: navigationShell)),
         ],

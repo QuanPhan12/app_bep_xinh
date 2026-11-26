@@ -1,12 +1,13 @@
 import 'package:app_bep_xinh/core/colors/app_colors.dart';
 import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
-import 'package:app_bep_xinh/core/widgets/app_card.dart';
+
+import 'recipe_section.dart';
+
 import 'package:flutter/material.dart';
 
 import '../models/recipe_content.dart';
 import 'recipe_image_view.dart';
 import 'recipe_notes.dart';
-
 
 class RecipeStepContent extends StatelessWidget {
   final RecipeStep step;
@@ -19,37 +20,15 @@ class RecipeStepContent extends StatelessWidget {
     this.total,
   });
   @override
-  Widget build(BuildContext context) => AppCard(
-    padding: const EdgeInsets.all(16),
+  Widget build(BuildContext context) => RecipeSection(
+    title: total == null ? 'Bước $number' : 'Bước $number / $total',
+    action: step.minutes == null
+        ? null
+        : Text('${step.minutes} phút', style: AppTextStyles.bodySmall),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Wrap(
-          alignment: WrapAlignment.spaceBetween,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 16,
-          runSpacing: 8,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: context.colors.secondaryLight,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                total == null ? 'Bước $number' : 'Bước $number / $total',
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: context.colors.secondary,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-            if (step.minutes != null)
-              Text('${step.minutes} phút', style: AppTextStyles.bodySmall),
-          ],
-        ),
         if (step.title.isNotEmpty) ...[
-          const SizedBox(height: 12),
           Text(
             step.title,
             style: AppTextStyles.titleSmall.copyWith(

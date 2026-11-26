@@ -147,6 +147,7 @@ class RecipeDraft extends Equatable {
 
   final String title;
   final RecipeImage? cover;
+  final List<RecipeImage> photos;
   final String preparationMinutes;
   final String cookingMinutes;
   final int servings;
@@ -164,6 +165,7 @@ class RecipeDraft extends Equatable {
     this.remixBaseline,
     this.title = '',
     this.cover,
+    List<RecipeImage> photos = const [],
     this.preparationMinutes = '15',
     this.cookingMinutes = '20',
     this.servings = 2,
@@ -178,7 +180,8 @@ class RecipeDraft extends Equatable {
     ],
     List<RecipeIngredientDraft> ingredients = const [],
     List<RecipeStepDraft> steps = const [RecipeStepDraft(id: 'step_0')],
-  }) : ingredients = List.unmodifiable(ingredients),
+  }) : photos = List.unmodifiable(photos),
+       ingredients = List.unmodifiable(ingredients),
        meals = Set.unmodifiable(meals),
        categories = Set.unmodifiable(categories),
        ingredientGroups = List.unmodifiable(ingredientGroups),
@@ -189,6 +192,7 @@ class RecipeDraft extends Equatable {
     String? remixBaseline,
     String? title,
     RecipeImage? cover,
+    List<RecipeImage>? photos,
     bool removeCover = false,
     String? preparationMinutes,
     String? cookingMinutes,
@@ -206,6 +210,7 @@ class RecipeDraft extends Equatable {
     remixBaseline: remixBaseline ?? this.remixBaseline,
     title: title ?? this.title,
     cover: removeCover ? null : cover ?? this.cover,
+    photos: photos ?? this.photos,
     preparationMinutes: preparationMinutes ?? this.preparationMinutes,
     cookingMinutes: cookingMinutes ?? this.cookingMinutes,
     servings: servings ?? this.servings,
@@ -222,6 +227,7 @@ class RecipeDraft extends Equatable {
   factory RecipeDraft.fromContent(RecipeContent content) => RecipeDraft(
     title: content.title,
     cover: content.cover,
+    photos: content.photos,
     description: content.description,
     preparationMinutes: content.preparationMinutes.toString(),
     cookingMinutes: content.cookingMinutes.toString(),
@@ -292,6 +298,7 @@ class RecipeDraft extends Equatable {
       title: value.title,
       description: value.description,
       cover: value.cover,
+      photos: value.photos,
       preparationMinutes: int.parse(value.preparationMinutes),
       cookingMinutes: int.parse(value.cookingMinutes),
       servings: value.servings,
@@ -324,6 +331,7 @@ class RecipeDraft extends Equatable {
     remixBaseline,
     title,
     cover,
+    photos,
     preparationMinutes,
     cookingMinutes,
     servings,

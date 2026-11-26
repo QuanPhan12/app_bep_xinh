@@ -59,10 +59,13 @@ class MemoryAuthoringRepository implements RecipeAuthoringRepository {
 class TestImageUploader implements RecipeImageUploader {
   int calls = 0;
   bool fail = false;
+  String? failId;
   @override
   Future<RecipeImage> upload(RecipeImage image) async {
     calls++;
-    if (fail) throw const RecipeUploadException('Ảnh chưa tải được');
+    if (fail || image.id == failId) {
+      throw const RecipeUploadException('Ảnh chưa tải được');
+    }
     return RecipeImage.remote(
       id: image.id,
       name: image.name,
@@ -86,6 +89,51 @@ void main() {
       catalog: MockIngredientCatalogService(fixtureApi()),
     );
   });
+  test(
+    'post photos upload, restore and submit in order without local bytes',
+    () async {
+      await service.loadDraft();
+      final draft = validRecipeDraft().copyWith(
+        photos: [
+          recipeCoverFixture(id: 'second'),
+          recipeCoverFixture(id: 'third'),
+        ],
+      );
+      await service.saveDraft(draft);
+      final loaded = (await service.loadDraft())!;
+      expect(loaded.photos.map((image) => image.id), ['second', 'third']);
+      expect(
+        loaded.photos.every(
+          (image) => image.bytes == null && image.url != null,
+        ),
+        isTrue,
+      );
+      await service.submit(loaded);
+      final photos = repository.submitted!['photos'] as List;
+      expect(photos.map((image) => image['id']), ['second', 'third']);
+      expect(jsonEncode(repository.submitted), isNot(contains('bytesBase64')));
+    },
+  );
+
+  test(
+    'photo upload failure never writes a partial post or loses the draft',
+    () async {
+      await service.loadDraft();
+      final draft = validRecipeDraft().copyWith(
+        photos: [recipeCoverFixture(id: 'second')],
+      );
+      uploader.failId = 'second';
+      await expectLater(
+        service.submit(draft),
+        throwsA(isA<RecipeUploadException>()),
+      );
+      expect(repository.submitted, isNull);
+      expect(draft.photos.single.id, 'second');
+      uploader.failId = null;
+      await service.submit(draft);
+      expect(repository.submitted!['photos'], hasLength(1));
+    },
+  );
   test(
     'remix source survives save/load and is included in submission identity',
     () async {

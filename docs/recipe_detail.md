@@ -26,13 +26,25 @@ nhãn độ khó tiếng Việt cũ vẫn đọc được. Fixture đã chuyển
 lưu món và bước nấu hiện tại. Cubit không giữ router/BuildContext. Request tải
 trùng dùng chung Future; kết quả sau khi đóng màn hình không emit vào Cubit.
 
-UI ghép các component sẵn có: `AppAppBar`, `AppCard`, `AppSectionHeader`,
+UI ghép các component sẵn có: `AppAppBar`, `RecipeSection`,
 `AppTextAction`, `AppButton`, `AppActionBar`, `AppLoadState`, `AppSkeleton` và các block skeleton.
 `AppServingSelector` được chuyển từ Đăng món lên global để hai màn dùng cùng
-cách chọn khẩu phần. Không tạo bộ card/header/nút riêng cho Chi tiết món.
+cách chọn khẩu phần. `RecipeSection` dùng nhãn `AppMenuSection` theo chuẩn menu
+Sollume/Bếp của tôi, dùng chung cho Đăng món và Chi tiết món.
 `RecipeContentOverview`, `RecipeStepContent`, `RecipeImageView` dùng chung cho
 xem trước bài đăng, chi tiết và chế độ nấu; cả ảnh asset lẫn ảnh đã chọn được hiển
-thị qua cùng component. Style lấy từ Home; tablet giữ bố cục hai cột đã có.
+thị qua cùng component. Tablet giữ bố cục hai cột đã có.
+
+Từ 26/11/2026, Chi tiết món dùng bố cục phẳng như Đăng món: tổng quan không có
+card/khung thông số riêng; phần tab, khẩu phần, nguyên liệu, từng bước nấu, mẹo,
+bảo quản và nguồn biến tấu không đóng khung. Nhãn nhóm dùng chữ nhỏ, đậm vừa,
+màu trung tính. Chế độ nấu cũng bỏ khung danh sách chuyển bước; giữ chỉ báo bước
+đang nấu và trạng thái đang chọn. Không đổi dữ liệu, gallery, điều hướng tác giả/
+nguồn món, đánh dấu nguyên liệu, khẩu phần, timer, lưu món hoặc luồng nấu.
+
+Xác minh đợt làm phẳng: 52 test chi tiết món/Đăng món/biến tấu/gallery đạt.
+Capture ở 390×844, 800×1100 và 1024×768 đạt; đã xem ảnh mobile và tablet trong
+`build/ui_ux/flat-detail/`. Chưa deploy Hosting cho thay đổi UI này.
 
 Lượng nguyên liệu bằng lượng gốc nhân số khẩu phần đang xem rồi chia cho số khẩu
 phần gốc. Màn chi tiết làm tròn đến số nguyên gần nhất và hiển thị `<1` cho lượng

@@ -218,15 +218,37 @@ service cloud.firestore {
         && image.url.matches('https://res[.]cloudinary[.]com/ddqouziau/image/upload/.*')
         && image.publicId is string && image.publicId.size() > 0 && image.publicId.size() <= 500;
     }
+    // Truy cập đủ bốn field đã buộc chúng tồn tại; matches cũng buộc kiểu string.
+    // Gộp kiểm tra publicId để bài đủ 10 ảnh nằm trong ngân sách biểu thức rules.
+    function postPhoto(image) {
+      return image.keys().hasOnly(['id','name','url','publicId'])
+        && image.id is string && image.name is string
+        && image.url.matches('https://res[.]cloudinary[.]com/ddqouziau/image/upload/.{0,999}.{0,999}')
+        && image.publicId.matches('(?s).{1,500}');
+    }
+    // Giới hạn danh sách để kiểm từng ảnh, chặn bytes và URL ngoài Cloudinary.
+    function postPhotos(photos) {
+      let count = photos.size();
+      return photos is list && count <= 9
+        && (count <= 0 || postPhoto(photos[0]))
+        && (count <= 1 || postPhoto(photos[1]))
+        && (count <= 2 || postPhoto(photos[2]))
+        && (count <= 3 || postPhoto(photos[3]))
+        && (count <= 4 || postPhoto(photos[4]))
+        && (count <= 5 || postPhoto(photos[5]))
+        && (count <= 6 || postPhoto(photos[6]))
+        && (count <= 7 || postPhoto(photos[7]))
+        && (count <= 8 || postPhoto(photos[8]));
+    }
     function recipeContent(c) {
-      return c is map
-        && c.keys().hasAll(['title','description','cover','preparationMinutes','cookingMinutes','servings','difficulty','meals','categories','storageNotes','ingredientGroups','ingredients','steps'])
-        && c.keys().hasOnly(['isBanner','title','description','cover','preparationMinutes','cookingMinutes','servings','difficulty','meals','categories','storageNotes','ingredientGroups','ingredients','steps'])
+      // Các field bắt buộc đều được truy cập bên dưới; thiếu field sẽ bị từ chối.
+      return c.keys().hasOnly(['photos','isBanner','title','description','cover','preparationMinutes','cookingMinutes','servings','difficulty','meals','categories','storageNotes','ingredientGroups','ingredients','steps'])
         && c.get('isBanner', false) == false
-        && c.title is string && c.title.size() > 0 && c.title.size() <= 80
-        && c.description is string && c.description.size() <= 500
-        && c.storageNotes is string && c.storageNotes.size() <= 500
+        && c.title.matches('(?s).{1,80}')
+        && c.description.matches('(?s).{0,500}')
+        && c.storageNotes.matches('(?s).{0,500}')
         && cloudinaryImage(c.cover)
+        && postPhotos(c.get('photos', []))
         && c.preparationMinutes is int && c.preparationMinutes >= 0 && c.preparationMinutes <= 240
         && c.cookingMinutes is int && c.cookingMinutes >= 1 && c.cookingMinutes <= 720
         && c.servings is int && c.servings >= 1 && c.servings <= 50
@@ -240,37 +262,40 @@ service cloud.firestore {
     // Nguồn phải khớp bài công khai, không cho tự nhận tác giả/tên nguồn khác.
     function validRemix(m) {
       let source = get(/databases/$(database)/documents/recipes/$(m.recipeId)).data;
-      return m is map && m.keys().hasAll(['recipeId','title','authorId','authorName','sourceHash','changes'])
-        && m.keys().hasOnly(['recipeId','title','authorId','authorName','sourceHash','changes'])
-        && m.recipeId is string && m.recipeId.matches('r_[A-Za-z0-9_-]{1,62}')
+      return m.keys().hasOnly(['recipeId','title','authorId','authorName','sourceHash','changes'])
+        && m.recipeId.matches('r_[A-Za-z0-9_-]{1,62}')
         && source.status == 'approved' && m.title == source.content.title
         && m.authorId == source.authorId && m.authorName == source.author.name
         && m.sourceHash == source.contentHash
-        && m.changes is string && m.changes.size() >= 10 && m.changes.size() <= 500;
+        && m.changes.matches('(?s).{10,500}');
+    }
+    function validRecipeSubmission(submissionId) {
+      // Gom tham chiếu metadata để còn ngân sách kiểm tra đủ ảnh và nguồn biến tấu.
+      let d = request.resource.data;
+      let author = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      return request.auth != null && activeAccount(request.auth.uid)
+        && d.keys().hasOnly(['author','isBanner','schemaVersion','id','authorId','status','content','contentHash','catalogVersion','submittedAt','reviewedAt','reviewedBy','reviewReason','revisionOf','remix'])
+        && d.schemaVersion == 2 && d.id == submissionId
+        && d.authorId == request.auth.uid && d.status == 'pending'
+        && d.isBanner == false
+        && d.author.keys().hasOnly(['id','name','handle'])
+        && d.author.id == request.auth.uid
+        && d.author.name == author.name
+        && d.author.handle == author.handle
+        && d.contentHash.matches('(?s).{64}')
+        && d.catalogVersion is string
+        && (d.revisionOf == null || (d.revisionOf is string
+          && get(/databases/$(database)/documents/recipes/$(d.revisionOf)).data.authorId == request.auth.uid
+          && get(/databases/$(database)/documents/recipes/$(d.revisionOf)).data.status == 'rejected'))
+        && d.submittedAt == request.time
+        && d.reviewedAt == null && d.reviewedBy == null && d.reviewReason == null
+        && recipeContent(d.content)
+        && (d.get('remix', null) == null || validRemix(d.remix));
     }
     match /recipes/{submissionId} {
       allow get: if resource == null || resource.data.status == 'approved' || (request.auth != null && resource.data.authorId == request.auth.uid) || staff();
       allow list: if resource.data.status == 'approved' || (request.auth != null && resource.data.authorId == request.auth.uid) || staff();
-      allow create: if request.auth != null && activeAccount(request.auth.uid)
-        && request.resource.data.keys().hasAll(['author','isBanner','schemaVersion','id','authorId','status','content','contentHash','catalogVersion','submittedAt','reviewedAt','reviewedBy','reviewReason','revisionOf'])
-        && request.resource.data.keys().hasOnly(['author','isBanner','schemaVersion','id','authorId','status','content','contentHash','catalogVersion','submittedAt','reviewedAt','reviewedBy','reviewReason','revisionOf','remix'])
-        && request.resource.data.schemaVersion == 2 && request.resource.data.id == submissionId
-        && request.resource.data.authorId == request.auth.uid && request.resource.data.status == 'pending'
-        && request.resource.data.isBanner == false
-        && request.resource.data.author is map
-        && request.resource.data.author.keys().hasOnly(['id','name','handle'])
-        && request.resource.data.author.id == request.auth.uid
-        && request.resource.data.author.name == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.name
-        && request.resource.data.author.handle == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.handle
-        && request.resource.data.contentHash is string && request.resource.data.contentHash.size() == 64
-        && request.resource.data.catalogVersion is string
-        && (request.resource.data.revisionOf == null || (request.resource.data.revisionOf is string
-          && get(/databases/$(database)/documents/recipes/$(request.resource.data.revisionOf)).data.authorId == request.auth.uid
-          && get(/databases/$(database)/documents/recipes/$(request.resource.data.revisionOf)).data.status == 'rejected'))
-        && request.resource.data.submittedAt == request.time
-        && request.resource.data.reviewedAt == null && request.resource.data.reviewedBy == null && request.resource.data.reviewReason == null
-        && recipeContent(request.resource.data.content)
-        && (request.resource.data.get('remix', null) == null || validRemix(request.resource.data.remix));
+      allow create: if validRecipeSubmission(submissionId);
       // Bài đã gửi giữ nguyên nội dung; chỉ duyệt một lần và ghi audit trong cùng commit.
       allow update: if staff() && reviewUpdate(submissionId);
       allow update: if administrator() && resource.data.status == 'approved'

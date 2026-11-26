@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+
+import '../../sollume/shared/app_menu_tile.dart';
 
 import '../themes/app_theme_cubit.dart';
 import 'app_messenger.dart';
@@ -32,7 +35,7 @@ class AppAppearancePicker extends StatelessWidget {
             child: BlocBuilder<AppThemeCubit, ThemeMode>(
               builder: (context, current) => SingleChildScrollView(
                 child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -87,11 +90,13 @@ class AppAppearancePicker extends StatelessWidget {
             ),
           );
         }
-        return ListTile(
-          leading: const Icon(Icons.contrast),
-          title: const Text('Giao diện'),
-          subtitle: Text(label(mode)),
-          trailing: const Icon(Icons.chevron_right),
+        return AppMenuTile(
+          leadingIcon: PhosphorIconsBold.moon,
+          title: 'Giao diện',
+          trailing: Text(
+            label(mode),
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
           onTap: show,
         );
       },

@@ -28,6 +28,7 @@ async function account() {
    servings:2,difficulty:'easy',meals:[],categories:[],storageNotes:'',ingredientGroups:[{id:'main',name:'Main'}],
    ingredients:[{id:'egg',name:'Egg',ingredientId:'egg',amount:2,unitId:'fruit',toTaste:false,note:'',groupId:'main'}],
    steps:[{id:'step_0',title:'',instruction:'Cook fully',minutes:null,tip:'',photo:null}]};
+ content.photos = Array.from({length:9}, (_, i) => ({...content.cover, id:`extra_${i}`}));
  const sourceHash = 'a'.repeat(64);
  await commit([write(`recipes/${sourceId}`,{id:sourceId,schemaVersion:2,authorId:original.id,
    author:{id:original.id,name:original.name,handle:original.handle},status:'approved',content,contentHash:sourceHash,isBanner:false})],'owner');

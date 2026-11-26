@@ -4,6 +4,19 @@
 > Home chuyển sang feed, Tủ lạnh dùng dải nguyên liệu và lưới món. Xem contract mới
 > trong [INSTAGRAM_UI.md](INSTAGRAM_UI.md); phần mô tả bố cục cũ dưới đây là lịch sử.
 
+Điều hướng khi xoay máy (26/11/2026): shell chọn sidebar khi **cạnh ngắn của
+viewport từ 600 px**, thay vì chỉ xét chiều rộng. Điện thoại 844×390, 926×428
+hoặc 568×320 giữ bottom navigation với bốn tab và nút Đăng món ở giữa. Sidebar
+không dựng nội dung khi ẩn, tránh layout các nút trong chiều cao thấp. Shell/tab
+vẫn giữ cùng vị trí trong cây widget để không mất state khi xoay hoặc đổi breakpoint.
+Quy tắc chiều rộng cho bố cục nội dung/dialog khác không đổi.
+
+Xác minh: 33 test navigation/bố cục đạt sau khi test ngang dùng nút Đăng món
+trên navigation; gồm xoay dọc/ngang/qua tablet, giữ cùng ProfileCubit và tab
+Đã lưu, mở/đóng Đăng món, chuyển đủ bốn tab ở cả ba kích thước ngang nêu trên.
+Analyzer chỉ còn các issue ngoài phần sửa (có chẩn đoán bị in lặp trong lượt chạy).
+Chưa kiểm tra trên điện thoại thật hoặc deploy Hosting cho bản sửa này.
+
 Áp dụng cho Flutter app trong `app_bep_xinh`. Kích thước dưới đây là logical pixel.
 
 ## Quy ước

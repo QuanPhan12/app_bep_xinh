@@ -2,8 +2,6 @@ import 'package:app_bep_xinh/core/widgets/app_selection_controls.dart';
 import 'package:app_bep_xinh/core/tap/tap_extension.dart';
 import 'package:app_bep_xinh/core/text_styles/app_text_styles.dart';
 import 'package:app_bep_xinh/core/widgets/app_serving_selector.dart';
-import 'package:app_bep_xinh/core/widgets/app_card.dart';
-import 'package:app_bep_xinh/core/widgets/app_section_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -171,15 +169,11 @@ class RecipeMealFields extends StatelessWidget {
         (Set<RecipeMeal>, bool)
       >(
         selector: (state) => (state.draft.meals, state.isSubmitting),
-        builder: (context, value) => AppCard(
-          padding: const EdgeInsets.all(16),
+        builder: (context, value) => RecipeEditorSection(
+          title: 'Thích hợp cho bữa ăn',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const AppSectionHeader(title: 'Thích hợp cho bữa ăn'),
-              const SizedBox(height: 4),
-              Text('Có thể chọn nhiều mục', style: AppTextStyles.bodySmall),
-              const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 runSpacing: 4,

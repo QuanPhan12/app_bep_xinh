@@ -1,5 +1,18 @@
 # Đăng món
 
+Trình bày nhóm (26/11/2026): dùng nhãn nhóm nhỏ, đậm vừa và màu trung tính theo
+`AppMenuSection` như Bếp của tôi. Các phần Thông tin món ăn, Thông số chế biến,
+Danh mục, Bữa ăn, Khẩu phần, nhóm nguyên liệu, từng bước nấu và Xem trước không
+bọc card/khung riêng. Bỏ tiêu đề trang trí lớn và các dòng hướng dẫn chọn danh mục
+bị lặp; giữ nhãn trường, giải thích định lượng cần thiết, lỗi validation và trạng
+thái nháp. Thay đổi chỉ ở trình bày; không bỏ field, không đổi payload, thao tác
+thêm/sửa/xóa, ảnh, lưu nháp hoặc gửi duyệt.
+
+Xác minh: 42 test liên quan Đăng món/biến tấu/ảnh/chi tiết đạt sau khi cập nhật
+assertion cho tiêu đề trang trí đã bỏ. Capture ở 390×844, 800×1100 và 1024×768
+đạt; đã xem ảnh mobile và tablet trong `build/ui_ux/flat-editor/`. Analyzer còn
+5 issue sẵn có ngoài source thay đổi. Chưa phát hành Hosting trong đợt chỉnh UI này.
+
 Màn `/recipes/new` được mở từ nút `+` của thanh điều hướng mobile/tablet.
 `AppAppBar` nằm trong `core/widgets`, dùng lại cho các màn form/chi tiết. Màn Đăng
 món chỉ có luồng tác giả, không chứa giao diện quản trị hay tab duyệt bài.
@@ -11,6 +24,24 @@ xóa nhóm chuyển nguyên liệu về nhóm đầu tiên, giữ nguyên địn
 Khẩu phần là số người tương ứng với lượng tác giả nhập, chưa tự thay đổi định lượng.
 Mỗi bước nấu có nội dung bắt buộc và tên, thời gian, mẹo, ảnh minh họa tùy chọn.
 Có thể đổi thứ tự bước nấu, xóa bước và thêm ghi chú bảo quản chung.
+
+Từ 26/11/2026, bài đăng hỗ trợ tối đa **10 ảnh món ăn**: một ảnh bìa và tối đa
+9 ảnh bổ sung. Nút **Thêm ảnh** chọn nhiều ảnh trong một lần; mỗi ảnh vẫn giới
+hạn 8 MB, resize tối đa 1920 px và xác minh decode như ảnh bìa. Có thể xóa từng
+ảnh hoặc chọn **Làm ảnh bìa**; xóa bìa đưa ảnh bổ sung đầu tiên lên làm bìa.
+Hủy chọn hoặc chọn vượt số chỗ còn lại giữ nguyên danh sách trước đó.
+Chụp ảnh/đổi bìa vẫn dùng hành vi hiện có; ảnh từng bước nấu là phần riêng.
+
+`RecipeDraft.photos` / `RecipeContent.photos` lưu ảnh bổ sung theo thứ tự,
+không lặp ảnh bìa trong danh sách. Codec, fingerprint nội dung, upload tuần tự,
+nháp, biến tấu và tải offline đều giữ danh sách này. Firestore chỉ nhận ảnh
+Cloudinary đã upload, không nhận bytes. Cache upload theo bytes vẫn giữ đúng
+ID của mỗi ô ảnh để các lựa chọn trùng file không làm mất định danh.
+Home dùng gallery vuốt ngang với hàng chấm nằm hẳn dưới ảnh, trên hàng tim/chia sẻ;
+chấm đang chọn dùng màu nhấn và chấm còn lại dùng màu trung tính. Không hiện số ảnh
+hoặc hai nút chuyển ảnh. Có thể chạm chấm để chọn ảnh. Xem trước và Chi tiết món
+giữ số ảnh và nút trước/sau cho desktop. Bài cũ thiếu `photos` được hiểu là danh sách bổ sung rỗng;
+banner và thumbnail vẫn dùng ảnh bìa. Luồng duyệt và trạng thái bài không đổi.
 
 Phần Thông tin có bốn danh mục chọn nhiều: Eat Clean, Nấu nhanh, Món nước,
 Món chay. `RecipeCategory` dùng ID ổn định trong `RecipeDraft` và

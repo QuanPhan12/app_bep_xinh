@@ -35,8 +35,9 @@ hai ListView lồng nhau hoặc buộc chiều cao card cố định. Giỏ đi 
   bàn phím mở; cùng widget/Cubit giữ dữ liệu khi đổi chiều hoặc qua mốc mobile/tablet.
 - Cài đặt: giới hạn chiều rộng đọc; sheet chỉnh hồ sơ rộng hơn trên tablet.
 
-Điều hướng tablet giữ bottom bar hiện có, giới hạn 720px và căn giữa. Các route
-chi tiết/form vẫn mở ngoài shell theo cấu hình hiện tại.
+Điều hướng dùng bottom bar khi cạnh ngắn viewport dưới 600px, kể cả điện thoại
+xoay ngang có chiều rộng hơn 600px. Cạnh ngắn từ 600px dùng sidebar. Shell giữ
+state khi đổi hướng; các route chi tiết/form vẫn mở ngoài shell như hiện tại.
 
 `test/features/tablet_layout_test.dart` chạy mọi route tại 600×960, 800×1100,
 1024×768, 1280×800 với chữ 150%, kiểm tra cuộn, hai pane, xoay màn hình, bàn phím,

@@ -19,6 +19,7 @@ class RecipeCoverField extends StatelessWidget {
   ) => BlocBuilder<RecipeEditorCubit, RecipeEditorState>(
     buildWhen: (previous, current) =>
         previous.draft.cover != current.draft.cover ||
+        previous.draft.photos != current.draft.photos ||
         previous.operation != current.operation ||
         previous.errors['cover'] != current.errors['cover'],
     builder: (context, state) {
@@ -122,6 +123,47 @@ class RecipeCoverField extends StatelessWidget {
               ),
             ),
           ),
+          TextButton.icon(
+            key: const ValueKey('recipe_add_photos'),
+            onPressed: state.isBusy ? null : cubit.addPhotos,
+            icon: const Icon(PhosphorIconsBold.images),
+            label: Text(
+              'Thêm ảnh (${(photo == null ? 0 : 1) + state.draft.photos.length}/10)',
+            ),
+          ),
+          if (state.draft.photos.isNotEmpty)
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                for (final image in state.draft.photos)
+                  SizedBox(
+                    key: ValueKey('recipe_photo_${image.id}'),
+                    width: 132,
+                    child: Column(
+                      children: [
+                        AspectRatio(
+                          aspectRatio: 1,
+                          child: RecipeImageView(image: image),
+                        ),
+                        TextButton(
+                          onPressed: state.isBusy
+                              ? null
+                              : () => cubit.makeCover(image.id),
+                          child: const Text('Làm ảnh bìa'),
+                        ),
+                        IconButton(
+                          tooltip: 'Xóa ảnh',
+                          onPressed: state.isBusy
+                              ? null
+                              : () => cubit.removePhoto(image.id),
+                          icon: const Icon(PhosphorIconsBold.trash),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
           TextButton.icon(
             onPressed: state.isBusy
                 ? null

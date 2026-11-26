@@ -21,9 +21,13 @@ class RecipeReview extends StatelessWidget {
   ) => BlocSelector<RecipeEditorCubit, RecipeEditorState, RecipeDraft>(
     selector: (state) => state.draft,
     builder: (context, draft) => AppAdaptiveColumns(
-      primary: RecipeContentOverview(
-        content: draft.toRecipeContent(),
+      primary: RecipeEditorSection(
+        title: 'Thông tin món ăn',
         action: const _ReviewEditAction(step: RecipeEditorStep.details),
+        child: RecipeContentOverview(
+          content: draft.toRecipeContent(),
+          framed: false,
+        ),
       ),
       secondary: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -87,7 +91,6 @@ class RecipeReview extends StatelessWidget {
           const SizedBox(height: 16),
           RecipeEditorSection(
             title: '${draft.steps.length} bước nấu',
-            framed: false,
             action: const _ReviewEditAction(
               step: RecipeEditorStep.instructions,
             ),
