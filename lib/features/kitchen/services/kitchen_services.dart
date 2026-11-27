@@ -19,6 +19,7 @@ import '../../recipe_reviews/services/recipe_review_repository.dart';
 import '../../recipe_reports/services/recipe_report_repository.dart';
 import '../../recipe_search/services/recipe_search_service.dart';
 import '../../recipe_sharing/services/recipe_sharing_service.dart';
+import '../../recipe_sharing/services/recipe_share_recorder.dart';
 import '../../recipes/services/published_recipe_source.dart';
 import '../models/kitchen_entry.dart';
 import 'kitchen_repository.dart';
@@ -156,7 +157,7 @@ class _KitchenSessionHostState extends State<KitchenSessionHost> {
       reviews: FirestoreRecipeReviewRepository(store),
       reports: FirestoreRecipeReportRepository(store),
       createFeed: () => FirestoreFollowingFeedService(published),
-      sharing: RecipeSharingService(),
+      sharing: RecipeSharingService(record: RecipeShareRecorder(store).record),
       search: context.read<RecipeSearchService>(),
       details: details,
       catalog: context.read<IngredientCatalogService>(),

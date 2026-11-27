@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import '../text_styles/app_text_styles.dart';
 import 'app_button.dart';
 import 'app_skeleton.dart';
+import 'app_empty_state.dart';
 
 /// Trạng thái tải/lỗi/rỗng dùng chung, giữ callback để có thể thử lại.
 class AppLoadState extends StatelessWidget {
@@ -27,6 +28,12 @@ class AppLoadState extends StatelessWidget {
   @override
   Widget build(BuildContext context) => isLoading
       ? skeleton ?? const AppContentSkeleton()
+      : onRetry == null
+      ? Center(
+          child: SingleChildScrollView(
+            child: AppEmptyState(message: message ?? 'Chưa có dữ liệu.'),
+          ),
+        )
       : Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),

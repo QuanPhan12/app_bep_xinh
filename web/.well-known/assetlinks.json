@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.example.app_bep_xinh",
+      "sha256_cert_fingerprints": [
+        "70:02:EE:FD:33:AA:6A:9F:21:7E:8A:EA:38:9D:BB:60:08:37:38:0C:17:DA:92:D4:5C:78:59:B4:18:E4:80:53"
+      ]
+    }
+  }
+]

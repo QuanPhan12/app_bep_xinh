@@ -133,7 +133,9 @@ Firestore đã chạy ngày 16/11/2026; lệnh Hosting trong đoạn trên chưa
 
 `firebase.json` có SPA rewrite cho deep URL. `PUBLIC_APP_URL` mặc định
 `https://bepxinh-b0be7.web.app`, có thể đổi bằng dart-define sang domain HTTPS thực tế.
-Không cam kết universal/app links, OG preview hay deferred links. Native share sheet,
+Android App Links đã được cấu hình cho host này và `/recipe/`; xem
+[APP_LINKS.md](APP_LINKS.md) cho chứng chỉ, file xác minh, phát hành và kiểm tra
+thiết bị. iOS Universal Links, OG preview và deferred links chưa cấu hình. Native share sheet,
 Android/iOS release, và trải nghiệm trên thiết bị thật cần kiểm tra riêng; web release
 build/SDK emulator không thay thế các kiểm tra nền tảng đó.
 

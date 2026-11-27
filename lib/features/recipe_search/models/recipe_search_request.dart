@@ -1,6 +1,9 @@
 import 'package:equatable/equatable.dart';
 import 'package:app_bep_xinh/features/recipes/models/recipe_category.dart';
 
+import '../../recipes/models/recipe_content.dart' show RecipeDifficulty;
+export '../../recipes/models/recipe_content.dart' show RecipeDifficulty;
+
 enum RecipeSearchFilter {
   all('all'),
   newest('new'),
@@ -29,10 +32,57 @@ enum RecipeSearchFilter {
 class RecipeSearchRequest extends Equatable {
   final String query;
   final RecipeSearchFilter filter;
+  final int? maxMinutes;
+  final RecipeDifficulty? difficulty;
+  final String excludedIngredients;
   const RecipeSearchRequest({
     this.query = '',
     this.filter = RecipeSearchFilter.all,
+    this.maxMinutes,
+    this.difficulty,
+    this.excludedIngredients = '',
   });
+  int get advancedCount =>
+      (maxMinutes == null ? 0 : 1) +
+      (difficulty == null ? 0 : 1) +
+      (excludedIngredients.trim().isEmpty ? 0 : 1);
+
+  RecipeSearchRequest copyWith({
+    String? query,
+    RecipeSearchFilter? filter,
+    int? maxMinutes,
+    RecipeDifficulty? difficulty,
+    String? excludedIngredients,
+    bool clearMinutes = false,
+    bool clearDifficulty = false,
+  }) => RecipeSearchRequest(
+    query: query ?? this.query,
+    filter: filter ?? this.filter,
+    maxMinutes: clearMinutes ? null : maxMinutes ?? this.maxMinutes,
+    difficulty: clearDifficulty ? null : difficulty ?? this.difficulty,
+    excludedIngredients: excludedIngredients ?? this.excludedIngredients,
+  );
+
+  factory RecipeSearchRequest.fromParameters(Map<String, String> params) {
+    final minutes = int.tryParse(params['minutes'] ?? '');
+    return RecipeSearchRequest(
+      query: params['q'] ?? '',
+      filter: RecipeSearchFilter.fromId(params['filter']),
+      maxMinutes: minutes != null && minutes > 0 && minutes <= 960
+          ? minutes
+          : null,
+      difficulty: RecipeDifficulty.values
+          .where((value) => value.name == params['difficulty'])
+          .firstOrNull,
+      excludedIngredients: params['exclude'] ?? '',
+    );
+  }
   @override
-  List<Object> get props => [query, filter];
+  List<Object?> get props => [
+    query,
+    filter,
+    maxMinutes,
+    difficulty,
+    excludedIngredients,
+  ];
 }

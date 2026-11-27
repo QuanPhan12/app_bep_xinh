@@ -18,7 +18,7 @@ class HomeAppBar extends StatelessWidget {
       titleWidget: Text(
         'Bếp Xinh',
         style: Theme.of(context).textTheme.headlineSmall
-            ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -1),
+            ?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -.4),
       ),
       actions: [
         IconButton(

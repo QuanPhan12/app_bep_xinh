@@ -21,6 +21,9 @@ import '../models/recipe_item.dart';
 import '../../recipes/widgets/recipe_image_gallery.dart';
 import 'home_app_bar.dart';
 import 'home_categories.dart';
+import 'home_discovery_links.dart';
+import 'post_action.dart';
+import 'post_comment_action.dart';
 import '../models/home_banner_item.dart';
 
 class HomeFeedView extends StatelessWidget {
@@ -64,7 +67,7 @@ class _FeedBody extends StatelessWidget {
                   const HomeAppBar(),
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                       child: AppSearchBar(
                         key: const ValueKey('home_search'),
                         hintText: 'Tìm món ăn, nguyên liệu…',
@@ -72,13 +75,14 @@ class _FeedBody extends StatelessWidget {
                       ),
                     ),
                   ),
+                  const SliverToBoxAdapter(child: HomeDiscoveryLinks()),
                   if (data.banners.isNotEmpty)
                     SliverToBoxAdapter(
                       child: _FeaturedRecipes(banners: data.banners),
                     ),
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 8, bottom: 12),
+                      padding: const EdgeInsets.only(bottom: 4),
                       child: HomeCategories(
                         categories: data.categories,
                         onSelectCategory: (id) => context.push(
@@ -227,7 +231,7 @@ class _FeedBody extends StatelessWidget {
   }
 }
 
-/// Chỉ hiển thị tác giả và trạng thái lưu có dữ liệu thật; không tạo số like hay thời gian đăng giả.
+/// Chỉ hiển thị tương tác từ dữ liệu thật; bài cũ chưa có bộ đếm bắt đầu ở 0.
 class HomeRecipePost extends StatelessWidget {
   final RecipeItem recipe;
   final VoidCallback onOpen;
@@ -245,7 +249,7 @@ class HomeRecipePost extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 20),
+    padding: const EdgeInsets.only(bottom: 28),
     child: Material(
       color: Colors.transparent,
       child: InkWell(
@@ -257,7 +261,11 @@ class HomeRecipePost extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 14, 8, 10),
               child: Row(
                 children: [
-                  AppAvatar(name: recipe.authorName ?? 'Bếp Xinh', size: 34),
+                  AppAvatar(
+                    name: recipe.authorName ?? 'Bếp Xinh',
+                    size: 34,
+                    monochrome: true,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: InkWell(
@@ -298,7 +306,7 @@ class HomeRecipePost extends StatelessWidget {
                           Icon(
                             PhosphorIconsRegular.linkSimple,
                             size: 18,
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                           const SizedBox(width: 8),
                           Expanded(
@@ -312,7 +320,7 @@ class HomeRecipePost extends StatelessWidget {
                                       fontWeight: FontWeight.w600,
                                       color: Theme.of(context)
                                           .colorScheme
-                                          .primary,
+                                          .onSurface,
                                     ),
                                   ),
                                 ],
@@ -350,56 +358,65 @@ class HomeRecipePost extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(6, 4, 14, 8),
-              child: Row(
+              child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
+                runSpacing: 4,
                 children: [
-                  if (onFavorite != null)
-                    IconButton(
-                      // tooltip: recipe.isFavorite
-                      //     ? 'Bỏ lưu công thức'
-                      //     : 'Lưu công thức',
-                      onPressed: context.onAppTap(
-                        onFavorite,
-                        actionName: 'feed_favorite',
-                        requiresAuth: true,
-                      ),
-                      icon: Icon(
-                        recipe.isFavorite
+                  Wrap(
+                    children: [
+                      PostAction(
+                        key: ValueKey('post_likes_${recipe.id}'),
+                        count: recipe.likeCount,
+                        unit: 'lượt lưu',
+                        tooltip: recipe.isFavorite
+                            ? 'Bỏ lưu công thức'
+                            : 'Lưu công thức',
+                        selected: recipe.isFavorite,
+                        onPressed: onFavorite == null
+                            ? null
+                            : context.onAppTap(
+                                onFavorite,
+                                actionName: 'feed_favorite',
+                                requiresAuth: true,
+                              ),
+                        icon: recipe.isFavorite
                             ? PhosphorIconsFill.heart
                             : PhosphorIconsRegular.heart,
-                        color: recipe.isFavorite
-                            ? Theme.of(context).colorScheme.primary
-                            : null,
-                        size: 20,
                       ),
-                    ),
-                  if (onReview != null)
-                    IconButton(
-                      // tooltip: 'Đánh giá cộng đồng',
-                      onPressed: onReview,
-                      icon: const Icon(PhosphorIconsRegular.star, size: 20),
-                    ),
-                  if (onShare != null)
-                    IconButton(
-                      // tooltip: 'Chia sẻ công thức',
-                      onPressed: onShare,
-                      icon: const Icon(
-                        PhosphorIconsRegular.paperPlaneTilt,
-                        size: 20,
+                      PostCommentAction(
+                        key: ValueKey('post_comments_${recipe.id}'),
+                        recipeId: recipe.id,
+                        fallbackCount: recipe.commentCount,
+                        onPressed: onReview,
                       ),
+                      PostAction(
+                        key: ValueKey('post_shares_${recipe.id}'),
+                        count: recipe.shareCount,
+                        unit: 'người đã chia sẻ',
+                        tooltip: 'Chia sẻ công thức',
+                        onPressed: onShare,
+                        icon: PhosphorIconsRegular.paperPlaneTilt,
+                      ),
+                    ],
+                  ),
+                  if (recipe.rating > 0)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          PhosphorIconsFill.star,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          recipe.rating.toStringAsFixed(1),
+                          style: Theme.of(context).textTheme.labelLarge,
+                        ),
+                      ],
                     ),
-                  const Spacer(),
-                  if (recipe.rating > 0) ...[
-                    Icon(
-                      PhosphorIconsFill.star,
-                      size: 16,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      recipe.rating.toStringAsFixed(1),
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                  ],
                 ],
               ),
             ),
@@ -456,10 +473,10 @@ class _FeaturedRecipes extends StatelessWidget {
     // Dự phòng làm tròn font metrics ở cỡ chữ lớn để không tràn dưới một pixel.
     final height = (text.scale(14) * 1.35 * 2 + text.scale(12) * 1.4 + 24)
         .ceilToDouble()
-        .clamp(96.0, double.infinity)
+        .clamp(80.0, double.infinity)
         .toDouble();
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -467,7 +484,7 @@ class _FeaturedRecipes extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: const AppSectionHeader(title: 'Món nổi bật'),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 6),
           SizedBox(
             height: height,
             child: ListView.separated(
@@ -480,7 +497,7 @@ class _FeaturedRecipes extends StatelessWidget {
                 return SizedBox(
                   width: 264,
                   child: Material(
-                    color: Theme.of(context).colorScheme.surfaceContainerLow,
+                    color: Colors.transparent,
                     borderRadius: BorderRadius.circular(12),
                     clipBehavior: Clip.antiAlias,
                     child: InkWell(
@@ -494,7 +511,7 @@ class _FeaturedRecipes extends StatelessWidget {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(8),
                               child: SizedBox.square(
-                                dimension: 80,
+                                dimension: 64,
                                 child: FeedRecipeImage(
                                   source: banner.image,
                                   label: banner.title,

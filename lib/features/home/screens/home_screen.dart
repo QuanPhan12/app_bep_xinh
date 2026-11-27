@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/router/app_router.dart';
 import '../widgets/home_action_scope.dart';
+import '../../recipes/widgets/recipe_discovery_theme.dart';
 import '../widgets/home_app_bar.dart';
 
 import '../widgets/home_skeleton.dart';
@@ -22,54 +23,67 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return HomeActionScope(
-      openKitchen: () {
-        context.push('/kitchen');
-      },
-      // Future của push chỉ hoàn tất khi màn con đóng. Callback điều hướng
-      // kết thúc ngay để khóa tap không chặn thao tác trên màn vừa mở.
-      openNotifications: () {
-        context.push(PathRouter.notificationsScreen);
-      },
-      openMessages: () {
-        context.push(PathRouter.messagesScreen);
-      },
-      child: BlocProvider(
-        create: (context) =>
-            HomeCubit(service: context.read<HomeService>())..loadHome(),
-        child: BlocConsumer<HomeCubit, HomeState>(
-          buildWhen: (previous, current) =>
-              previous.hasContent != current.hasContent || !current.hasContent,
-          listenWhen: (previous, current) =>
-              current.hasContent &&
-              current.errorMessage != null &&
-              previous.errorMessage != current.errorMessage,
-          listener: (context, state) =>
-              AppMessenger.showError(context, state.errorMessage!),
-          builder: (context, state) {
-            if (!state.hasContent) {
-              return Scaffold(
-                body: CustomScrollView(
-                  slivers: [
-                    const HomeAppBar(),
-                    SliverFillRemaining(
-                      child: AppLoadState(
-                        skeleton: const HomeSkeleton(),
-                        isLoading: state.status == HomeStatus.loading,
-                        message:
-                            state.errorMessage ?? 'Chưa có nội dung trang chủ.',
-                        onRetry: context.read<HomeCubit>().loadHome,
+    return RecipeDiscoveryTheme(
+      child: HomeActionScope(
+        openQuickRecipes: () {
+          context.push(PathRouter.recipeSearch(maxMinutes: 30));
+        },
+        openFridge: () {
+          context.push(PathRouter.fridgeScreen);
+        },
+        openFollowing: () {
+          context.push('/kitchen/following/feed');
+        },
+        openKitchen: () {
+          context.push('/kitchen');
+        },
+        // Future của push chỉ hoàn tất khi màn con đóng. Callback điều hướng
+        // kết thúc ngay để khóa tap không chặn thao tác trên màn vừa mở.
+        openNotifications: () {
+          context.push(PathRouter.notificationsScreen);
+        },
+        openMessages: () {
+          context.push(PathRouter.messagesScreen);
+        },
+        child: BlocProvider(
+          create: (context) =>
+              HomeCubit(service: context.read<HomeService>())..loadHome(),
+          child: BlocConsumer<HomeCubit, HomeState>(
+            buildWhen: (previous, current) =>
+                previous.hasContent != current.hasContent ||
+                !current.hasContent,
+            listenWhen: (previous, current) =>
+                current.hasContent &&
+                current.errorMessage != null &&
+                previous.errorMessage != current.errorMessage,
+            listener: (context, state) =>
+                AppMessenger.showError(context, state.errorMessage!),
+            builder: (context, state) {
+              if (!state.hasContent) {
+                return Scaffold(
+                  body: CustomScrollView(
+                    slivers: [
+                      const HomeAppBar(),
+                      SliverFillRemaining(
+                        child: AppLoadState(
+                          skeleton: const HomeSkeleton(),
+                          isLoading: state.status == HomeStatus.loading,
+                          message:
+                              state.errorMessage ??
+                              'Chưa có nội dung trang chủ.',
+                          onRetry: context.read<HomeCubit>().loadHome,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                );
+              }
+              return const ResponsiveLayout(
+                mobile: HomeMobileView(),
+                tablet: HomeTabletView(),
               );
-            }
-            return const ResponsiveLayout(
-              mobile: HomeMobileView(),
-              tablet: HomeTabletView(),
-            );
-          },
+            },
+          ),
         ),
       ),
     );

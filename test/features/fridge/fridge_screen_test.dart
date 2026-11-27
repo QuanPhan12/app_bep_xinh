@@ -113,7 +113,7 @@ void main() {
     await tap(tester, find.text('Xóa hết'));
     await tap(tester, find.text('Xem gợi ý'));
     expect(cubit.state.selectedIds, isEmpty);
-    expect(find.text('Nguyên liệu · 0'), findsOneWidget);
+    expect(find.text('Nguyên liệu (0)'), findsOneWidget);
     expect(
       find.text('Thêm nguyên liệu để xem món có thể nấu nhé.'),
       findsOneWidget,

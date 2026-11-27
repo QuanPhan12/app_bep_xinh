@@ -51,13 +51,11 @@ class RecipeCoverField extends StatelessWidget {
               child: Container(
                 clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
-                  color: context.colors.secondaryLight,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: state.errors['cover'] == null
-                        ? context.colors.border
-                        : context.colors.error,
-                  ),
+                  border: state.errors['cover'] == null
+                      ? null
+                      : Border.all(color: context.colors.error),
                 ),
                 child: AspectRatio(
                   aspectRatio: 16 / 9,
@@ -77,7 +75,7 @@ class RecipeCoverField extends StatelessWidget {
                               child: Icon(
                                 PhosphorIconsRegular.cameraPlus,
                                 size: 24,
-                                color: context.colors.secondary,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                             const SizedBox(height: 10),

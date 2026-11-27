@@ -31,21 +31,35 @@ class _RecipeSearchInputState extends State<RecipeSearchInput> {
 
   @override
   Widget build(BuildContext context) =>
-      BlocSelector<RecipeSearchCubit, RecipeSearchState, bool>(
-        selector: (state) => state.request.query.isNotEmpty,
-        builder: (context, hasQuery) => AppSearchBar(
-          controller: _controller,
-          fieldKey: const ValueKey('recipe_search_query'),
-          hintText: 'Tìm tên món hoặc nguyên liệu',
-          onChanged: context.read<RecipeSearchCubit>().changeQuery,
-          onSubmitted: () =>
-              unawaited(context.read<RecipeSearchCubit>().load()),
-          onClear: hasQuery
-              ? () {
-                  _controller.clear();
-                  unawaited(context.read<RecipeSearchCubit>().clearQuery());
-                }
-              : null,
+      BlocListener<RecipeSearchCubit, RecipeSearchState>(
+        listenWhen: (a, b) => a.request.query != b.request.query,
+        listener: (context, state) {
+          if (_controller.text != state.request.query) {
+            _controller.value = TextEditingValue(
+              text: state.request.query,
+              selection: TextSelection.collapsed(
+                offset: state.request.query.length,
+              ),
+            );
+          }
+        },
+        child: BlocSelector<RecipeSearchCubit, RecipeSearchState, bool>(
+          selector: (state) => state.request.query.isNotEmpty,
+          builder: (context, hasQuery) => AppSearchBar(
+            controller: _controller,
+            fieldKey: const ValueKey('recipe_search_query'),
+            hintText: 'Tìm tên món hoặc nguyên liệu',
+            maxLength: 120,
+            onChanged: context.read<RecipeSearchCubit>().changeQuery,
+            onSubmitted: () =>
+                unawaited(context.read<RecipeSearchCubit>().submitQuery()),
+            onClear: hasQuery
+                ? () {
+                    _controller.clear();
+                    unawaited(context.read<RecipeSearchCubit>().clearQuery());
+                  }
+                : null,
+          ),
         ),
       );
 }

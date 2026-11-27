@@ -27,57 +27,57 @@ class AppBottomNavBar extends StatelessWidget {
     PhosphorIconsFill.bookOpen,
     PhosphorIconsFill.userCircle,
   ];
+  void _select(BuildContext context, int index) => AppTapHandler.handle(
+    context,
+    actionName: index == 2
+        ? 'nav_create_recipe'
+        : 'nav_tab_${index < 2 ? index : index - 1}',
+    onTap: () {
+      // Đăng món mở route riêng để giữ tab và stack đang xem khi quay lại.
+      if (index == 2) {
+        onCreateRecipe();
+      } else {
+        onTabSelected(index < 2 ? index : index - 1);
+      }
+    },
+  );
+
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    position: DecorationPosition.foreground,
-    decoration: BoxDecoration(
-      border: Border(top: Divider.createBorderSide(context)),
-    ),
-    child: NavigationBar(
-      selectedIndex: currentIndex < 2 ? currentIndex : currentIndex + 1,
-      onDestinationSelected: (index) => AppTapHandler.handle(
-        context,
-        actionName: index == 2
-            ? 'nav_create_recipe'
-            : 'nav_tab_${index < 2 ? index : index - 1}',
-        onTap: () {
-          // Đăng món mở route riêng để giữ tab và stack đang xem khi quay lại.
-          if (index == 2) {
-            onCreateRecipe();
-          } else {
-            onTabSelected(index < 2 ? index : index - 1);
-          }
-        },
-      ),
-      maintainBottomViewPadding: true,
-      elevation: 0,
-      destinations: [
-        for (var i = 0; i < labels.length; i++) ...[
-          if (i == 2)
-            NavigationDestination(
-              key: const ValueKey('nav_create_recipe'),
+  Widget build(BuildContext context) => NavigationBar(
+    selectedIndex: currentIndex < 2 ? currentIndex : currentIndex + 1,
+    onDestinationSelected: (index) => _select(context, index),
+    maintainBottomViewPadding: true,
+    elevation: 0,
+    destinations: [
+      for (var i = 0; i < labels.length; i++) ...[
+        if (i == 2)
+          Center(
+            key: const ValueKey('nav_create_recipe'),
+            child: IconButton(
+              tooltip: 'Đăng món',
+              onPressed: () => _select(context, 2),
+              padding: const EdgeInsets.all(4),
+              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
               icon: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: PhosphorIcon(
                   PhosphorIconsBold.plus,
-                  color: Theme.of(context).colorScheme.onPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
-              label: 'Đăng món',
-              tooltip: 'Đăng món',
             ),
-          NavigationDestination(
-            key: ValueKey('nav_item_$i'),
-            icon: PhosphorIcon(icons[i]),
-            selectedIcon: PhosphorIcon(selectedIcons[i]),
-            label: labels[i],
           ),
-        ],
+        NavigationDestination(
+          key: ValueKey('nav_item_$i'),
+          icon: PhosphorIcon(icons[i]),
+          selectedIcon: PhosphorIcon(selectedIcons[i]),
+          label: labels[i],
+        ),
       ],
-    ),
+    ],
   );
 }

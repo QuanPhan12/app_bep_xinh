@@ -203,7 +203,10 @@ void main() {
             value: _TabletSubmissions(),
           ),
           RepositoryProvider<RecipeSearchService>.value(
-            value: StubRecipeSearchService(),
+            value: StubRecipeSearchService()
+              ..onSearch = const bool.fromEnvironment('UI_CAPTURE_EMPTY_SEARCH')
+                  ? (_) async => []
+                  : null,
           ),
           RepositoryProvider<FridgeService>.value(value: StubFridgeService()),
           RepositoryProvider<RecipeFavoritesService>.value(value: favorites),
@@ -1001,6 +1004,25 @@ void main() {
         router.go(path);
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull, reason: path);
+        if (const bool.fromEnvironment('UI_CAPTURE_EMPTY_SEARCH') &&
+            path == '/recipes/search') {
+          await tester.enterText(
+            find.byKey(const ValueKey('recipe_search_query')),
+            'zzzzzz',
+          );
+          await tester.pump(const Duration(milliseconds: 350));
+          await tester.pumpAndSettle();
+          tester.testTextInput.hide();
+          FocusManager.instance.primaryFocus?.unfocus();
+          await tester.pumpAndSettle();
+          expect(find.textContaining('Chưa có món phù hợp'), findsOneWidget);
+        }
+        if (const bool.fromEnvironment('UI_CAPTURE_SEARCH_SHEET') &&
+            path == '/recipes/search') {
+          AppTapHandler.resetLock();
+          await tester.tap(find.byKey(const ValueKey('search_open_filters')));
+          await tester.pumpAndSettle();
+        }
         final boundary = tester.renderObject<RenderRepaintBoundary>(
           find.byKey(const ValueKey('ui_audit_capture')),
         );

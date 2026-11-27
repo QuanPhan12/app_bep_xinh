@@ -8,9 +8,8 @@ GoRoute recipeSearchRoute() => GoRoute(
   path: PathRouter.recipeSearchScreen,
   name: NameRouter.recipeSearchScreen,
   builder: (_, state) => RecipeSearchScreen(
-    initialRequest: RecipeSearchRequest(
-      query: state.uri.queryParameters['q'] ?? '',
-      filter: RecipeSearchFilter.fromId(state.uri.queryParameters['filter']),
+    initialRequest: RecipeSearchRequest.fromParameters(
+      state.uri.queryParameters,
     ),
   ),
 );

@@ -102,6 +102,7 @@ class FakeFollowingFeed extends Fake implements FollowingFeedService {
 }
 
 KitchenServices kitchenFixture({
+  RecipeReviewRepository? reviews,
   RecipeReportRepository? reports,
   MemoryKitchenStorage? storage,
   RecipeDetailService? details,
@@ -133,7 +134,7 @@ KitchenServices kitchenFixture({
       isPublished: (_) async => true,
       client: MockClient((_) async => http.Response('', 404)),
     ),
-    reviews: FakeKitchenReviews(),
+    reviews: reviews ?? FakeKitchenReviews(),
     createFeed: () => FakeFollowingFeed(),
     sharing: RecipeSharingService(),
     search: FakeKitchenSearch(),

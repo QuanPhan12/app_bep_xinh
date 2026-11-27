@@ -40,6 +40,14 @@ void main() {
           find.byKey(const ValueKey('nav_create_recipe')),
         );
         expect(center.dx, 160);
+        final action = find.descendant(
+          of: find.byKey(const ValueKey('nav_create_recipe')),
+          matching: find.byType(IconButton),
+        );
+        final barTop = tester.getTopLeft(find.byType(NavigationBar)).dy;
+        expect(tester.getCenter(action).dy, barTop + 40);
+        expect(find.byTooltip('Đăng món'), findsOneWidget);
+        expect(find.text('Đăng món'), findsNothing);
         await tester.tap(find.byKey(ValueKey('nav_item_$index')));
         await tester.pumpAndSettle();
         AppTapHandler.resetLock();

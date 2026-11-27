@@ -22,6 +22,7 @@ class RecipeItem extends Equatable {
   final String difficulty;
   final int? calories;
   final bool isFavorite;
+  final int likeCount, commentCount, shareCount;
   final String? authorId;
   final String? authorName;
 
@@ -37,6 +38,9 @@ class RecipeItem extends Equatable {
     this.difficulty = 'Dễ làm',
     this.calories,
     this.isFavorite = false,
+    this.likeCount = 0,
+    this.commentCount = 0,
+    this.shareCount = 0,
     this.authorId,
     this.authorName,
   });
@@ -51,6 +55,9 @@ class RecipeItem extends Equatable {
     String? difficulty,
     int? calories,
     bool? isFavorite,
+    int? likeCount,
+    int? commentCount,
+    int? shareCount,
   }) {
     return RecipeItem(
       remix: remix,
@@ -64,6 +71,9 @@ class RecipeItem extends Equatable {
       difficulty: difficulty ?? this.difficulty,
       calories: calories ?? this.calories,
       isFavorite: isFavorite ?? this.isFavorite,
+      likeCount: likeCount ?? this.likeCount,
+      commentCount: commentCount ?? this.commentCount,
+      shareCount: shareCount ?? this.shareCount,
       authorId: authorId,
       authorName: authorName,
     );
@@ -82,6 +92,9 @@ class RecipeItem extends Equatable {
     difficulty: JsonReader(json).string('difficulty'),
     calories: JsonReader(json).optionalInteger('calories'),
     isFavorite: JsonReader(json).boolean('isFavorite'),
+    likeCount: _count(json, 'likeCount'),
+    commentCount: _count(json, 'commentCount'),
+    shareCount: _count(json, 'shareCount'),
   );
 
   factory RecipeItem.fromRecipeJson(
@@ -124,6 +137,9 @@ class RecipeItem extends Equatable {
       difficulty: difficulty,
       calories: reader.optionalInteger('calories'),
       isFavorite: isFavorite,
+      likeCount: _count(json, 'likeCount'),
+      commentCount: _count(json, 'commentCount'),
+      shareCount: _count(json, 'shareCount'),
     );
   }
 
@@ -140,7 +156,19 @@ class RecipeItem extends Equatable {
     difficulty,
     calories,
     isFavorite,
+    likeCount,
+    commentCount,
+    shareCount,
     authorId,
     authorName,
   ];
+
+  static int _count(Map<String, dynamic> json, String key) {
+    final engagement = json['engagement'];
+    if (engagement == null) return 0;
+    if (engagement is! Map<String, dynamic>) {
+      throw const FormatException('Invalid recipe engagement');
+    }
+    return JsonReader(engagement).optionalInteger(key) ?? 0;
+  }
 }

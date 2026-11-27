@@ -7,6 +7,22 @@ bề mặt light/dark dùng Sollume. Bản port đầu đã hiểu sai và mang 
 
 ## Phần lấy từ source
 
+### Giao diện khám phá đơn sắc — 26/11/2026
+
+Ngày 27/11: nút Đăng món giữa bottom bar dùng Center + IconButton thay cho
+NavigationDestination có nhãn trống, để không chừa khoảng nhãn gây lệch icon lên
+trên. Giữ icon đơn sắc, vùng chạm 48 px, tooltip/semantics Đăng món, mapping bốn tab
+và guard thao tác hiện có. Không có nhãn chữ dưới nút giữa.
+Xác minh: 5 test navigation/manifest và 6 test luồng điều hướng/capture đạt;
+analyze hai file sửa sạch. Đã xem ảnh mobile trong `build/ui_ux/center-create/`.
+
+Home và tìm kiếm dùng scope `RecipeDiscoveryTheme` để icon/chip/nút phụ lấy màu
+trung tính theo light/dark, không sửa palette Sollume toàn cục. Card lưới bỏ viền
+và bóng trang trí; icon tim/sao đơn sắc. Bottom navigation bỏ divider, giữ bốn
+nhánh và nút Đăng món ở giữa với nền trung tính. Manifest cập nhật hash adapter
+bottom navigation theo thay đổi có chủ đích này. Chi tiết luồng mới ở
+`recipe_search.md`; lối vào và số đo Home ở `HOME_REFINEMENT.md`.
+
 ### Chuẩn menu Bếp của tôi và Cài đặt — 26/11/2026
 
 - Dùng trực tiếp `AppMenuTile` và `AppMenuSection` của bản port Sollume:

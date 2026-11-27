@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../colors/app_colors.dart';
 import '../text_styles/app_text_styles.dart';
 import '../utils/app_layout.dart';
-import 'app_card.dart';
+import 'app_empty_state.dart';
 import 'app_content_scroll_view.dart';
 
 class AppInboxBody extends StatelessWidget {
@@ -89,31 +89,6 @@ class AppInboxEmpty extends StatelessWidget {
     required this.description,
   });
   @override
-  Widget build(BuildContext context) => AppCard(
-    padding: const EdgeInsets.all(28),
-    child: Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, size: 26, color: context.colors.textSecondary),
-        ),
-        const SizedBox(height: 18),
-        Text(
-          title,
-          textAlign: TextAlign.center,
-          style: AppTextStyles.titleMedium,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          description,
-          textAlign: TextAlign.center,
-          style: AppTextStyles.bodySmall,
-        ),
-      ],
-    ),
-  );
+  Widget build(BuildContext context) =>
+      AppEmptyState(title: title, message: description, fallbackIcon: icon);
 }

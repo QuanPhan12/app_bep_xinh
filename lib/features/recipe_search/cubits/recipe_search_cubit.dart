@@ -6,6 +6,7 @@ import 'package:app_bep_xinh/features/recipes/services/recipe_favorites_service.
 
 import '../models/recipe_search_request.dart';
 import '../services/recipe_search_service.dart';
+import '../services/search_history_repository.dart';
 import 'recipe_search_state.dart';
 export 'recipe_search_state.dart';
 
@@ -13,6 +14,8 @@ class RecipeSearchCubit extends Cubit<RecipeSearchState> {
   final RecipeSearchService service;
   final RecipeFavoritesService favorites;
   final Duration debounce;
+  final SearchHistoryRepository history;
+  int _historyGeneration = 0;
   final _overrides = <String, bool>{};
   late final StreamSubscription<RecipeFavoriteChange> _subscription;
   Timer? _timer;
@@ -23,7 +26,9 @@ class RecipeSearchCubit extends Cubit<RecipeSearchState> {
     required this.favorites,
     RecipeSearchRequest initialRequest = const RecipeSearchRequest(),
     this.debounce = const Duration(milliseconds: 300),
-  }) : super(RecipeSearchState(request: initialRequest)) {
+    SearchHistoryRepository? history,
+  }) : history = history ?? MemorySearchHistoryRepository(),
+       super(RecipeSearchState(request: initialRequest)) {
     _subscription = favorites.changes.listen(
       (change) {
         if (isClosed) return;
@@ -50,10 +55,7 @@ class RecipeSearchCubit extends Cubit<RecipeSearchState> {
     final generation = ++_generation;
     emit(
       state.copyWith(
-        request: RecipeSearchRequest(
-          query: query,
-          filter: state.request.filter,
-        ),
+        request: state.request.copyWith(query: query),
         status: RecipeSearchStatus.loading,
         recipes: [],
       ),
@@ -63,24 +65,13 @@ class RecipeSearchCubit extends Cubit<RecipeSearchState> {
 
   Future<void> selectFilter(RecipeSearchFilter filter) {
     if (isClosed || state.request.filter == filter) return Future.value();
-    emit(
-      state.copyWith(
-        request: RecipeSearchRequest(
-          query: state.request.query,
-          filter: filter,
-        ),
-      ),
-    );
+    emit(state.copyWith(request: state.request.copyWith(filter: filter)));
     return load();
   }
 
   Future<void> clearQuery() {
     if (isClosed) return Future.value();
-    emit(
-      state.copyWith(
-        request: RecipeSearchRequest(filter: state.request.filter),
-      ),
-    );
+    emit(state.copyWith(request: state.request.copyWith(query: '')));
     return load();
   }
 
@@ -90,6 +81,72 @@ class RecipeSearchCubit extends Cubit<RecipeSearchState> {
     final generation = ++_generation;
     emit(state.copyWith(status: RecipeSearchStatus.loading, recipes: []));
     return _search(generation);
+  }
+
+  Future<void> applyFilters(RecipeSearchRequest request) {
+    if (isClosed) return Future.value();
+    emit(state.copyWith(request: request.copyWith(query: state.request.query)));
+    return load();
+  }
+
+  Future<void> clearFilters() =>
+      applyFilters(RecipeSearchRequest(query: state.request.query));
+
+  Future<void> loadHistory() async {
+    final generation = ++_historyGeneration;
+    try {
+      final queries = await history.read();
+      if (!isClosed && generation == _historyGeneration) {
+        emit(state.copyWith(recentQueries: queries, message: state.message));
+      }
+    } catch (error, stack) {
+      if (!isClosed) addError(error, stack);
+    }
+  }
+
+  Future<void> rememberCurrentQuery() async {
+    final query = state.request.query.trim();
+    if (isClosed || query.isEmpty) return;
+    final generation = ++_historyGeneration;
+    try {
+      final queries = await history.remember(query);
+      if (!isClosed && generation == _historyGeneration) {
+        emit(state.copyWith(recentQueries: queries, message: state.message));
+      }
+    } catch (error, stack) {
+      if (!isClosed) addError(error, stack);
+    }
+  }
+
+  Future<void> submitQuery() {
+    unawaited(rememberCurrentQuery());
+    return load();
+  }
+
+  Future<void> selectRecent(String query) {
+    if (isClosed) return Future.value();
+    emit(state.copyWith(request: state.request.copyWith(query: query)));
+    return submitQuery();
+  }
+
+  Future<void> clearHistory() async {
+    final generation = ++_historyGeneration;
+    try {
+      await history.clear();
+      if (!isClosed && generation == _historyGeneration) {
+        emit(state.copyWith(recentQueries: [], message: state.message));
+      }
+    } catch (error, stack) {
+      if (!isClosed) {
+        addError(error, stack);
+        emit(
+          state.copyWith(
+            message: 'Chưa xóa được lịch sử. Hãy thử lại.',
+            noticeId: state.noticeId + 1,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _search(int generation) async {

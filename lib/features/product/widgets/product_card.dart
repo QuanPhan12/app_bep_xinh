@@ -116,6 +116,7 @@ class ProductCard extends StatelessWidget {
       params: {'recipe_id': recipe.id, 'title': recipe.title},
       onTap: onTap,
       child: AppCard(
+        showBorder: false,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -203,21 +204,12 @@ class ProductCard extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.9),
                               shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.1),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 1),
-                                ),
-                              ],
                             ),
                             child: Icon(
                               recipe.isFavorite
                                   ? PhosphorIconsFill.heart
                                   : PhosphorIconsRegular.heart,
-                              color: recipe.isFavorite
-                                  ? context.colors.error
-                                  : context.colors.textSecondary,
+                              color: Colors.black87,
                               size: 16.sp(context),
                             ),
                           ),
@@ -258,9 +250,9 @@ class ProductCard extends StatelessWidget {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
+                            Icon(
                               PhosphorIconsFill.star,
-                              color: AppColors.accent,
+                              color: Theme.of(context).colorScheme.onSurface,
                               size: 15,
                             ),
                             SizedBox(width: 3.w(context)),

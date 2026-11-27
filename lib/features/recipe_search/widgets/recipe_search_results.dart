@@ -55,6 +55,7 @@ class RecipeSearchResults extends StatelessWidget {
                 runSpacing: 16,
 
                 onRecipeTap: (recipe) {
+                  context.read<RecipeSearchCubit>().rememberCurrentQuery();
                   context.push(PathRouter.recipeDetail(recipe.id));
                 },
                 onFavoriteTap: context.read<RecipeSearchCubit>().toggleFavorite,

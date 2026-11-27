@@ -22,6 +22,7 @@ import 'features/auth/services/auth_service.dart';
 import 'features/profile/services/firestore_profile_service.dart';
 import 'features/recipes/services/firestore_recipe_favorites_service.dart';
 import 'features/recipe_search/services/recipe_search_service.dart';
+import 'features/recipe_search/services/search_history_repository.dart';
 import 'features/recipe_detail/services/recipe_detail_service.dart';
 import 'features/recipes/services/recipe_favorites_service.dart';
 import 'features/profile/services/profile_service.dart';
@@ -184,6 +185,10 @@ class _AppBepXinhState extends State<AppBepXinh> {
               context.read<RecipeFavoritesService>(),
               published: context.read<PublishedRecipeSource>(),
             ),
+          ),
+          RepositoryProvider<SearchHistoryRepository>(
+            create: (_) =>
+                LocalSearchHistoryRepository.forUser(widget.authService.userId),
           ),
           RepositoryProvider<HomeService>(
             create: (context) => MockHomeService(

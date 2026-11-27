@@ -1,5 +1,35 @@
 # Điều chỉnh Home từ phản hồi ảnh thực tế — 16/11/2026
 
+## Số tương tác — 27/11/2026
+
+Post hiện số cạnh tim, bình luận và chia sẻ; icon vẫn đơn sắc, không nền/viền riêng.
+Giữ hành động lưu món, mở đánh giá cộng đồng và share hiện có. Số lấy từ metadata
+server `engagement`, hỗ trợ k/M và tự xuống dòng khi cần. Contract và cách đồng bộ
+dữ liệu cũ tại [RECIPE_ENGAGEMENT.md](RECIPE_ENGAGEMENT.md).
+
+## Cập nhật giao diện khám phá — 26/11/2026
+
+Đợt đầu nâng cấp Home/card/tìm kiếm dùng icon đơn sắc, bỏ viền trang trí và giảm
+số lớp nền. Card nổi bật chuyển sang ảnh 64 px trên hàng cao tối thiểu 80 px,
+tự tăng theo cỡ chữ; không dùng nền thẻ riêng. Chip chọn có nền trung tính, không viền.
+Thanh điều hướng bỏ đường viền trên, nút Đăng món dùng nền trung tính.
+
+Thêm ba điểm vào Trong 30 phút, Từ tủ lạnh và Đang theo dõi. Điểm vào đầu mở bộ
+lọc tổng thời gian mới; hai điểm còn lại mở luồng hiện có. Tìm kiếm thêm thời gian,
+độ khó, nguyên liệu muốn tránh và lịch sử cục bộ; contract tại `recipe_search.md`.
+Không thay luồng đăng/duyệt bài, Firebase Rules hoặc schema.
+
+Fixture Home 390×844 có safe area 44/34: ảnh đầu bảng tin ở 493 logical px trong
+cả light/dark, đạt tiêu chí dưới 500 px. Ảnh mới tại `build/ui_ux/discovery-home-light`;
+kết quả bên dưới là lịch sử của đợt 16/11, không phải thông số giao diện mới.
+
+Xác minh đợt 26/11: toàn bộ Flutter test đạt 406, skip 4; web release build đạt;
+formatter và `git diff --check` đạt. Analyzer còn 5 issue có sẵn ngoài phạm vi
+(AI chat, login, kitchen overview, messages). Đã xem ảnh fixture Home light/dark
+và sheet lọc mobile; có capture ba kích thước cho Home/tìm kiếm/sheet. Kiểm thử
+sheet bổ sung màn ngang 844×390 và 1024×600 với chữ 150% và bàn phím.
+Chưa deploy Hosting hoặc kiểm tra trên điện thoại thật trong đợt này.
+
 ## Những gì đã sửa
 
 - Bỏ tiêu đề hỏi trùng với tìm kiếm; phần đầu còn thương hiệu và tìm kiếm.

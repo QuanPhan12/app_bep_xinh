@@ -15,6 +15,7 @@ import 'package:app_bep_xinh/features/recipe_search/cubits/recipe_search_cubit.d
 import 'package:app_bep_xinh/features/recipe_search/models/recipe_search_request.dart';
 import 'package:app_bep_xinh/features/recipe_search/screens/recipe_search_screen.dart';
 import 'package:app_bep_xinh/features/recipe_search/services/recipe_search_service.dart';
+import 'package:app_bep_xinh/features/recipe_search/services/search_history_repository.dart';
 import 'package:app_bep_xinh/features/recipe_search/widgets/recipe_search_results.dart';
 import 'package:app_bep_xinh/features/recipes/services/recipe_favorites_service.dart';
 import 'package:flutter/material.dart';
@@ -33,8 +34,10 @@ void main() {
   setUp(AppTapHandler.resetLock);
   late StubRecipeFavoritesService favorites;
   late StubRecipeSearchService service;
+  late MemorySearchHistoryRepository history;
   setUp(() {
     favorites = StubRecipeFavoritesService();
+    history = MemorySearchHistoryRepository();
     final api = fixtureApi();
     service = StubRecipeSearchService()
       ..onSearch = MockRecipeSearchService(
@@ -65,6 +68,7 @@ void main() {
       MultiRepositoryProvider(
         providers: [
           RepositoryProvider<RecipeSearchService>.value(value: service),
+          RepositoryProvider<SearchHistoryRepository>.value(value: history),
           RepositoryProvider<RecipeFavoritesService>.value(value: favorites),
           RepositoryProvider<RecipeDetailService>.value(
             value: StubRecipeDetailService(),
@@ -235,6 +239,123 @@ void main() {
     expect(PathRouter.recipeSearch(), '/recipes/search');
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'filter sheet cancels without edits and applies combined criteria',
+    (tester) async {
+      await open(tester, width: 320, scale: 1.5);
+      final cubit = tester
+          .element(find.byType(RecipeSearchResults))
+          .read<RecipeSearchCubit>();
+      await tap(tester, find.byKey(const ValueKey('search_open_filters')));
+      await tap(tester, find.byKey(const ValueKey('search_minutes_30')));
+      await tap(tester, find.byTooltip('Đóng bộ lọc'));
+      expect(cubit.state.request.advancedCount, 0);
+      expect(cubit.state.recipes, hasLength(8));
+      await tap(tester, find.byKey(const ValueKey('search_open_filters')));
+      await tap(tester, find.byKey(const ValueKey('search_minutes_30')));
+      await tap(tester, find.byKey(const ValueKey('search_difficulty_easy')));
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('search_excluded_ingredients')),
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('search_excluded_ingredients')),
+        'thịt bò',
+      );
+      await tap(tester, find.byKey(const ValueKey('search_apply_filters')));
+      expect(cubit.state.request.advancedCount, 3);
+      expect(cubit.state.recipes.map((r) => r.id), [
+        'salad_uc_ga_me_rang',
+        'tofu_tomato',
+        'egg_tomato_soup',
+      ]);
+      await tap(tester, find.text('Bỏ lọc'));
+      expect(cubit.state.request.advancedCount, 0);
+      expect(cubit.state.recipes, hasLength(8));
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'submitted query appears in history, restores input and can be cleared',
+    (tester) async {
+      await open(tester);
+      await tester.enterText(
+        find.byKey(const ValueKey('recipe_search_query')),
+        'ca hoi',
+      );
+      await tester.testTextInput.receiveAction(TextInputAction.search);
+      await tester.pumpAndSettle();
+      expect(await history.read(), ['ca hoi']);
+      await tap(tester, find.byTooltip('Xóa tìm kiếm'));
+      expect(find.text('Tìm kiếm gần đây'), findsOneWidget);
+      await tap(tester, find.text('ca hoi'));
+      final cubit = tester
+          .element(find.byType(RecipeSearchResults))
+          .read<RecipeSearchCubit>();
+      expect(cubit.state.request.query, 'ca hoi');
+      expect(cubit.state.recipes.single.id, 'ca_hoi_ap_chao');
+      await tap(tester, find.byTooltip('Xóa tìm kiếm'));
+      await tap(tester, find.text('Xóa lịch sử'));
+      expect(await history.read(), isEmpty);
+      expect(find.text('Tìm kiếm gần đây'), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'Home quick entry opens total time filter and advanced links decode safely',
+    (tester) async {
+      final router = await open(tester, path: '/home');
+      await tap(tester, find.byKey(const ValueKey('home_quick_recipes')));
+      expect(service.requests.last.maxMinutes, 30);
+      expect(service.requests.last.filter, RecipeSearchFilter.all);
+      expect(find.text('5 món ăn'), findsOneWidget);
+      router.go(
+        PathRouter.recipeSearch(
+          query: 'ca hoi',
+          maxMinutes: 45,
+          difficulty: RecipeDifficulty.easy,
+          excludedIngredients: 'tôm, đậu phộng',
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(service.requests.last.excludedIngredients, 'tôm, đậu phộng');
+      expect(service.requests.last.difficulty, RecipeDifficulty.easy);
+      expect(service.requests.last.maxMinutes, 45);
+      expect(find.text('1 món ăn'), findsOneWidget);
+      expect(
+        RecipeSearchRequest.fromParameters({
+          'minutes': '-1',
+          'difficulty': 'invalid',
+        }).maxMinutes,
+        isNull,
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  for (final size in [const Size(844, 390), const Size(1024, 600)]) {
+    testWidgets('filters stay usable with keyboard at $size', (tester) async {
+      await open(tester, width: size.width, scale: 1.5);
+      tester.view.physicalSize = size;
+      await tester.pumpAndSettle();
+      await tap(tester, find.byKey(const ValueKey('search_open_filters')));
+      tester.view.viewInsets = const FakeViewPadding(bottom: 180);
+      addTearDown(tester.view.resetViewInsets);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      final input = find.byKey(const ValueKey('search_excluded_ingredients'));
+      await tester.ensureVisible(input);
+      await tester.enterText(input, 'tôm');
+      await tap(tester, find.byKey(const ValueKey('search_apply_filters')));
+      expect(tester.takeException(), isNull);
+      final cubit = tester
+          .element(find.byType(RecipeSearchResults))
+          .read<RecipeSearchCubit>();
+      expect(cubit.state.request.excludedIngredients, 'tôm');
+    });
+  }
 
   for (final width in [320.0, 800.0, 1024.0, 1280.0]) {
     testWidgets('search fits width $width, large text and keyboard', (

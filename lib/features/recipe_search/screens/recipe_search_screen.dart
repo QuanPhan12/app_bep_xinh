@@ -12,10 +12,12 @@ import 'package:app_bep_xinh/features/recipes/services/recipe_favorites_service.
 import '../cubits/recipe_search_cubit.dart';
 import '../models/recipe_search_request.dart';
 import '../services/recipe_search_service.dart';
+import '../services/search_history_repository.dart';
+import '../../recipes/widgets/recipe_discovery_theme.dart';
 import '../widgets/recipe_search_filters.dart';
 import '../widgets/recipe_search_input.dart';
 import '../widgets/recipe_search_results.dart';
-import '../widgets/recipe_search_intro.dart';
+import '../widgets/recipe_search_history.dart';
 
 class RecipeSearchScreen extends StatelessWidget {
   final RecipeSearchRequest initialRequest;
@@ -26,12 +28,25 @@ class RecipeSearchScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => BlocProvider(
     key: ValueKey(initialRequest),
-    create: (context) => RecipeSearchCubit(
-      service: context.read<RecipeSearchService>(),
-      favorites: context.read<RecipeFavoritesService>(),
-      initialRequest: initialRequest,
-    )..load(),
-    child: const AppFeatureTheme(child: _RecipeSearchPage()),
+    create: (context) {
+      SearchHistoryRepository? history;
+      try {
+        history = context.read<SearchHistoryRepository>();
+      } catch (_) {
+        /* Test/preview dùng lịch sử trong phiên. */
+      }
+      return RecipeSearchCubit(
+          service: context.read<RecipeSearchService>(),
+          favorites: context.read<RecipeFavoritesService>(),
+          initialRequest: initialRequest,
+          history: history,
+        )
+        ..loadHistory()
+        ..load();
+    },
+    child: const RecipeDiscoveryTheme(
+      child: AppFeatureTheme(child: _RecipeSearchPage()),
+    ),
   );
 }
 
@@ -67,13 +82,13 @@ class _RecipeSearchPage extends StatelessWidget {
             // ngang không ép phần kết quả xuống chiều cao âm.
             child: const RecipeSearchResults(
               headerSlivers: [
-                SliverToBoxAdapter(child: RecipeSearchIntro()),
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
                     child: RecipeSearchInput(),
                   ),
                 ),
+                SliverToBoxAdapter(child: RecipeSearchHistory()),
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(16, 0, 16, 12),

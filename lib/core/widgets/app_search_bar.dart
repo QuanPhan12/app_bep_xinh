@@ -1,5 +1,6 @@
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../sollume/shared/app_text_field.dart' as sollume;
 import '../../sollume/core/theme/app_radius.dart';
@@ -43,7 +44,9 @@ class AppSearchBar extends StatelessWidget {
       hintText: hintText,
       readOnly: onChanged == null,
       onChanged: onChanged,
-      maxLength: maxLength,
+      inputFormatters: [
+        if (maxLength != null) LengthLimitingTextInputFormatter(maxLength),
+      ],
       onSubmitted: (_) {
         FocusScope.of(context).unfocus();
         onSubmitted?.call();

@@ -56,13 +56,24 @@ class PathRouter {
   static String recipeSearch({
     RecipeSearchFilter filter = RecipeSearchFilter.all,
     String query = '',
-  }) => filter == RecipeSearchFilter.all && query.isEmpty
+    int? maxMinutes,
+    RecipeDifficulty? difficulty,
+    String excludedIngredients = '',
+  }) =>
+      filter == RecipeSearchFilter.all &&
+          query.isEmpty &&
+          maxMinutes == null &&
+          difficulty == null &&
+          excludedIngredients.isEmpty
       ? recipeSearchScreen
       : Uri(
           path: recipeSearchScreen,
           queryParameters: {
             if (filter != RecipeSearchFilter.all) 'filter': filter.id,
             if (query.isNotEmpty) 'q': query,
+            if (maxMinutes != null) 'minutes': '$maxMinutes',
+            if (difficulty != null) 'difficulty': difficulty.name,
+            if (excludedIngredients.isNotEmpty) 'exclude': excludedIngredients,
           },
         ).toString();
 

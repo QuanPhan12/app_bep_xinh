@@ -1,5 +1,17 @@
 # Đăng món
 
+Số tim/đánh giá/chia sẻ trên post là metadata server ngoài nội dung gửi duyệt;
+xem [RECIPE_ENGAGEMENT.md](RECIPE_ENGAGEMENT.md). Không thêm field thống kê vào form
+hoặc contentHash.
+
+Ngày 27/11/2026: phần dưới AppBar chỉ giữ bốn mốc Thông tin, Nguyên liệu, Cách
+nấu, Xem trước. Bỏ dòng “Bước n / 4” và nhãn trạng thái nháp phía trên mốc.
+Vẫn ẩn mốc khi bàn phím mở; quyền chuyển bước, kiểm tra dữ liệu, lưu nháp,
+cảnh báo bỏ thay đổi và gửi duyệt giữ nguyên. Trạng thái nháp vẫn do Cubit quản lý;
+thành công/thất bại khi lưu vẫn hiện thông báo qua luồng cũ.
+Màn dùng `RecipeDiscoveryTheme` cho nút phụ/icon đơn sắc; vùng chọn ảnh nền
+trung tính, không viền trang trí (lỗi ảnh vẫn có viền cảnh báo để nhận biết).
+
 Trình bày nhóm (26/11/2026): dùng nhãn nhóm nhỏ, đậm vừa và màu trung tính theo
 `AppMenuSection` như Bếp của tôi. Các phần Thông tin món ăn, Thông số chế biến,
 Danh mục, Bữa ăn, Khẩu phần, nhóm nguyên liệu, từng bước nấu và Xem trước không

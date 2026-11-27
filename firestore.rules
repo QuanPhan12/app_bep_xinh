@@ -63,11 +63,16 @@ service cloud.firestore {
             && request.resource.data.lockReason.size() > 0));
 
       match /favorites/{recipeId} {
-        allow read, delete: if activeAccount(uid);
+        allow read: if activeAccount(uid);
+        allow delete: if activeAccount(uid)
+          && (!exists(/databases/$(database)/documents/recipes/$(recipeId))
+            || engagementUpdate(recipeId, true));
         allow create, update: if activeAccount(uid)
           && request.resource.data.keys().hasOnly(['recipeId', 'createdAt'])
           && request.resource.data.recipeId == recipeId
-          && request.resource.data.createdAt == request.time;
+          && request.resource.data.createdAt == request.time
+          && (!exists(/databases/$(database)/documents/recipes/$(recipeId))
+            || engagementUpdate(recipeId, true));
       }
       // Chỉ lưu dấu đã đọc; nội dung thông báo luôn lấy từ kết quả duyệt thật.
       match /notification_reads/{notificationId} {
@@ -303,6 +308,8 @@ service cloud.firestore {
         && request.resource.data.isBanner is bool
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isBanner']);
       allow update: if recipeVisibilityUpdate(submissionId);
+      allow update: if engagementUpdate(submissionId, true)
+        || engagementUpdate(submissionId, false);
       // Xóa khỏi app bằng tombstone để không mất audit và các đánh giá liên quan.
       allow delete: if false;
     }
@@ -457,6 +464,42 @@ service cloud.firestore {
     }
     function publicRecipe(id) {
       return get(/databases/$(database)/documents/recipes/$(id)).data.status == 'approved';
+    }
+    // Tổng chỉ đổi cùng favorite/receipt thật của chính mình trong một commit.
+    function engagementUpdate(id, favorite) {
+      let post = /databases/$(database)/documents/recipes/$(id);
+      let before = get(post).data;
+      let after = getAfter(post).data;
+      let old = before.get('engagement', {'likeCount': 0, 'shareCount': 0});
+      let next = after.get('engagement', {});
+      let source = favorite
+        ? /databases/$(database)/documents/users/$(request.auth.uid)/favorites/$(id)
+        : /databases/$(database)/documents/recipes/$(id)/shares/$(request.auth.uid);
+      let was = exists(source);
+      let saved = existsAfter(source);
+      let delta = (saved ? 1 : 0) - (was ? 1 : 0);
+      return request.auth != null && kitchenOwner(request.auth.uid)
+        && after.diff(before).affectedKeys().hasOnly(['engagement'])
+        && next.keys().hasAll(['likeCount', 'shareCount'])
+        && next.keys().hasOnly(['likeCount', 'shareCount'])
+        && next.likeCount is int && next.likeCount >= 0
+        && next.shareCount is int && next.shareCount >= 0
+        && ((favorite && delta != 0 && (!saved || before.status == 'approved')
+            && next.likeCount == old.likeCount + delta && next.shareCount == old.shareCount)
+          || (!favorite && !was && saved && before.status == 'approved'
+            && next.shareCount == old.shareCount + 1 && next.likeCount == old.likeCount));
+    }
+    // Chỉ ghi nhận lần chia sẻ đầu của chính mình, đồng thời tăng đúng một vào tổng.
+    match /recipes/{recipeId}/shares/{uid} {
+      allow get: if kitchenOwner(uid);
+      allow create: if kitchenOwner(uid) && publicRecipe(recipeId)
+        && request.resource.data.keys().hasAll(['uid', 'channel', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['uid', 'channel', 'createdAt'])
+        && request.resource.data.uid == uid
+        && request.resource.data.channel in ['sheet', 'copy']
+        && request.resource.data.createdAt == request.time
+        && engagementUpdate(recipeId, false);
+      allow list, update, delete: if false;
     }
     function score(d) { return d.get('status', '') == 'approved' ? d.stars : 0; }
     // Điểm tổng phải đi cùng đúng một đánh giá thay đổi; không tin delta do client tự gửi.

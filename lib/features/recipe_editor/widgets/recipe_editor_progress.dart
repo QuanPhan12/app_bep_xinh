@@ -16,39 +16,13 @@ class RecipeEditorProgress extends StatelessWidget {
         buildWhen: (previous, current) =>
             previous.step != current.step ||
             previous.furthestStep != current.furthestStep ||
-            previous.isBusy != current.isBusy ||
-            previous.hasUnsavedChanges != current.hasUnsavedChanges ||
-            previous.hasSavedDraft != current.hasSavedDraft,
+            previous.isBusy != current.isBusy,
         builder: (context, state) => Container(
           decoration: BoxDecoration(color: context.colors.background),
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Bước ${state.step.index + 1} / 4',
-                      style: AppTextStyles.labelMedium.copyWith(
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ),
-                  Flexible(
-                    child: Text(
-                      state.hasUnsavedChanges
-                          ? 'Chưa lưu thay đổi'
-                          : state.hasSavedDraft
-                          ? 'Đã lưu bản nháp'
-                          : 'Bản nháp mới',
-                      style: AppTextStyles.bodySmall,
-                      textAlign: TextAlign.end,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

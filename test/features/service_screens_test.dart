@@ -124,7 +124,7 @@ void main() {
         find.byKey(const ValueKey('fridge_add_ingredients')),
         findsOneWidget,
       );
-      expect(find.text('Nguyên liệu · 4'), findsOneWidget);
+      expect(find.text('Nguyên liệu (4)'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );

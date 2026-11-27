@@ -12,6 +12,7 @@ class RecipeSearchState extends Equatable {
   final Set<String> savingFavorites;
   final String? message;
   final int noticeId;
+  final List<String> recentQueries;
   RecipeSearchState({
     this.request = const RecipeSearchRequest(),
     this.status = RecipeSearchStatus.initial,
@@ -19,7 +20,9 @@ class RecipeSearchState extends Equatable {
     Set<String> savingFavorites = const {},
     this.message,
     this.noticeId = 0,
-  }) : recipes = List.unmodifiable(recipes),
+    List<String> recentQueries = const [],
+  }) : recentQueries = List.unmodifiable(recentQueries),
+       recipes = List.unmodifiable(recipes),
        savingFavorites = Set.unmodifiable(savingFavorites);
 
   RecipeSearchState copyWith({
@@ -29,6 +32,7 @@ class RecipeSearchState extends Equatable {
     Set<String>? savingFavorites,
     String? message,
     int? noticeId,
+    List<String>? recentQueries,
   }) => RecipeSearchState(
     request: request ?? this.request,
     status: status ?? this.status,
@@ -36,6 +40,7 @@ class RecipeSearchState extends Equatable {
     savingFavorites: savingFavorites ?? this.savingFavorites,
     message: message,
     noticeId: noticeId ?? this.noticeId,
+    recentQueries: recentQueries ?? this.recentQueries,
   );
 
   @override
@@ -46,5 +51,6 @@ class RecipeSearchState extends Equatable {
     savingFavorites,
     message,
     noticeId,
+    recentQueries,
   ];
 }

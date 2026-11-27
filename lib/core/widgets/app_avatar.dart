@@ -9,6 +9,7 @@ class AppAvatar extends StatelessWidget {
   final String? imageUrl;
   final double size;
   final double? cornerRadius;
+  final bool monochrome;
   const AppAvatar({
     super.key,
     required this.name,
@@ -16,6 +17,7 @@ class AppAvatar extends StatelessWidget {
     this.imageUrl,
     this.size = 44,
     this.cornerRadius,
+    this.monochrome = false,
   });
 
   @override
@@ -29,12 +31,16 @@ class AppAvatar extends StatelessWidget {
         .join()
         .toUpperCase();
     final fallback = ColoredBox(
-      color: context.colors.primary50,
+      color: monochrome
+          ? Theme.of(context).colorScheme.surfaceContainerHighest
+          : context.colors.primary50,
       child: Center(
         child: Text(
           initials.isEmpty ? '?' : initials,
           style: AppTextStyles.labelLarge.copyWith(
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
+            color: monochrome
+                ? Theme.of(context).colorScheme.onSurface
+                : Theme.of(context).colorScheme.onPrimaryContainer,
             fontSize: (size * .32).clamp(12, 24).toDouble(),
           ),
         ),

@@ -7,6 +7,7 @@ import 'package:app_bep_xinh/core/widgets/app_sliver_app_bar.dart';
 import 'package:app_bep_xinh/core/widgets/app_feature_theme.dart';
 
 import '../widgets/recipe_editor_skeleton.dart';
+import '../../recipes/widgets/recipe_discovery_theme.dart';
 
 import 'package:app_bep_xinh/core/utils/app_layout.dart';
 import 'package:app_bep_xinh/core/router/app_router.dart';
@@ -55,7 +56,9 @@ class RecipeEditorScreen extends StatelessWidget {
         seedDraft: seedDraft,
         expectedDraft: expectedDraft,
       )..loadDraft(),
-      child: const AppFeatureTheme(child: _RecipeEditorPage()),
+      child: const RecipeDiscoveryTheme(
+        child: AppFeatureTheme(child: _RecipeEditorPage()),
+      ),
     );
   }
 }

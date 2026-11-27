@@ -30,6 +30,49 @@ void main() {
   });
   tearDown(() => favorites.dispose());
 
+  test('time, difficulty and avoided ingredients intersect with query and category', () async {
+    final quick = await service.search(
+      const RecipeSearchRequest(maxMinutes: 15),
+    );
+    expect(quick.map((r) => r.id), ['egg_tomato_soup']);
+    expect(
+      await service.search(
+        const RecipeSearchRequest(difficulty: RecipeDifficulty.hard),
+      ),
+      isEmpty,
+    );
+    final tofu = await service.search(
+      const RecipeSearchRequest(
+        query: 'dau hu',
+        maxMinutes: 30,
+        difficulty: RecipeDifficulty.easy,
+      ),
+    );
+    expect(tofu.map((r) => r.id), ['tofu_tomato']);
+    expect(
+      await service.search(
+        const RecipeSearchRequest(
+          query: 'dau hu',
+          maxMinutes: 30,
+          excludedIngredients: 'đậu phụ',
+        ),
+      ),
+      isEmpty,
+    );
+    final withoutBeef = await service.search(
+      const RecipeSearchRequest(maxMinutes: 30, excludedIngredients: 'thịt bò'),
+    );
+    expect(withoutBeef.map((r) => r.id), isNot(contains('beef_tomato')));
+    expect(withoutBeef.map((r) => r.id), contains('tofu_tomato'));
+    final vegetarian = await service.search(
+      const RecipeSearchRequest(
+        filter: RecipeSearchFilter.vegetarian,
+        maxMinutes: 15,
+      ),
+    );
+    expect(vegetarian.every((r) => r.cookTimeMinutes <= 15), isTrue);
+  });
+
   test(
     'search matches all tokens without accents, by title and catalog aliases',
     () async {

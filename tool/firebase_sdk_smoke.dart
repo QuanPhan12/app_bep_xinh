@@ -9,6 +9,7 @@ import 'package:app_bep_xinh/core/services/mock_api_client.dart';
 import 'package:app_bep_xinh/features/auth/services/firebase_auth_service.dart';
 import 'package:app_bep_xinh/features/profile/services/firestore_profile_service.dart';
 import 'package:app_bep_xinh/features/recipes/services/firestore_recipe_favorites_service.dart';
+import 'package:app_bep_xinh/features/recipe_sharing/services/recipe_share_recorder.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -98,6 +99,23 @@ Future<void> main() async {
     check(
       await favorites.isFavorite('tofu_tomato', fallback: false),
       'favorite save',
+    );
+    await favorites.setFavorite('r_sdk_engagement', true);
+    await favorites.setFavorite('r_sdk_engagement', true);
+    var engagement =
+        (await db.doc('recipes/r_sdk_engagement').get()).data()!['engagement']
+            as Map;
+    check(engagement['likeCount'] == 1, 'atomic favorite deduplication');
+    await favorites.setFavorite('r_sdk_engagement', false);
+    final recorder = RecipeShareRecorder(store);
+    await recorder.record('r_sdk_engagement', 'copy');
+    await recorder.record('r_sdk_engagement', 'sheet');
+    engagement =
+        (await db.doc('recipes/r_sdk_engagement').get()).data()!['engagement']
+            as Map;
+    check(
+      engagement['likeCount'] == 0 && engagement['shareCount'] == 1,
+      'atomic favorite removal and unique share',
     );
     final data = await profile.fetchProfile();
     check(data.ownRecipes.isEmpty, 'no demo authorship assigned to real UID');

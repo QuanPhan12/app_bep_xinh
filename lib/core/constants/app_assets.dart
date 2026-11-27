@@ -2,6 +2,7 @@ class AppAssets {
   const AppAssets._();
 
   static const String logo = 'assets/images/logo.png';
+  static const String emptyState = 'assets/images/empty_state.webp';
   static const String googleIcon = 'assets/images/google.png';
   static const String demoMonAn = 'assets/images/demo-monan.png';
   static const String bannerCanhSuon = 'assets/images/canh_suon_banner.jpg';

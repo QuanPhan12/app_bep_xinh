@@ -49,6 +49,29 @@ class MockRecipeSearchService implements RecipeSearchService {
     final matches = <({Map<String, dynamic> json, DateTime? date})>[];
     for (final record in records) {
       final content = RecipeContent.fromJson(record, catalog);
+      if (request.maxMinutes != null &&
+          content.preparationMinutes + content.cookingMinutes >
+              request.maxMinutes!) {
+        continue;
+      }
+      if (request.difficulty != null &&
+          content.difficulty != request.difficulty) {
+        continue;
+      }
+      final excluded = request.excludedIngredients
+          .split(',')
+          .map(searchKey)
+          .where((term) => term.isNotEmpty);
+      if (excluded.any(
+        (term) => content.ingredients.any(
+          (ingredient) => [
+            ingredient.name,
+            ...?catalog.byId[ingredient.ingredientId]?.aliases,
+          ].any((name) => ' ${searchKey(name)} '.contains(' $term ')),
+        ),
+      )) {
+        continue;
+      }
       final category = request.filter.category;
       if (category != null && !content.categories.contains(category)) continue;
       final text = searchKey(
