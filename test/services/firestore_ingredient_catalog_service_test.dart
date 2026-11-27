@@ -9,11 +9,58 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../support/mock_services.dart';
 
+import 'package:app_bep_xinh/features/ingredients/services/ingredient_discovery_service.dart';
+import 'package:app_bep_xinh/features/recipe_editor/models/recipe_draft.dart';
+
 Map<String, dynamic> publishedCatalog() =>
     jsonDecode(File('data/catalogs/ingredients.v1.json').readAsStringSync())
         as Map<String, dynamic>;
 
 void main() {
+  test('AI additions refresh independently of base TTL and retain recipe compatibility', () async {
+    var reads = 0;
+    var rows = <Map<String, dynamic>>[];
+    final service = FirestoreIngredientCatalogService.withReader(
+      readDocument: () async {
+        reads++;
+        return publishedCatalog();
+      },
+      readAdditions: () async => rows,
+    );
+    final base = await service.fetchCatalog();
+    const name = 'Nấm tuyết xanh';
+    final id = discoveredIngredientId(name);
+    expect(id, discoveredIngredientId(' NAM   TUYET XANH '));
+    Map<String, dynamic> row(String name) => {
+      'id': discoveredIngredientId(name),
+      'name': name,
+      'nameKey': ingredientNameKey(name),
+    };
+    rows = [
+      row(name),
+      row('Thịt lợn'),
+      {...row('Sai ID'), 'id': 'ai_bad'},
+    ];
+    final merged = await service.fetchCatalog();
+    expect(reads, 1);
+    expect(merged.ingredients.length, 232);
+    expect((await service.search('nam tuyet')).single.id, id);
+    expect(merged.byId[id]!.preferredUnitId, 'g');
+    final json = RecipeIngredientDraft(
+      id: 'new',
+      ingredientId: id,
+      name: name,
+      amount: 100,
+      unit: merged.unitsById['g'],
+    ).toJson();
+    expect(json['ingredientId'], isNull);
+    json['id'] = 'new';
+    // Admin/client cũ vẫn đọc như custom; client mới khôi phục cùng ID với Tủ lạnh.
+    expect(RecipeIngredient.fromJson(json, base).ingredientId, isNull);
+    final ingredient = RecipeIngredient.fromJson(json, merged);
+    expect(ingredient.ingredientId, id);
+    expect(ingredient.toJson()['ingredientId'], isNull);
+  });
   test('published catalog has categories, compatible identities, defaults and immutable lists', () {
     final catalog = IngredientCatalog.fromJson(publishedCatalog());
     expect(catalog.ingredients.length, 231);

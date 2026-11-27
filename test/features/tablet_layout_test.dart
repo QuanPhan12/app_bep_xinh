@@ -1,6 +1,11 @@
 import 'package:app_bep_xinh/features/profile/models/profile_data.dart';
 import 'package:app_bep_xinh/features/meal_planner/models/meal_session.dart';
 import 'package:app_bep_xinh/features/kitchen/models/kitchen_entry.dart';
+import 'package:app_bep_xinh/features/nutrition/services/nutrition_repository.dart';
+import 'package:app_bep_xinh/features/nutrition/services/nutrition_photo_picker.dart';
+
+import '../support/nutrition_fakes.dart';
+
 import 'package:app_bep_xinh/core/widgets/app_tabs.dart';
 import 'package:app_bep_xinh/features/home/widgets/home_feed_view.dart';
 
@@ -153,6 +158,8 @@ void main() {
       initialLocation: path,
     );
     final kitchen = kitchenFixture(timers: _LayoutTimers());
+    final nutrition = FakeNutritionRepository();
+    addTearDown(nutrition.journal.dispose);
     await kitchen.meals.save(
       MealPlanEntry(
         id: 'audit-meal',
@@ -225,6 +232,10 @@ void main() {
             dispose: (service) => (service as StubAuthService).dispose(),
           ),
           RepositoryProvider<HomeService>.value(value: StubHomeService()),
+          RepositoryProvider<NutritionRepository>.value(value: nutrition),
+          RepositoryProvider<NutritionPhotoPicker>.value(
+            value: FakeNutritionPhotos(),
+          ),
           RepositoryProvider<MessageRepository>.value(value: messages),
           RepositoryProvider<ChatImageService>.value(
             value: FakeChatImageService(),
@@ -773,6 +784,7 @@ void main() {
         '/kitchen/meal-plan',
         '/kitchen/meal-plan/audit-meal',
         '/kitchen/meal-plan/new?copy=audit-meal',
+        '/kitchen/nutrition?recipe=bo_ne_tieu_den',
         '/kitchen/pantry',
         '/kitchen/collections',
         '/kitchen/journal',
@@ -1010,6 +1022,8 @@ void main() {
         dark: const String.fromEnvironment('UI_CAPTURE_THEME') == 'dark',
       );
       for (final path in [
+        '/kitchen/nutrition',
+        '/kitchen/nutrition?recipe=bo_ne_tieu_den',
         '/kitchen/meal-plan/audit-meal',
         '/kitchen/meal-plan/new?copy=audit-meal',
         '/home',

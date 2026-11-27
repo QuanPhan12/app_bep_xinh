@@ -25,6 +25,12 @@ class KitchenHubScreen extends StatelessWidget {
       title: 'Chuẩn bị bữa ăn',
       children: [
         item(
+          'Ước tính calo',
+          'Từ ảnh, công thức và bữa ăn của bạn',
+          PhosphorIconsBold.calculator,
+          '/kitchen/nutrition',
+        ),
+        item(
           'Thực đơn tuần',
           'Sắp xếp món theo ngày và bữa ăn',
           PhosphorIconsBold.calendarBlank,

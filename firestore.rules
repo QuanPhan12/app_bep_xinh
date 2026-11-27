@@ -415,6 +415,24 @@ service cloud.firestore {
         && request.resource.data.contentHash is string && request.resource.data.contentHash.matches('[a-f0-9]{64}')
         && request.resource.data.updatedAt == request.time;
     }
+    // Tên AI dùng chung được tách khỏi danh mục admin và dữ liệu dinh dưỡng chuẩn.
+    // Không lưu ảnh, mô tả, UID hay số calo trong tài liệu công khai này.
+    match /catalogs/ingredients/additions/{id} {
+      allow read: if true;
+      allow create: if request.auth != null && kitchenOwner(request.auth.uid)
+        && id.matches('ai_[a-f0-9]{64}')
+        && request.resource.data.keys().hasAll(['schemaVersion', 'name', 'nameKey', 'source', 'requestId', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['schemaVersion', 'name', 'nameKey', 'source', 'requestId', 'updatedAt'])
+        && request.resource.data.schemaVersion == 1
+        && shortText(request.resource.data.name, 80)
+        && shortText(request.resource.data.nameKey, 80)
+        && request.resource.data.source == 'nutrition_ai'
+        && request.resource.data.requestId is string
+        && request.resource.data.requestId.matches('[a-f0-9]{32}')
+        && get(/databases/$(database)/documents/ai_nutrition_threads/$(request.auth.uid)/requests/$(request.resource.data.requestId)).data.status == 'done'
+        && request.resource.data.updatedAt == request.time;
+      allow update, delete: if false;
+    }
     function kitchenOwner(uid) {
       return activeAccount(uid) && exists(/databases/$(database)/documents/users/$(uid));
     }
@@ -498,6 +516,29 @@ service cloud.firestore {
         && kitchenDocument(request.resource.data, ['title', 'linesJson'])
         && shortText(request.resource.data.title, 80) && request.resource.data.linesJson is string
         && request.resource.data.linesJson.size() <= 100000;
+    }
+    match /users/{uid}/nutrition_logs/{id} {
+      allow read, delete: if kitchenOwner(uid);
+      allow create: if kitchenOwner(uid) && id.matches('[a-f0-9]{32}')
+        && kitchenDocument(request.resource.data, ['title', 'day', 'slot', 'bodyJson'])
+        && shortText(request.resource.data.title, 80) && calendarDay(request.resource.data.day)
+        && request.resource.data.slot in ['breakfast', 'lunch', 'dinner']
+        && request.resource.data.bodyJson is string && request.resource.data.bodyJson.size() <= 100000;
+      allow update: if false;
+    }
+    match /ai_nutrition_threads/{uid}/requests/{id} {
+      allow read: if owner(uid) && aiAccount();
+      allow create, update: if owner(uid) && aiAccount() && id.matches('[a-f0-9]{32}')
+        && request.resource.data.keys().hasAll(['digest', 'status', 'lease', 'attempts', 'resultJson'])
+        && request.resource.data.keys().hasOnly(['digest', 'status', 'lease', 'attempts', 'resultJson'])
+        && request.resource.data.digest is string && request.resource.data.digest.matches('[a-f0-9]{64}')
+        && request.resource.data.status in ['processing', 'done', 'failed']
+        && request.resource.data.lease is int && request.resource.data.attempts is int && request.resource.data.attempts > 0
+        && ((request.resource.data.status == 'done' && request.resource.data.resultJson is string && request.resource.data.resultJson.size() <= 60000)
+          || (request.resource.data.status != 'done' && request.resource.data.resultJson == null))
+        && (resource == null || (request.resource.data.digest == resource.data.digest
+          && resource.data.status != 'done'));
+      allow delete: if false;
     }
     function validKitchenEntry(kind, id, d) {
       return (kind == 'meal_plans'

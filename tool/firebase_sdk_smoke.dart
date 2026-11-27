@@ -1,5 +1,6 @@
 import 'dart:js_interop';
 import 'meal_sdk_smoke.dart';
+import 'nutrition_sdk_smoke.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:app_bep_xinh/features/recipe_editor/services/recipe_cover_picker.dart';
@@ -122,6 +123,7 @@ Future<void> main() async {
     check(data.ownRecipes.isEmpty, 'no demo authorship assigned to real UID');
     check(data.savedRecipes.single.id == 'tofu_tomato', 'saved tab');
     await mealSdkSmoke(store);
+    await nutritionSdkSmoke(store);
     await profile.dispose();
     await favorites.dispose();
     await auth.signOut();

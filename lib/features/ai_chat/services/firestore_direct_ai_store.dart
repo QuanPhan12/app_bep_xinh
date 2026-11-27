@@ -151,9 +151,13 @@ class FirestoreDirectAiStore implements DirectAiStore {
         lease,
         isUtc: true,
       ).add(const Duration(hours: 7)).toIso8601String().substring(0, 10);
+      final quotaRef = db.doc('ai_chat_threads/$uid/days/$day');
+      final quota = (await tx.get(quotaRef)).data();
       tx.update(ref, {'status': status});
       tx.update(event, {'status': status});
-      tx.update(db.doc('ai_chat_threads/$uid/days/$day'), {'activeUntil': 0});
+      if (quota?['activeUntil'] == lease + 60000) {
+        tx.update(quotaRef, {'activeUntil': 0});
+      }
       if (pair != null) {
         for (var i = 0; i < pair.length; i++) {
           final message = pair[i];

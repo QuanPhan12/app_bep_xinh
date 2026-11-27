@@ -9,6 +9,10 @@ Chưa duyệt đánh giá production hoặc phát hành APK/IPA trong đợt nà
 
 ## Luồng sử dụng
 
+Bổ sung 27/11/2026: [Ước tính calo](NUTRITION.md) từ ảnh/mô tả/công thức/bữa,
+xác nhận gram và lưu nhật ký ăn riêng. Dùng chung runtime model và hạn mức với
+Chat AI. Rules + web đã phát hành và đọc lại khớp source.
+
 Home có nút Góc bếp; Hồ sơ/Cài đặt có lối vào `/kitchen`. Không thêm tab chính.
 
 | Chức năng | Điểm vào và hành vi |

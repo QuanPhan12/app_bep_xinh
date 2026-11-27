@@ -1,5 +1,9 @@
 # Bếp Xinh AI — ghi chú proxy cũ
 
+**Cập nhật 27/11/2026:** Chat và [Ước tính calo](NUTRITION.md) dùng chung
+`AiModelClient`, cấu hình runtime/model/key và hạn mức. Lịch sử hai tính năng riêng,
+dinh dưỡng tính từ bảng USDA sau xác nhận; không lấy số nutrient model tự bịa.
+
 **Cập nhật 18/11/2026:** app/admin đã chuyển sang đọc cấu hình Firestore và gọi API
 trực tiếp theo yêu cầu thử nghiệm. Xem [AI_DIRECT.md](../../admin_bep_xinh/docs/AI_DIRECT.md).
 Các phần bên dưới là lịch sử proxy cũ, không phải điều kiện chạy hiện tại.

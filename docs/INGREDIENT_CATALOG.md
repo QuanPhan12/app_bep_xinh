@@ -9,6 +9,59 @@ Phiên bản dữ liệu: `2026-11-09.v1`, schema `1`, locale `vi-VN`.
 
 ## Phân loại
 
+### Bổ sung tự động từ AI — 27/11/2026
+
+Nhận diện calo thành công sẽ tự tạo tên nguyên liệu chưa có ở
+`catalogs/ingredients/additions/ai_{sha256(nameKey)}`. `nameKey` viết thường,
+bỏ dấu tiếng Việt, gộp khoảng trắng. Đối chiếu chính xác tên và aliases trước
+khi tạo; transaction create-if-absent chống trùng trên nhiều máy/retry.
+Không gộp gần đúng các thực phẩm khác nhau (ví dụ sống/chín).
+
+Document chỉ có `schemaVersion:1`, `name`, `nameKey`, `source:nutrition_ai`,
+`requestId` và `updatedAt` server. Không có UID, ảnh, mô tả bữa, gram hoặc số
+dinh dưỡng. Đây là tên cộng đồng do AI phát hiện, chưa phải dữ liệu dinh dưỡng
+đã kiểm chứng. Danh mục admin gốc vẫn giữ nguyên quyền và version/hash.
+
+App đọc phần bổ sung mỗi lần tải danh mục; snapshot gốc vẫn cache 15 phút.
+Đăng món và Tủ lạnh dùng chung ID `ai_*`, nhóm Nguyên liệu khác, mặc định g;
+người dùng có thể chọn đơn vị khác và phải nhập lượng. Calo tìm được tên mới
+nhưng vẫn yêu cầu nguồn USDA hợp lệ và gram trước khi tính, không thay dữ liệu
+thiếu bằng 0. Không tự thêm nguyên liệu vào kho riêng hoặc nhật ký ăn.
+
+Khi xuất bản công thức, ID `ai_*` được ghi dạng custom (`ingredientId:null`,
+giữ tên và đơn vị) để admin/client cũ đọc được. Client mới khôi phục ID chung
+từ tên chính xác khi đọc, cho phép đối chiếu Tủ lạnh; ID chuẩn không thay đổi.
+Không xóa/đổi tên tài liệu bổ sung hay chuyển sang ID chuẩn mà chưa có migration
+cho inventory/pantry đang tham chiếu ID cũ.
+
+Rules cho đọc công khai, chỉ tài khoản active có hồ sơ và request dinh dưỡng
+`done` của chính mình được tạo; cấm sửa/xóa, trường thừa và số dinh dưỡng.
+Trong kiến trúc gọi AI trực tiếp hiện tại, rules kiểm tra trạng thái request,
+không chứng thực được nội dung provider hoặc tính SHA-256. Client kiểm tra ID/key
+trước khi đưa tên vào danh mục. Muốn kiểm duyệt nội dung/chống spam mạnh cần
+đường ghi backend xác thực provider; không coi collection này là nguồn chuẩn.
+
+Nếu lưu tên mới lỗi, lượt AI đã hoàn tất vẫn giữ cache; thử lại cùng request
+chỉ thử lưu DB, không gọi provider hoặc trừ hạn mức lần nữa.
+
+Kiểm chứng 27/11: full Flutter suite 442 passed/4 skipped; sau chỉnh thông báo
+và giữ snapshot tìm kiếm, 30 test liên quan qua. Analyzer phần thay đổi sạch.
+Emulator: 57 auth/catalog + 28 engagement + 31 meal + 33 nutrition rules checks;
+Flutter Firebase SDK kiểm tra transaction bổ sung đồng thời, tên/alias trùng,
+tìm tên mới ngay sau lưu, chỉ lưu tên và provenance. Không ghi dữ liệu test vào
+production hoặc gọi provider trả phí cho đợt này. Log:
+`build/nutrition/discovery-full-tests.log`, `discovery-tests.log`,
+`discovery-emulator.log`.
+
+Đã phát hành web và rules lúc 20:43 ngày 27/11/2026 (UTC+7); kiểm chứng live lúc
+20:44: rules khớp chính xác source, hash web/USDA/Android association khớp build.
+Hosting version `d1d8e3d3a4695071`, ruleset
+`3e5e7398-4f52-46f5-9ee9-1dd24161729a`, SHA-256 rules
+`84e6fe2cfb7989d160265de190c55070227ff1efb0d7dedcdf3c1fde54977722`.
+Báo cáo `build/nutrition/discovery-release.json`; log deploy
+`build/nutrition/discovery-deploy.log`. Bản localhost cần hot restart để nhận
+wiring discovery mới trong provider tree.
+
 | Mã nhóm | Nhóm | Số nguyên liệu |
 | --- | --- | ---: |
 | meat | Thịt đỏ | 13 |

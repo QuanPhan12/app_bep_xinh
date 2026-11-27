@@ -72,6 +72,7 @@ flutter:
   assets:
     - assets/images/
     - assets/mock/
+    - assets/nutrition/
     - assets/fonts/be_vietnam_pro/OFL.txt
   fonts:
     - family: Be Vietnam Pro

@@ -35,6 +35,16 @@ import 'dart:async';
 import 'package:app_bep_xinh/core/router/app_router.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
+
+import 'features/ai_chat/services/ai_model_client.dart';
+import 'features/ai_chat/services/direct_ai_store.dart';
+import 'features/nutrition/models/nutrition.dart';
+import 'features/nutrition/services/nutrition_repository.dart';
+import 'features/ingredients/services/firestore_ingredient_discovery_service.dart';
+import 'features/nutrition/services/nutrition_ai_store.dart';
+import 'features/nutrition/services/nutrition_photo_picker.dart';
+import 'features/kitchen/services/kitchen_repository.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
@@ -149,12 +159,45 @@ class _AppBepXinhState extends State<AppBepXinh> {
             create: (_) => http.Client(),
             dispose: (client) => client.close(),
           ),
+          RepositoryProvider<DirectAiStore>(
+            create: (_) => FirestoreDirectAiStore(FirebaseFirestore.instance),
+          ),
+          RepositoryProvider<AiModelClient>(
+            create: (context) => AiModelClient(
+              client: context.read<http.Client>(),
+              auth: FirebaseAuth.instance,
+              session: widget.authService,
+              loadConfig: context.read<DirectAiStore>().config,
+            ),
+          ),
+          RepositoryProvider<NutritionPhotoPicker>(
+            create: (_) => DeviceNutritionPhotoPicker(),
+          ),
+          RepositoryProvider<NutritionRepository>(
+            create: (context) => DefaultNutritionRepository(
+              model: context.read<AiModelClient>(),
+              ingredientsCatalog: context.read<IngredientCatalogService>(),
+              discoveries: FirestoreIngredientDiscoveryService(
+                context.read<FirestoreUserStore>(),
+                context.read<IngredientCatalogService>(),
+              ),
+              jobs: FirestoreNutritionAiStore(
+                context.read<FirestoreUserStore>(),
+              ),
+              journal: FirestoreKitchenRepository<NutritionEntry>(
+                store: context.read<FirestoreUserStore>(),
+                collection: 'nutrition_logs',
+                decode: NutritionEntry.fromJson,
+              ),
+            ),
+          ),
           RepositoryProvider<AiChatRepository>(
             create: (context) => DirectAiChatRepository(
               client: context.read<http.Client>(),
               auth: FirebaseAuth.instance,
               session: widget.authService,
-              store: FirestoreDirectAiStore(FirebaseFirestore.instance),
+              store: context.read<DirectAiStore>(),
+              modelClient: context.read<AiModelClient>(),
             ),
           ),
           RepositoryProvider<ProfileService>(

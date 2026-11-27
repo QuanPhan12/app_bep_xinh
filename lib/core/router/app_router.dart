@@ -2,6 +2,7 @@ import '../../features/auth/services/auth_service.dart';
 import '../../features/settings/screens/legal_screen.dart';
 import '../../features/kitchen/screens/kitchen_hub_screen.dart';
 import '../../features/meal_planner/screens/meal_planner_screen.dart';
+import '../../features/nutrition/screens/nutrition_screen.dart';
 import '../../features/meal_planner/screens/meal_editor_screen.dart';
 import '../../features/meal_planner/screens/meal_detail_screen.dart';
 import '../../features/kitchen/models/kitchen_entry.dart';
@@ -122,6 +123,15 @@ GoRouter createAppRouter({AuthService? auth}) => GoRouter(
     GoRoute(
       path: '/kitchen/meal-plan',
       builder: (_, _) => const MealPlannerScreen(),
+    ),
+    GoRoute(
+      path: '/kitchen/nutrition',
+      builder: (_, state) => NutritionScreen(
+        recipeId: state.uri.queryParameters['recipe'],
+        mealId: state.uri.queryParameters['meal'],
+        servings: int.tryParse(state.uri.queryParameters['servings'] ?? '')
+            ?.clamp(1, 50),
+      ),
     ),
     GoRoute(
       path: '/kitchen/meal-plan/new',

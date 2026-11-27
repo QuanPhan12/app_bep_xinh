@@ -77,9 +77,7 @@ class _MealPage extends StatelessWidget {
                   for (final d in deductions)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
-                      child: Text(
-                        '${d.lot.name}: ${d.quantity}',
-                      ),
+                      child: Text('${d.lot.name}: ${d.quantity}'),
                     ),
                 ],
               ),
@@ -130,7 +128,9 @@ class _MealPage extends StatelessWidget {
                   tooltip: 'Tùy chọn bữa ăn',
                   enabled: !state.busy,
                   onSelected: (action) async {
-                    if (action == 'refresh') {
+                    if (action == 'nutrition') {
+                      context.push('/kitchen/nutrition?meal=${meal.id}');
+                    } else if (action == 'refresh') {
                       await cubit.run(cubit.load);
                     } else if (action == 'delete') {
                       if (await kitchenConfirmDelete(context) &&
@@ -147,6 +147,10 @@ class _MealPage extends StatelessWidget {
                     }
                   },
                   itemBuilder: (_) => [
+                    const PopupMenuItem(
+                      value: 'nutrition',
+                      child: Text('Ước tính calo'),
+                    ),
                     const PopupMenuItem(
                       value: 'refresh',
                       child: Text('Tải lại'),

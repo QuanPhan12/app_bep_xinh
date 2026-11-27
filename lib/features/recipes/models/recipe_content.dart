@@ -85,7 +85,18 @@ class RecipeIngredient extends Equatable {
     IngredientCatalog catalog,
   ) {
     final reader = JsonReader(json);
-    final ingredientId = reader.optionalString('ingredientId');
+    var ingredientId = reader.optionalString('ingredientId');
+    // Tên AI lưu dưới dạng custom để client cũ vẫn đọc được; client mới khôi phục ID chung.
+    if (ingredientId == null && json['name'] is String) {
+      ingredientId = catalog.ingredients
+          .where(
+            (i) =>
+                i.id.startsWith('ai_') &&
+                searchKey(i.name) == searchKey(json['name'] as String),
+          )
+          .firstOrNull
+          ?.id;
+    }
     final known = catalog.byId[ingredientId];
     if (ingredientId != null && known == null) {
       throw const FormatException('Unknown ingredient');
@@ -123,7 +134,9 @@ class RecipeIngredient extends Equatable {
   }
   Map<String, dynamic> toJson() => {
     'id': id,
-    'ingredientId': ingredientId,
+    'ingredientId': ingredientId?.startsWith('ai_') == true
+        ? null
+        : ingredientId,
     'name': name,
     'amount': toTaste ? null : amount,
     'unitId': toTaste ? null : unit?.id,

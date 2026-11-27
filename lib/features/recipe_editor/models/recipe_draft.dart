@@ -69,7 +69,9 @@ class RecipeIngredientDraft extends Equatable {
   );
 
   Map<String, dynamic> toJson() => {
-    'ingredientId': ingredientId,
+    'ingredientId': ingredientId?.startsWith('ai_') == true
+        ? null
+        : ingredientId,
     'name': name.trim(),
     'amount': toTaste ? null : amount,
     'unitId': toTaste ? null : unitId,

@@ -20,7 +20,10 @@ const hash=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
   const hosting=new Client({urlPrefix:'https://firebasehosting.googleapis.com',apiVersion:'v1beta1',auth:true});
   const live=(await hosting.get(`/sites/${PROJECT}/channels/live`)).body;
   const artifacts={};
-  for(const file of ['index.html','main.dart.js','.well-known/assetlinks.json']) {
+  const nutrition=process.argv.includes('--nutrition');
+  const files=['index.html','main.dart.js','.well-known/assetlinks.json',
+    ...(nutrition?['assets/assets/nutrition/usda_sr_legacy.json']:[])];
+  for(const file of files) {
     const response=await fetch(`https://${PROJECT}.web.app/${file}?meal_release=${Date.now()}`,{
       redirect:'manual',signal:AbortSignal.timeout(60000)});
     assert.equal(response.status,200,`Public artifact ${file}`);
@@ -34,7 +37,8 @@ const hash=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
   const report={checkedAt:new Date().toISOString(),project:PROJECT,
     hostingVersion:live.release.version.name,ruleset:release.rulesetName,rulesUpdatedAt:release.updateTime,
     rulesSha256:hash(source),artifacts,mealRouteShell:true};
-  fs.mkdirSync('build',{recursive:true});fs.writeFileSync('build/meal-release.json',JSON.stringify(report,null,2));
+  fs.mkdirSync(nutrition?'build/nutrition':'build',{recursive:true});
+  fs.writeFileSync(nutrition?'build/nutrition/release.json':'build/meal-release.json',JSON.stringify(report,null,2));
   console.log(JSON.stringify(report,null,2));
   console.log('PASS: live web artifacts, Android association and released Firestore rules match workspace');
 })().catch(error=>{console.error(error.message);process.exitCode=1;});

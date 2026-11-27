@@ -20,6 +20,7 @@ enum _RecipeAction {
   share,
   copy,
   meal,
+  nutrition,
   collection,
   download,
   reviews,
@@ -129,6 +130,11 @@ class RecipeDetailMoreMenu extends StatelessWidget {
               ),
             );
           },
+          _RecipeAction.nutrition => () {
+            context.push(
+              '/kitchen/nutrition?recipe=${Uri.encodeQueryComponent(recipe.id)}&servings=${servings ?? recipe.servings}',
+            );
+          },
           _RecipeAction.collection => () {
             unawaited(showRecipeCollectionChooser(context, recipe.id));
           },
@@ -187,6 +193,11 @@ class RecipeDetailMoreMenu extends StatelessWidget {
             PhosphorIconsRegular.link,
           ),
           if (kitchen.signedIn) ...[
+            item(
+              _RecipeAction.nutrition,
+              'Ước tính calo',
+              Icons.calculate_outlined,
+            ),
             item(
               _RecipeAction.meal,
               'Thêm vào thực đơn',

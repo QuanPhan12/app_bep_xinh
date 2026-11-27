@@ -1,5 +1,16 @@
 # Triển khai Firestore production — 16/11/2026
 
+27/11/2026: bổ sung rules `catalogs/ingredients/additions/{id}` cho tên nguyên liệu
+AI dùng chung toàn app; contract và giới hạn xác thực trong
+[Danh mục nguyên liệu](INGREDIENT_CATALOG.md). Cần phát hành rules trước hoặc cùng
+web mới; không seed/chỉnh dữ liệu production để kiểm thử.
+Đã phát hành lúc 20:43 (UTC+7), Hosting `d1d8e3d3a4695071`, ruleset
+`3e5e7398-4f52-46f5-9ee9-1dd24161729a`; đọc lại source rules và hash web live
+đã khớp. Biên bản đầy đủ trong tài liệu danh mục trên.
+
+Cập nhật 27/11/2026 lúc 16:50: quyền riêng tư nhật ký ăn và lượt AI dinh dưỡng
+đã phát hành cùng web. Ruleset/hash/kiểm chứng mới nhất trong [Ước tính calo](NUTRITION.md).
+
 Cập nhật mới nhất 27/11/2026: rules cho bữa nhiều món/phiên nấu/giỏ thật và
 Hosting app đã phát hành, đọc lại khớp source. Ruleset, hash, kết quả xác minh nằm
 trong [Nấu một bữa](MEAL_COOKING.md). Phần bên dưới là biên bản đợt 16/11.
