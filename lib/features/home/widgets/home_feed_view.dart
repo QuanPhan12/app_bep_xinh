@@ -469,14 +469,13 @@ class _FeaturedRecipes extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = MediaQuery.textScalerOf(context);
-    // Thẻ ngang dành chỗ cho tên hai dòng và thời gian nấu kể cả khi tăng cỡ chữ.
-    // Dự phòng làm tròn font metrics ở cỡ chữ lớn để không tràn dưới một pixel.
-    final height = (text.scale(14) * 1.35 * 2 + text.scale(12) * 1.4 + 24)
+    // Ảnh là điểm nhấn; chiều cao vẫn chừa đủ tên hai dòng khi người dùng tăng chữ.
+    final height = (text.scale(17) * 1.3 * 2 + text.scale(12) * 1.4 + 56)
         .ceilToDouble()
-        .clamp(80.0, double.infinity)
+        .clamp(156.0, double.infinity)
         .toDouble();
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(bottom: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -484,81 +483,112 @@ class _FeaturedRecipes extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: const AppSectionHeader(title: 'Món nổi bật'),
           ),
-          const SizedBox(height: 6),
-          SizedBox(
-            height: height,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: banners.length,
-              separatorBuilder: (_, _) => const SizedBox(width: 12),
-              itemBuilder: (context, i) {
-                final banner = banners[i];
-                return SizedBox(
-                  width: 264,
-                  child: Material(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(12),
-                    clipBehavior: Clip.antiAlias,
-                    child: InkWell(
-                      key: ValueKey('story_${banner.id}'),
-                      onTap: () =>
-                          context.push(PathRouter.recipeDetail(banner.id)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Row(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: SizedBox.square(
-                                dimension: 64,
-                                child: FeedRecipeImage(
-                                  source: banner.image,
-                                  label: banner.title,
+          const SizedBox(height: 10),
+          LayoutBuilder(
+            builder: (context, constraints) => SizedBox(
+              height: height,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: banners.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 12),
+                itemBuilder: (context, i) {
+                  final banner = banners[i];
+                  return SizedBox(
+                    width: (constraints.maxWidth * .76).clamp(236.0, 320.0),
+                    child: Material(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(16),
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        key: ValueKey('story_${banner.id}'),
+                        onTap: () =>
+                            context.push(PathRouter.recipeDetail(banner.id)),
+                        child: Semantics(
+                          button: true,
+                          label: '${banner.title}, ${banner.cookTime}',
+                          excludeSemantics: true,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              FeedRecipeImage(
+                                key: ValueKey('featured_image_${banner.id}'),
+                                source: banner.image,
+                                label: banner.title,
+                              ),
+                              const DecoratedBox(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    stops: [0, .35, 1],
+                                    colors: [
+                                      Color(0x26000000),
+                                      Color(0x08000000),
+                                      Color(0xE6000000),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    banner.title,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(
-                                          fontSize: 14,
-                                          height: 1.35,
-                                          fontWeight: FontWeight.w500,
+                              Padding(
+                                padding: const EdgeInsets.all(14),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withValues(
+                                          alpha: .5,
                                         ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    banner.cookTime,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: Theme.of(context).textTheme.bodySmall
-                                        ?.copyWith(
-                                          fontSize: 12,
-                                          height: 1.4,
-                                          color: context.colors.textSecondary,
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 9,
+                                          vertical: 4,
                                         ),
-                                  ),
-                                ],
+                                        child: Text(
+                                          banner.cookTime,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: Colors.white,
+                                                fontSize: 12,
+                                                height: 1.4,
+                                              ),
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      banner.title,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium
+                                          ?.copyWith(
+                                            color: Colors.white,
+                                            fontSize: 17,
+                                            height: 1.3,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
         ],

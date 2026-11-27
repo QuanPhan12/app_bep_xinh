@@ -22,6 +22,11 @@ import 'package:app_bep_xinh/features/recipes/services/recipe_favorites_service.
 
 import 'mock_services.dart';
 
+import 'package:app_bep_xinh/features/meal_planner/models/meal_session.dart';
+import 'package:app_bep_xinh/features/meal_planner/services/meal_actions_repository.dart';
+
+class FakeMealActions extends Fake implements MealActionsRepository {}
+
 class MemoryKitchenStorage implements KitchenLocalStorage {
   final data = <String, String>{};
   bool fail = false;
@@ -53,6 +58,13 @@ class MemoryKitchenRepository<T extends KitchenEntry>
 
   @override
   Future<List<T>> fetch() async => items.values.toList();
+  @override
+  Future<T?> find(String id) async => items[id];
+  @override
+  Future<void> createIfAbsent(T value) async {
+    if (!items.containsKey(value.id)) await save(value);
+  }
+
   @override
   Future<int> count() async => items.length;
   @override
@@ -114,6 +126,9 @@ KitchenServices kitchenFixture({
   final local = storage ?? MemoryKitchenStorage();
   return KitchenServices(
     uid: 'alice',
+    mealSessions: MemoryKitchenRepository<MealSession>(),
+    shopping: MemoryKitchenRepository<ShoppingBatch>(),
+    mealActions: FakeMealActions(),
     reports: reports,
     meals: MemoryKitchenRepository<MealPlanEntry>(),
     collections: MemoryKitchenRepository<RecipeCollection>(),
@@ -155,6 +170,8 @@ Future<void> disposeKitchen(KitchenServices services) async {
   services.timers.dispose();
   for (final repository in [
     services.meals,
+    services.mealSessions,
+    services.shopping,
     services.collections,
     services.journal,
     services.pantry,

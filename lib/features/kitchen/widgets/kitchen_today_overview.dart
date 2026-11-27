@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 import '../../../core/widgets/app_card.dart';
-import '../../../core/widgets/app_section_header.dart';
 import '../cubits/kitchen_list_cubit.dart';
 import '../models/kitchen_entry.dart';
 import '../services/kitchen_services.dart';
@@ -45,7 +44,11 @@ class KitchenTodayOverview extends StatelessWidget {
               return AppCard(
                 showBorder: false,
                 child: InkWell(
-                  onTap: () => context.push('/kitchen/meal-plan'),
+                  onTap: () => context.push(
+                    meal == null
+                        ? '/kitchen/meal-plan'
+                        : '/kitchen/meal-plan/${meal.id}',
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(20),
                     child: Column(
@@ -56,7 +59,7 @@ class KitchenTodayOverview extends StatelessWidget {
                             Icon(
                               PhosphorIconsRegular.calendarBlank,
                               size: 20,
-                              color: colors.primary,
+                              color: colors.onSurface,
                             ),
                             const SizedBox(width: 10),
                             Expanded(
@@ -91,7 +94,7 @@ class KitchenTodayOverview extends StatelessWidget {
                           ),
                         ] else ...[
                           Text(
-                            meal?.recipe.title ?? 'Hôm nay bạn muốn nấu gì?',
+                            meal?.displayName ?? 'Hôm nay bạn muốn nấu gì?',
                             style: Theme.of(context).textTheme.titleLarge
                                 ?.copyWith(
                                   fontWeight: FontWeight.w600,
@@ -102,7 +105,7 @@ class KitchenTodayOverview extends StatelessWidget {
                           Text(
                             meal == null
                                 ? 'Chọn món cho từng bữa để chuẩn bị nguyên liệu dễ hơn.'
-                                : '${meal.servings} người · Chạm để xem thực đơn',
+                                : '${meal.dishes.length} món · ${meal.servings} người · Xem bữa ăn',
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(
                                   color: colors.onSurfaceVariant,
@@ -129,7 +132,7 @@ class KitchenTodayOverview extends StatelessWidget {
                   child: ListTile(
                     leading: Icon(
                       PhosphorIconsRegular.timer,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     title: Text('${timers.length} đồng hồ đang theo dõi'),
                     subtitle: Text(

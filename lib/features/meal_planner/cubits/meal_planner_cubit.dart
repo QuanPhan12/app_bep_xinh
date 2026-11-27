@@ -16,7 +16,7 @@ class MealSummaryLine {
   final bool toTaste;
   const MealSummaryLine(this.name, this.amount, this.unit, this.toTaste);
   String get text =>
-      '$name: ${formatIngredientQuantity(amount: amount, ratio: 1, unit: unit, toTaste: toTaste)}';
+      '$name: ${formatIngredientQuantity(amount: amount, ratio: 1, unit: unit, toTaste: toTaste, wholeNumbers: true)}';
 }
 
 class MealPlannerCubit extends KitchenListCubit<MealPlanEntry> {
@@ -54,22 +54,24 @@ class MealPlannerCubit extends KitchenListCubit<MealPlanEntry> {
   Future<List<MealSummaryLine>> summary() async {
     final grouped = <String, MealSummaryLine>{};
     for (final entry in weekEntries) {
-      final recipe = (await services.details.fetchRecipe(entry.recipe.id))
-          .recipe;
-      for (final item in recipe.ingredients) {
-        final key = item.ingredientId == null
-            ? '${entry.id}/${item.id}'
-            : '${item.ingredientId}/${item.unit?.id}/${item.toTaste}';
-        final amount = item.amount == null
-            ? null
-            : item.amount! * entry.servings / recipe.servings;
-        final previous = grouped[key];
-        grouped[key] = MealSummaryLine(
-          item.name,
-          amount == null ? null : amount + (previous?.amount ?? 0),
-          item.unit,
-          item.toTaste,
-        );
+      for (final dish in entry.dishes) {
+        final recipe = (await services.details.fetchRecipe(dish.recipe.id))
+            .recipe;
+        for (final item in recipe.ingredients) {
+          final key = item.ingredientId == null
+              ? '${entry.id}/${dish.recipe.id}/${item.id}'
+              : '${item.ingredientId}/${item.unit?.id}/${item.toTaste}';
+          final amount = item.amount == null
+              ? null
+              : item.amount! * entry.servings / recipe.servings;
+          final previous = grouped[key];
+          grouped[key] = MealSummaryLine(
+            item.name,
+            amount == null ? null : amount + (previous?.amount ?? 0),
+            item.unit,
+            item.toTaste,
+          );
+        }
       }
     }
     return grouped.values.toList()..sort((a, b) => a.name.compareTo(b.name));
@@ -79,13 +81,11 @@ class MealPlannerCubit extends KitchenListCubit<MealPlanEntry> {
     if (from == to) throw const FormatException('Chọn ngày khác để sao chép.');
     final entries = state.items.where((e) => e.day == from).toList();
     for (final entry in entries) {
-      await repository.save(
-        MealPlanEntry(
+      await repository.createIfAbsent(
+        entry.copyWith(
           id: sha256.convert(utf8.encode('$to/${entry.id}')).toString(),
           day: to,
-          slot: entry.slot,
-          recipe: entry.recipe,
-          servings: entry.servings,
+          preparedKeys: const [],
         ),
       );
     }

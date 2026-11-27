@@ -1,4 +1,6 @@
 import 'package:app_bep_xinh/features/profile/models/profile_data.dart';
+import 'package:app_bep_xinh/features/meal_planner/models/meal_session.dart';
+import 'package:app_bep_xinh/features/kitchen/models/kitchen_entry.dart';
 import 'package:app_bep_xinh/core/widgets/app_tabs.dart';
 import 'package:app_bep_xinh/features/home/widgets/home_feed_view.dart';
 
@@ -151,6 +153,37 @@ void main() {
       initialLocation: path,
     );
     final kitchen = kitchenFixture(timers: _LayoutTimers());
+    await kitchen.meals.save(
+      MealPlanEntry(
+        id: 'audit-meal',
+        name: 'Bữa tối gia đình',
+        day: dateKey(DateTime.now()),
+        slot: MealSlot.dinner,
+        servings: 4,
+        dishes: [
+          MealDish(recipe: RecipeRef.fromRecipe(detailFixture())),
+          MealDish(
+            recipe: RecipeRef.fromRecipe(detailFixture('tofu_tomato')),
+            role: MealDishRole.vegetables,
+          ),
+        ],
+      ),
+    );
+    await kitchen.shopping.save(
+      ShoppingBatch(
+        id: 'test-shopping',
+        title: 'Bữa ăn mẫu kiểm thử',
+        lines: [
+          for (var i = 0; i < 8; i++)
+            ShoppingLine(
+              key: 'test-$i',
+              name: i == 0 ? 'Khoai tây' : 'Nguyên liệu $i',
+              quantity: '1 phần',
+              checked: i > 0 && i < 4,
+            ),
+        ],
+      ),
+    );
     addTearDown(() => disposeKitchen(kitchen));
     final favorites = StubRecipeFavoritesService();
     final profile = StubProfileService();
@@ -352,6 +385,8 @@ void main() {
       await tester.tap(createRecipe);
       await tester.pumpAndSettle();
       expect(find.byType(RecipeEditorScreen), findsOneWidget);
+      // Hai bước độc lập; thời gian pump giả lập không tiến đồng hồ chống đa chạm thực.
+      AppTapHandler.resetLock();
       await tester.tap(find.byTooltip('Quay lại'));
       await tester.pumpAndSettle();
       expect(
@@ -736,6 +771,8 @@ void main() {
         '/fridge',
         '/kitchen',
         '/kitchen/meal-plan',
+        '/kitchen/meal-plan/audit-meal',
+        '/kitchen/meal-plan/new?copy=audit-meal',
         '/kitchen/pantry',
         '/kitchen/collections',
         '/kitchen/journal',
@@ -839,11 +876,23 @@ void main() {
         final top = tester.getTopLeft(photo).dy;
         expect(
           top,
-          lessThan(500),
+          lessThan(600),
           reason:
               'Người dùng phải thấy ảnh món đầu tiên trong màn hình ban đầu',
         );
         debugPrint('Home first feed photo top: $top logical px; dark=$dark');
+        final featured = find
+            .byWidgetPredicate(
+              (widget) =>
+                  widget is FeedRecipeImage &&
+                  widget.key is ValueKey<String> &&
+                  (widget.key! as ValueKey<String>).value.startsWith(
+                    'featured_image_',
+                  ),
+            )
+            .first;
+        expect(tester.getSize(featured).height, greaterThanOrEqualTo(156));
+        expect(tester.getSize(featured).width, greaterThanOrEqualTo(236));
         expect(
           tester
               .widget<ChoiceChip>(
@@ -961,6 +1010,8 @@ void main() {
         dark: const String.fromEnvironment('UI_CAPTURE_THEME') == 'dark',
       );
       for (final path in [
+        '/kitchen/meal-plan/audit-meal',
+        '/kitchen/meal-plan/new?copy=audit-meal',
         '/home',
         '/fridge',
         '/kitchen',
@@ -1037,7 +1088,7 @@ void main() {
         await tester.pumpAndSettle();
         final name = path.startsWith('/messages/') && path != '/messages/new'
             ? 'conversation'
-            : path.replaceAll('/', '_');
+            : path.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
         await tester.runAsync(() async {
           final image = await boundary.toImage();
           final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
@@ -1062,7 +1113,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(item);
     await tester.pumpAndSettle();
-    expect(find.text('Đã chuẩn bị 4 trên 8 món'), findsOneWidget);
+    expect(find.text('Đã chuẩn bị 4 trên 8 nguyên liệu'), findsOneWidget);
     for (final size in [
       const Size(1100, 800),
       const Size(599, 900),
@@ -1071,7 +1122,7 @@ void main() {
     ]) {
       tester.view.physicalSize = size;
       await tester.pumpAndSettle();
-      expect(find.text('Đã chuẩn bị 4 trên 8 món'), findsOneWidget);
+      expect(find.text('Đã chuẩn bị 4 trên 8 nguyên liệu'), findsOneWidget);
       expect(tester.takeException(), isNull);
     }
   });

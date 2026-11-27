@@ -17,7 +17,29 @@ Future<void> showAddMealFromRecipe(
   RecipeRef recipe,
   int initialServings,
 ) async {
-  final cubit = KitchenListCubit<MealPlanEntry>(KitchenScope.of(context).meals);
+  final services = KitchenScope.of(context);
+  final cubit = KitchenListCubit<MealPlanEntry>(services.meals);
+  var existing = <MealPlanEntry>[];
+  try {
+    final sessions = await services.mealSessions.fetch();
+    final locked = sessions.map((s) => s.id).toSet();
+    existing = (await services.meals.fetch())
+        .where(
+          (m) =>
+              !locked.contains(m.id) &&
+              m.dishes.length < 6 &&
+              !m.dishes.any((d) => d.recipe.id == recipe.id) &&
+              m.day.compareTo(dateKey(DateTime.now())) >= 0,
+        )
+        .toList();
+  } catch (_) {
+    /* Tạo bữa mới vẫn dùng được khi danh sách chưa tải thành công. */
+  }
+  if (!context.mounted) {
+    await cubit.close();
+    return;
+  }
+  MealPlanEntry? selected;
   final id = kitchenId();
   var day = dateKey(DateTime.now());
   var slot = MealSlot.dinner;
@@ -27,44 +49,94 @@ Future<void> showAddMealFromRecipe(
     title: 'Thêm vào thực đơn',
     fields: (formContext, setState) => [
       Text(recipe.title, style: Theme.of(formContext).textTheme.titleMedium),
-      ListTile(
-        title: Text('Ngày: $day'),
-        trailing: const Icon(Icons.calendar_month),
-        onTap: () async {
-          final date = await showDatePicker(
-            context: formContext,
-            initialDate: kitchenDate(day),
-            firstDate: DateTime(2020),
-            lastDate: DateTime(2100),
-          );
-          if (formContext.mounted && date != null) {
-            setState(() => day = dateKey(date));
-          }
-        },
-      ),
-      DropdownButtonFormField<MealSlot>(
-        initialValue: slot,
-        items: MealSlot.values
-            .map(
-              (value) =>
-                  DropdownMenuItem(value: value, child: Text(value.label)),
-            )
-            .toList(),
-        onChanged: (value) {
-          if (value != null) setState(() => slot = value);
-        },
-      ),
-      const SizedBox(height: 16),
-      kitchenInput(servings, 'Số người ăn', maxLength: 2, number: true),
+      if (existing.isNotEmpty)
+        DropdownButtonFormField<String>(
+          initialValue: 'new',
+          isExpanded: true,
+          decoration: const InputDecoration(labelText: 'Thêm vào bữa'),
+          items: [
+            const DropdownMenuItem(value: 'new', child: Text('Tạo bữa mới')),
+            for (final meal in existing)
+              DropdownMenuItem(
+                value: meal.id,
+                child: Text(
+                  '${meal.day} · ${meal.displayName}',
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+          ],
+          onChanged: (id) => setState(
+            () => selected = existing.where((m) => m.id == id).firstOrNull,
+          ),
+        ),
+      if (selected != null)
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Text(
+            '${selected!.day} · ${selected!.slot.label} · ${selected!.servings} người. Món được tính theo khẩu phần của bữa.',
+          ),
+        ),
+      if (selected == null) ...[
+        ListTile(
+          title: Text('Ngày: $day'),
+          trailing: const Icon(Icons.calendar_month),
+          onTap: () async {
+            final date = await showDatePicker(
+              context: formContext,
+              initialDate: kitchenDate(day),
+              firstDate: DateTime(2020),
+              lastDate: DateTime(2100),
+            );
+            if (formContext.mounted && date != null) {
+              setState(() => day = dateKey(date));
+            }
+          },
+        ),
+        DropdownButtonFormField<MealSlot>(
+          initialValue: slot,
+          items: MealSlot.values
+              .map(
+                (value) =>
+                    DropdownMenuItem(value: value, child: Text(value.label)),
+              )
+              .toList(),
+          onChanged: (value) {
+            if (value != null) setState(() => slot = value);
+          },
+        ),
+        const SizedBox(height: 16),
+        kitchenInput(servings, 'Số người ăn', maxLength: 2, number: true),
+      ],
     ],
-    value: () => MealPlanEntry(
-      id: id,
-      day: day,
-      slot: slot,
-      recipe: recipe,
-      servings: kitchenInt(int.tryParse(servings.text), 1, 50),
-    ),
-    save: cubit.save,
+    value: () => selected != null
+        ? selected!.copyWith(
+            dishes: [
+              ...selected!.dishes,
+              MealDish(recipe: recipe),
+            ],
+            preparedKeys: const [],
+          )
+        : MealPlanEntry(
+            id: id,
+            day: day,
+            slot: slot,
+            dishes: [MealDish(recipe: recipe)],
+            servings: kitchenInt(int.tryParse(servings.text), 1, 50),
+          ),
+    save: (entry) => selected == null
+        ? cubit.save(entry)
+        : cubit.update(entry.id, (current) {
+            if (current.dishes.any((d) => d.recipe.id == recipe.id)) {
+              return current;
+            }
+            return current.copyWith(
+              dishes: [
+                ...current.dishes,
+                MealDish(recipe: recipe),
+              ],
+              preparedKeys: const [],
+            );
+          }),
   );
   servings.dispose();
   await cubit.close();

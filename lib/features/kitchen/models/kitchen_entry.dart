@@ -46,6 +46,10 @@ abstract interface class KitchenEntry {
   Map<String, dynamic> toJson();
 }
 
+abstract interface class VersionedKitchenEntry implements KitchenEntry {
+  int get schemaVersion;
+}
+
 /// Chỉ là nhãn tham chiếu riêng của người dùng, không tạo bản công khai thứ hai.
 class RecipeRef {
   final String id;
@@ -83,37 +87,140 @@ extension MealSlotLabel on MealSlot {
   };
 }
 
-class MealPlanEntry implements KitchenEntry {
+enum MealDishRole { main, soup, vegetables, staple, other }
+
+extension MealDishRoleLabel on MealDishRole {
+  String get label => switch (this) {
+    MealDishRole.main => 'Món chính',
+    MealDishRole.soup => 'Canh',
+    MealDishRole.vegetables => 'Rau',
+    MealDishRole.staple => 'Cơm / món kèm',
+    MealDishRole.other => 'Món khác',
+  };
+}
+
+class MealDish {
+  const MealDish({required this.recipe, this.role = MealDishRole.other});
+  final RecipeRef recipe;
+  final MealDishRole role;
+  factory MealDish.fromJson(Map<String, dynamic> json) => MealDish(
+    recipe: RecipeRef.fromJson(
+      Map<String, dynamic>.from(json['recipe'] as Map),
+    ),
+    role: MealDishRole.values.byName(json['role'] as String),
+  );
+  Map<String, dynamic> toJson() => {
+    'recipe': recipe.toJson(),
+    'role': role.name,
+  };
+}
+
+class MealPlanEntry implements VersionedKitchenEntry {
   @override
   final String id;
   final String day;
   final MealSlot slot;
-  final RecipeRef recipe;
+  final RecipeRef? _legacyRecipe;
+  final List<MealDish> _dishes;
+  final List<String> preparedKeys;
+  final String name;
+  List<MealDish> get dishes => List.unmodifiable(
+    _dishes.isEmpty
+        ? [if (_legacyRecipe != null) MealDish(recipe: _legacyRecipe)]
+        : _dishes,
+  );
+  RecipeRef get recipe => dishes.first.recipe;
+  String get displayName => name.isNotEmpty
+      ? name
+      : dishes.length == 1
+      ? recipe.title
+      : slot.label;
+  @override
+  int get schemaVersion =>
+      _dishes.isEmpty && name.isEmpty && preparedKeys.isEmpty ? 1 : 2;
   final int servings;
   const MealPlanEntry({
     required this.id,
     required this.day,
     required this.slot,
-    required this.recipe,
+    RecipeRef? recipe,
+    List<MealDish> dishes = const [],
+    this.preparedKeys = const [],
+    this.name = '',
     required this.servings,
-  });
-  factory MealPlanEntry.fromJson(String id, Map<String, dynamic> json) =>
-      MealPlanEntry(
-        id: id,
-        day: dateKey(kitchenDate(json['day'] as String)),
-        slot: MealSlot.values.byName(json['slot'] as String),
-        recipe: RecipeRef.fromJson(
-          Map<String, dynamic>.from(json['recipe'] as Map),
-        ),
-        servings: kitchenInt(json['servings'], 1, 50),
-      );
+  }) : _legacyRecipe = recipe,
+       // Giữ tên tham số công khai dishes và getter tương thích recipe của schema cũ.
+       // ignore: prefer_initializing_formals
+       _dishes = dishes;
+  factory MealPlanEntry.fromJson(
+    String id,
+    Map<String, dynamic> json,
+  ) => MealPlanEntry(
+    id: id,
+    day: dateKey(kitchenDate(json['day'] as String)),
+    slot: MealSlot.values.byName(json['slot'] as String),
+    recipe: json['dishes'] != null
+        ? null
+        : RecipeRef.fromJson(Map<String, dynamic>.from(json['recipe'] as Map)),
+    dishes: json['dishes'] == null
+        ? const []
+        : (json['dishes'] as List)
+              .map(
+                (value) =>
+                    MealDish.fromJson(Map<String, dynamic>.from(value as Map)),
+              )
+              .toList(),
+    name: kitchenText(json['name'] ?? '', 80, empty: true),
+    preparedKeys: List<String>.from(json['preparedKeys'] as List? ?? const []),
+    servings: kitchenInt(json['servings'], 1, 50),
+  );
   @override
-  Map<String, dynamic> toJson() => {
-    'day': dateKey(kitchenDate(day)),
-    'slot': slot.name,
-    'recipe': recipe.toJson(),
-    'servings': kitchenInt(servings, 1, 50),
-  };
+  Map<String, dynamic> toJson() {
+    if (dishes.isEmpty ||
+        dishes.length > 6 ||
+        dishes.map((d) => d.recipe.id).toSet().length != dishes.length) {
+      throw const FormatException('Mỗi bữa có từ 1 đến 6 món khác nhau.');
+    }
+    if (preparedKeys.length > 180 ||
+        preparedKeys.toSet().length != preparedKeys.length) {
+      throw const FormatException(
+        'Danh sách nguyên liệu chuẩn bị không hợp lệ.',
+      );
+    }
+    for (final key in preparedKeys) {
+      kitchenKey(key);
+    }
+    return {
+      'day': dateKey(kitchenDate(day)),
+      'slot': slot.name,
+      'servings': kitchenInt(servings, 1, 50),
+      if (schemaVersion == 1)
+        'recipe': recipe.toJson()
+      else ...{
+        'name': kitchenText(name, 80, empty: true),
+        'dishes': dishes.map((d) => d.toJson()).toList(),
+        'preparedKeys': preparedKeys,
+      },
+    };
+  }
+
+  MealPlanEntry copyWith({
+    String? id,
+    String? day,
+    MealSlot? slot,
+    String? name,
+    int? servings,
+    List<MealDish>? dishes,
+    List<String>? preparedKeys,
+  }) => MealPlanEntry(
+    id: id ?? this.id,
+    day: day ?? this.day,
+    slot: slot ?? this.slot,
+    name: name ?? this.name,
+    servings: servings ?? this.servings,
+    dishes: List.unmodifiable(dishes ?? this.dishes),
+    preparedKeys: List.unmodifiable(preparedKeys ?? this.preparedKeys),
+  );
 }
 
 class RecipeCollection implements KitchenEntry {

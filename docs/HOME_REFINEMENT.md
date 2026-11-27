@@ -1,5 +1,30 @@
 # Điều chỉnh Home từ phản hồi ảnh thực tế — 16/11/2026
 
+## Nhấn ảnh Món nổi bật — 27/11/2026
+
+Thay hàng thumbnail 64 px bằng dải ảnh tràn thẻ cao 156 px ở chữ mặc định.
+Mỗi thẻ rộng 76% khung Home, giới hạn 236–320 px, để lộ món kế tiếp khi vuốt.
+Tên món trắng, đậm vừa, tối đa hai dòng trên gradient tối phía dưới; thời gian nấu
+nằm gọn ở góc trên. Không thêm viền, bóng thẻ hoặc icon màu. Chiều cao tăng theo
+cỡ chữ để giữ tên và thời gian đọc được. Không tự chạy carousel.
+
+Giữ nguồn món do admin chọn, listener realtime và thao tác chạm mở chi tiết.
+Không đổi metadata hoặc quy tắc xuất bản. Ảnh bài đầu trong test safe area 390×844
+ở vị trí y=581 px cho cả sáng/tối; tiêu chí mới dưới 600 px để dành chỗ nhấn ảnh
+nổi bật nhưng vẫn thấy ảnh bảng tin trong màn hình đầu. Mốc dưới 500 px của đợt
+26/11 bên dưới là số liệu lịch sử của thiết kế thumbnail cũ.
+
+Ảnh rà local: `build/ui_ux/featured-photo` (390×844, 800×1100, 1024×768).
+Analyzer hai file thay đổi không có issue. Responsive suite: 31 passed, 1 skipped
+(capture chỉ chạy khi bật cờ); bao gồm màn ngang 568×320/844×390 và chữ lớn.
+Đã ổn định test Back sau Đăng món bằng reset throttle giữa hai bước kiểm thử độc lập;
+không thay throttle của ứng dụng. Log: `build/featured-layout-tests.log`.
+Web đã phát hành ngày 27/11/2026 lúc 15:42 (UTC+7), Hosting version
+`5b99891827588c99`. Đã tải lại index.html/main.dart.js công khai và so hash với
+build local; khớp. Android association vẫn HTTP 200/JSON và khớp source.
+Chỉ deploy Hosting app. Báo cáo: `build/featured-release.json`, log:
+`build/featured-deploy.log`. Chưa phát hành APK/IPA mới.
+
 ## Số tương tác — 27/11/2026
 
 Post hiện số cạnh tim, bình luận và chia sẻ; icon vẫn đơn sắc, không nền/viền riêng.

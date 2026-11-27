@@ -1,7 +1,8 @@
 # Bàn giao 9 chức năng Bếp Xinh — 16/11/2026
 
-Đã triển khai MVP mục 2–10 của FEATURE_ROADMAP_10.md. Mục 1 (giỏ đi chợ thật)
-được loại theo yêu cầu. Không có writer/cart collection mới. Firestore rules/index
+Đã triển khai MVP mục 2–10 của FEATURE_ROADMAP_10.md. Cập nhật 27/11/2026:
+thêm [bữa ăn nhiều món và giỏ đi chợ thật](MEAL_COOKING.md), thay thế phạm vi
+giỏ mẫu của bản 16/11. Firestore rules/index của bản cũ
 đã deploy ngày 16/11/2026; trạng thái xác minh xem [bàn giao production](FIRESTORE_DEPLOYMENT.md).
 App web đã phát hành trong [đợt bổ sung quản lý bài](RECIPE_VISIBILITY.md).
 Chưa duyệt đánh giá production hoặc phát hành APK/IPA trong đợt này.
@@ -12,7 +13,7 @@ Home có nút Góc bếp; Hồ sơ/Cài đặt có lối vào `/kitchen`. Không
 
 | Chức năng | Điểm vào và hành vi |
 |---|---|
-| Thực đơn tuần | `/kitchen/meal-plan`: sáng/trưa/tối, thêm/sửa/xóa món và số người; sao chép ngày có ID ổn định khi retry. Tổng hợp nguyên liệu cùng ingredientId/đơn vị, tách dòng tự do; sao chép văn bản. |
+| Thực đơn tuần | `/kitchen/meal-plan`: chọn ngày, lên bữa 1–6 món với khẩu phần chung; sửa trước khi bắt đầu, dùng lại thành bữa mới. Chi tiết bữa có nguyên liệu/giỏ thật/tiến độ nấu từng món. Sao chép ngày có ID ổn định khi retry. |
 | Kho theo lô | `/kitchen/pantry`, nút trong Tủ lạnh: lượng/đơn vị/ngày tùy chọn; sửa/xóa, dùng bớt bằng transaction; lọc sắp hết hạn/quá ngày; tìm món theo nguyên liệu. Nhập lựa chọn cũ không giả định lượng. |
 | Bộ sưu tập | `/kitchen/collections`: tạo/đổi tên/xóa, thêm/bỏ món trong chi tiết bộ sưu tập hoặc chi tiết món; riêng tư, không thay đổi mục yêu thích cũ. |
 | Nhật ký | `/kitchen/journal`, nút sau Hoàn tất nấu: ngày/số người/ghi chú riêng; sửa/xóa/mở món; cùng cooking session ghi đè một document. Số Đã nấu ở hồ sơ lấy count server, lỗi thì hiện dấu gạch. |
@@ -32,7 +33,9 @@ Không thêm nguồn xuất bản thay thế `recipes/{id}`.
 
 | Path | Dữ liệu |
 |---|---|
-| `users/{uid}/meal_plans/{id}` | day lịch địa phương YYYY-MM-DD, slot, recipe `{id,title,authorId}`, servings |
+| `users/{uid}/meal_plans/{id}` | schema 1: một recipe; schema 2: day, slot, name, dishes `[{recipe,role}]`, servings, preparedKeys. Đọc được dữ liệu cũ. |
+| `users/{uid}/meal_sessions/{mealId}` | Ảnh chụp tham chiếu bữa, selectedRecipeId, steps, done, completed, pantryConsumed; lưu tiến độ trên server. |
+| `users/{uid}/shopping_batches/{mealId}` | title, linesJson tối đa 100 KB; codec kiểm tra tối đa 180 dòng, checkbox lưu theo tài khoản. |
 | `users/{uid}/pantry_lots/{id}` | ingredientId, name, amount/unitId cùng có hoặc cùng null, expiresOn tùy chọn |
 | `users/{uid}/recipe_collections/{id}` | name, recipeIds map `{id:true}`, tối đa 100 món khác nhau |
 | `users/{uid}/cooking_logs/{sessionId}` | recipe, day, servings, note riêng |
@@ -42,7 +45,7 @@ Không thêm nguồn xuất bản thay thế `recipes/{id}`.
 | `recipes/{id}/user_reviews/{reviewer}/reports/{uid}` | reason, updatedAt; chỉ staff đọc |
 | `user_review_moderation_events/{id}` | recipeId, reviewerId, decision, operator IAM dạng hash, createdAt; chỉ công cụ IAM ghi |
 
-Năm collection cá nhân thêm schemaVersion=1 và updatedAt server timestamp. Chỉ chủ active
+Các collection cá nhân thêm schemaVersion và updatedAt server timestamp (meal_plans mới dùng schema 2; các loại còn lại dùng schema 1). Chỉ chủ active
 đọc/ghi; staff không được đọc nhật ký qua rules. Client không ghi `users.cookedCount`.
 Các nhãn recipe/author trong dữ liệu riêng là tham chiếu hiển thị, không phải bằng chứng
 công thức còn công khai. Khi mở món đã gỡ, màn chi tiết trả không khả dụng.

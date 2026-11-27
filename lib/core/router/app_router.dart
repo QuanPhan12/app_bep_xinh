@@ -2,6 +2,9 @@ import '../../features/auth/services/auth_service.dart';
 import '../../features/settings/screens/legal_screen.dart';
 import '../../features/kitchen/screens/kitchen_hub_screen.dart';
 import '../../features/meal_planner/screens/meal_planner_screen.dart';
+import '../../features/meal_planner/screens/meal_editor_screen.dart';
+import '../../features/meal_planner/screens/meal_detail_screen.dart';
+import '../../features/kitchen/models/kitchen_entry.dart';
 import '../../features/pantry/screens/pantry_screen.dart';
 import '../../features/recipe_collections/screens/recipe_collections_screen.dart';
 import '../../features/cooking_journal/screens/cooking_journal_screen.dart';
@@ -119,6 +122,25 @@ GoRouter createAppRouter({AuthService? auth}) => GoRouter(
     GoRoute(
       path: '/kitchen/meal-plan',
       builder: (_, _) => const MealPlannerScreen(),
+    ),
+    GoRoute(
+      path: '/kitchen/meal-plan/new',
+      builder: (_, state) => MealEditorScreen(
+        copyId: state.uri.queryParameters['copy'],
+        day: state.uri.queryParameters['day'],
+        slot: MealSlot.values
+            .where((slot) => slot.name == state.uri.queryParameters['slot'])
+            .firstOrNull,
+      ),
+    ),
+    GoRoute(
+      path: '/kitchen/meal-plan/:id/edit',
+      builder: (_, state) =>
+          MealEditorScreen(editId: state.pathParameters['id']!),
+    ),
+    GoRoute(
+      path: '/kitchen/meal-plan/:id',
+      builder: (_, state) => MealDetailScreen(id: state.pathParameters['id']!),
     ),
     GoRoute(path: '/kitchen/pantry', builder: (_, _) => const PantryScreen()),
     GoRoute(

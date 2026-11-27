@@ -6,6 +6,8 @@ import '../models/kitchen_entry.dart';
 abstract interface class KitchenRepository<T extends KitchenEntry> {
   Stream<List<T>> watch();
   Future<List<T>> fetch();
+  Future<T?> find(String id);
+  Future<void> createIfAbsent(T value);
   Future<int> count();
   Future<void> save(T value);
   Future<void> update(String id, T Function(T current) change);
@@ -26,8 +28,8 @@ class FirestoreKitchenRepository<T extends KitchenEntry>
       store.account.collection(collection);
   Query<Map<String, dynamic>> get _query =>
       _items.orderBy('updatedAt', descending: true).limit(500);
-  T _read(QueryDocumentSnapshot<Map<String, dynamic>> doc) {
-    final value = decode(doc.id, doc.data());
+  T _read(DocumentSnapshot<Map<String, dynamic>> doc) {
+    final value = decode(doc.id, doc.data()!);
     value.toJson();
     return value;
   }
@@ -60,11 +62,29 @@ class FirestoreKitchenRepository<T extends KitchenEntry>
     return result.count ?? 0;
   }
 
-  Map<String, dynamic> _encode(T value) => {
-    ...value.toJson(),
-    'schemaVersion': 1,
-    'updatedAt': FieldValue.serverTimestamp(),
-  };
+  @override
+  Future<T?> find(String id) async {
+    store.checkSession();
+    final snapshot = await _items
+        .doc(kitchenKey(id))
+        .get(const GetOptions(source: Source.server));
+    store.checkSession();
+    return snapshot.exists ? _read(snapshot) : null;
+  }
+
+  Map<String, dynamic> _encode(T value) => kitchenDocumentData(value);
+  @override
+  Future<void> createIfAbsent(T value) async {
+    store.checkSession();
+    final ref = _items.doc(kitchenKey(value.id));
+    await store.firestore.runTransaction((tx) async {
+      final current = await tx.get(ref);
+      store.checkSession();
+      if (!current.exists) tx.set(ref, _encode(value));
+    });
+    store.checkSession();
+  }
+
   @override
   Future<void> save(T value) async {
     store.checkSession();
@@ -94,3 +114,9 @@ class FirestoreKitchenRepository<T extends KitchenEntry>
     store.checkSession();
   }
 }
+
+Map<String, dynamic> kitchenDocumentData(KitchenEntry value) => {
+  ...value.toJson(),
+  'schemaVersion': value is VersionedKitchenEntry ? value.schemaVersion : 1,
+  'updatedAt': FieldValue.serverTimestamp(),
+};

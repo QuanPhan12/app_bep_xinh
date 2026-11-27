@@ -1,4 +1,5 @@
 import 'dart:js_interop';
+import 'meal_sdk_smoke.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:app_bep_xinh/features/recipe_editor/services/recipe_cover_picker.dart';
@@ -120,6 +121,7 @@ Future<void> main() async {
     final data = await profile.fetchProfile();
     check(data.ownRecipes.isEmpty, 'no demo authorship assigned to real UID');
     check(data.savedRecipes.single.id == 'tofu_tomato', 'saved tab');
+    await mealSdkSmoke(store);
     await profile.dispose();
     await favorites.dispose();
     await auth.signOut();
@@ -166,7 +168,7 @@ Future<void> main() async {
     imageClient.close();
     await auth.signOut();
     auth.dispose();
-    smokeResult = 'PASS: Flutter Firebase SDK profile/favorites persistence and account isolation'
+    smokeResult = 'PASS: Flutter Firebase SDK profile/favorites, meal progress, concurrent completion/stock idempotency, rollback, shopping and account isolation'
         .toJS;
   } catch (error) {
     smokeResult = 'FAIL: $error'.toJS;

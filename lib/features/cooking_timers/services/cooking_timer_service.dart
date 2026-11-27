@@ -11,12 +11,14 @@ import '../../kitchen/services/kitchen_local_storage.dart';
 class CookingTimer {
   final String id;
   final String label;
+  final String? groupId;
   final DateTime? endAt;
   final int pausedMilliseconds;
   final int durationMilliseconds;
   const CookingTimer({
     required this.id,
     required this.label,
+    this.groupId,
     this.endAt,
     this.pausedMilliseconds = 0,
     this.durationMilliseconds = 0,
@@ -30,6 +32,7 @@ class CookingTimer {
   Map<String, dynamic> toJson() => {
     'id': id,
     'label': label,
+    if (groupId != null) 'groupId': groupId,
     'endAt': endAt?.toUtc().toIso8601String(),
     'pausedMilliseconds': pausedMilliseconds,
     'durationMilliseconds': durationMilliseconds,
@@ -37,6 +40,7 @@ class CookingTimer {
   factory CookingTimer.fromJson(Map<String, dynamic> json) => CookingTimer(
     id: kitchenKey(json['id']),
     label: kitchenText(json['label'], 160),
+    groupId: json['groupId'] == null ? null : kitchenKey(json['groupId']),
     endAt: json['endAt'] == null
         ? null
         : DateTime.parse(json['endAt'] as String).toUtc(),
@@ -106,14 +110,21 @@ class CookingTimerService extends ChangeNotifier {
         _items = next;
         notifyListeners();
       });
-  Future<void> start(String label, Duration duration) => _change(() {
+  Future<void> start(
+    String label,
+    Duration duration, {
+    String? id,
+    String? groupId,
+  }) => _change(() {
+    if (id != null && _items.any((timer) => timer.id == id)) return _items;
     if (duration.inMilliseconds <= 0 || duration.inHours >= 24) {
       throw const FormatException('Chọn thời gian lớn hơn 0 và dưới 24 giờ.');
     }
     return [
       ..._items,
       CookingTimer(
-        id: kitchenId(),
+        id: id == null ? kitchenId() : kitchenKey(id),
+        groupId: groupId == null ? null : kitchenKey(groupId),
         label: kitchenText(label, 160),
         endAt: now().toUtc().add(duration),
         durationMilliseconds: duration.inMilliseconds,
@@ -128,12 +139,14 @@ class CookingTimerService extends ChangeNotifier {
           ? CookingTimer(
               id: id,
               label: timer.label,
+              groupId: timer.groupId,
               endAt: now().toUtc().add(remaining),
               durationMilliseconds: timer.durationMilliseconds,
             )
           : CookingTimer(
               id: id,
               label: timer.label,
+              groupId: timer.groupId,
               pausedMilliseconds: remaining.inMilliseconds,
               durationMilliseconds: timer.durationMilliseconds,
             );
@@ -141,6 +154,8 @@ class CookingTimerService extends ChangeNotifier {
   );
   Future<void> remove(String id) =>
       _change(() => _items.where((timer) => timer.id != id).toList());
+  Future<void> removeGroup(String id) =>
+      _change(() => _items.where((timer) => timer.groupId != id).toList());
   Future<void> clear() async {
     await _writes.settled;
     await storage.remove(storageKey);

@@ -1,5 +1,20 @@
 import 'ingredient_catalog.dart';
 
+/// Giỏ cũ lưu chuỗi đã định dạng; đọc lại vẫn trình bày nhất quán mà không sửa dữ liệu.
+String formatWholeStoredIngredientQuantity(String text) {
+  final match = RegExp(r'^([0-9]+(?:[.,][0-9]+)?(?:[eE][+-]?[0-9]+)?)\s+(.+)$')
+      .firstMatch(text);
+  if (match == null) return text;
+  var amount = double.tryParse(match.group(1)!.replaceAll(',', '.'));
+  if (amount == null || !amount.isFinite) return text;
+  var unit = match.group(2)!;
+  if (unit == 'kg' || unit == 'l') {
+    amount *= 1000;
+    unit = unit == 'kg' ? 'g' : 'ml';
+  }
+  return '${formatIngredientQuantity(amount: amount, wholeNumbers: true)} $unit';
+}
+
 String formatIngredientQuantity({
   double? amount,
   IngredientUnit? unit,

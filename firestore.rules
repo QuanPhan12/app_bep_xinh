@@ -435,6 +435,70 @@ service cloud.firestore {
         && d.keys().hasOnly(fields.concat(['schemaVersion', 'updatedAt']))
         && d.schemaVersion == 1 && d.updatedAt == request.time;
     }
+    function mealDish(d) {
+      return d is map && d.keys().hasAll(['recipe', 'role']) && d.keys().hasOnly(['recipe', 'role'])
+        && recipeReference(d.recipe) && d.role in ['main', 'soup', 'vegetables', 'staple', 'other'];
+    }
+    function mealDishes(d) {
+      return d.schemaVersion == 1 ? [{'recipe': d.recipe, 'role': 'other'}] : d.dishes;
+    }
+    function mealIds(d) {
+      let v = mealDishes(d);
+      return [v[0].recipe.id]
+        .concat(v.size() > 1 ? [v[1].recipe.id] : [])
+        .concat(v.size() > 2 ? [v[2].recipe.id] : [])
+        .concat(v.size() > 3 ? [v[3].recipe.id] : [])
+        .concat(v.size() > 4 ? [v[4].recipe.id] : [])
+        .concat(v.size() > 5 ? [v[5].recipe.id] : []);
+    }
+    function validMeal(d) {
+      return calendarDay(d.day) && d.slot in ['breakfast', 'lunch', 'dinner']
+        && d.servings is int && d.servings >= 1 && d.servings <= 50
+        && ((d.schemaVersion == 1 && d.keys().hasAll(['day', 'slot', 'recipe', 'servings', 'schemaVersion'])
+          && d.keys().hasOnly(['day', 'slot', 'recipe', 'servings', 'schemaVersion', 'updatedAt']) && recipeReference(d.recipe))
+        || (d.schemaVersion == 2 && d.keys().hasAll(['day', 'slot', 'name', 'dishes', 'servings', 'preparedKeys', 'schemaVersion'])
+          && d.keys().hasOnly(['day', 'slot', 'name', 'dishes', 'servings', 'preparedKeys', 'schemaVersion', 'updatedAt'])
+          && d.name is string && d.name.size() <= 80
+          && d.preparedKeys is list && d.preparedKeys.size() <= 180 && d.preparedKeys.toSet().size() == d.preparedKeys.size()
+          && d.dishes is list && d.dishes.size() >= 1 && d.dishes.size() <= 6
+          && mealDish(d.dishes[0]) && (d.dishes.size() < 2 || mealDish(d.dishes[1]))
+          && (d.dishes.size() < 3 || mealDish(d.dishes[2])) && (d.dishes.size() < 4 || mealDish(d.dishes[3]))
+          && (d.dishes.size() < 5 || mealDish(d.dishes[4])) && (d.dishes.size() < 6 || mealDish(d.dishes[5]))
+          && mealIds(d).toSet().size() == d.dishes.size()));
+    }
+    function validMealSession(d) {
+      let ids = mealIds(d.plan);
+      return kitchenDocument(d, ['plan', 'selectedRecipeId', 'steps', 'done', 'completed', 'pantryConsumed'])
+        && validMeal(d.plan) && !('updatedAt' in d.plan)
+        && d.selectedRecipeId in ids && d.steps is map && d.steps.keys().hasAll(ids) && d.steps.keys().hasOnly(ids)
+        && d.steps.values().hasOnly([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19])
+        && d.done is list && d.done.toSet().size() == d.done.size() && d.done.hasOnly(ids)
+        && d.completed is bool && d.pantryConsumed is bool
+        && (!d.completed || d.done.size() == ids.size()) && (!d.pantryConsumed || d.completed);
+    }
+    // Phiên nấu giữ ảnh chụp các tham chiếu, không sao chép nội dung công khai của món.
+    match /users/{uid}/meal_sessions/{id} {
+      allow read: if kitchenOwner(uid);
+      allow create: if kitchenOwner(uid) && shortText(id, 128) && validMealSession(request.resource.data)
+        && request.resource.data.plan.diff(get(/databases/$(database)/documents/users/$(uid)/meal_plans/$(id)).data).affectedKeys().hasOnly(['updatedAt'])
+        && !request.resource.data.completed && !request.resource.data.pantryConsumed
+        && request.resource.data.done.size() == 0 && request.resource.data.steps.values().hasOnly([0]);
+      allow update: if kitchenOwner(uid) && validMealSession(request.resource.data)
+        && request.resource.data.plan == resource.data.plan
+        && (!resource.data.completed || request.resource.data.completed)
+        && (!resource.data.pantryConsumed || request.resource.data.pantryConsumed)
+        && (!resource.data.completed || (request.resource.data.steps == resource.data.steps
+          && request.resource.data.done == resource.data.done));
+      allow delete: if false;
+    }
+    match /users/{uid}/shopping_batches/{id} {
+      allow read, delete: if kitchenOwner(uid);
+      // Payload riêng có giới hạn kích thước; codec ứng dụng kiểm tra từng dòng sau khi đọc.
+      allow create, update: if kitchenOwner(uid) && shortText(id, 128)
+        && kitchenDocument(request.resource.data, ['title', 'linesJson'])
+        && shortText(request.resource.data.title, 80) && request.resource.data.linesJson is string
+        && request.resource.data.linesJson.size() <= 100000;
+    }
     function validKitchenEntry(kind, id, d) {
       return (kind == 'meal_plans'
           && kitchenDocument(d, ['day', 'slot', 'recipe', 'servings'])
@@ -458,9 +522,17 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/users/$(id)).data.get('status', 'active') == 'active');
     }
     match /users/{uid}/{kind}/{id} {
-      allow read, delete: if kind in ['meal_plans', 'recipe_collections', 'cooking_logs', 'pantry_lots', 'following'] && kitchenOwner(uid);
+      allow read: if kind in ['meal_plans', 'recipe_collections', 'cooking_logs', 'pantry_lots', 'following'] && kitchenOwner(uid);
+      allow delete: if kind in ['meal_plans', 'recipe_collections', 'cooking_logs', 'pantry_lots', 'following'] && kitchenOwner(uid)
+        && (kind != 'meal_plans' || !exists(/databases/$(database)/documents/users/$(uid)/meal_sessions/$(id)));
       allow create, update: if kind in ['meal_plans', 'recipe_collections', 'cooking_logs', 'pantry_lots', 'following']
-        && kitchenOwner(uid) && shortText(id, 128) && validKitchenEntry(kind, id, request.resource.data);
+        && kitchenOwner(uid) && shortText(id, 128)
+        && ((kind == 'meal_plans' && validMeal(request.resource.data) && request.resource.data.updatedAt == request.time
+          && (!existsAfter(/databases/$(database)/documents/users/$(uid)/meal_sessions/$(id))
+            || (mealDishes(request.resource.data) == mealDishes(resource.data)
+              && request.resource.data.servings == resource.data.servings && request.resource.data.day == resource.data.day
+              && request.resource.data.slot == resource.data.slot && request.resource.data.get('name', '') == resource.data.get('name', ''))))
+          || (kind != 'meal_plans' && validKitchenEntry(kind, id, request.resource.data)));
     }
     function publicRecipe(id) {
       return get(/databases/$(database)/documents/recipes/$(id)).data.status == 'approved';

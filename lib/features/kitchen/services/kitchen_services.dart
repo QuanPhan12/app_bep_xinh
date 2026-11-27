@@ -24,10 +24,15 @@ import '../../recipes/services/published_recipe_source.dart';
 import '../models/kitchen_entry.dart';
 import 'kitchen_repository.dart';
 import 'kitchen_local_storage.dart';
+import '../../meal_planner/models/meal_session.dart';
+import '../../meal_planner/services/meal_actions_repository.dart';
 
 class KitchenServices {
   final String uid;
   final KitchenRepository<MealPlanEntry> meals;
+  final KitchenRepository<MealSession> mealSessions;
+  final KitchenRepository<ShoppingBatch> shopping;
+  final MealActionsRepository mealActions;
   final KitchenRepository<RecipeCollection> collections;
   final KitchenRepository<CookingLog> journal;
   final KitchenRepository<PantryLot> pantry;
@@ -45,6 +50,9 @@ class KitchenServices {
   const KitchenServices({
     required this.uid,
     required this.meals,
+    required this.mealSessions,
+    required this.shopping,
+    required this.mealActions,
     required this.collections,
     required this.journal,
     required this.pantry,
@@ -99,6 +107,17 @@ class _KitchenSessionHostState extends State<KitchenSessionHost> {
         'bepxinh.kitchen.v1.${sha256.convert(utf8.encode(store.uid))}';
     _services = KitchenServices(
       uid: store.uid,
+      mealSessions: FirestoreKitchenRepository(
+        store: store,
+        collection: 'meal_sessions',
+        decode: MealSession.fromJson,
+      ),
+      shopping: FirestoreKitchenRepository(
+        store: store,
+        collection: 'shopping_batches',
+        decode: ShoppingBatch.fromJson,
+      ),
+      mealActions: FirestoreMealActionsRepository(store),
       meals: FirestoreKitchenRepository(
         store: store,
         collection: 'meal_plans',

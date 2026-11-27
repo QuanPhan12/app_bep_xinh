@@ -1,5 +1,9 @@
 # Triển khai Firestore production — 16/11/2026
 
+Cập nhật mới nhất 27/11/2026: rules cho bữa nhiều món/phiên nấu/giỏ thật và
+Hosting app đã phát hành, đọc lại khớp source. Ruleset, hash, kết quả xác minh nằm
+trong [Nấu một bữa](MEAL_COOKING.md). Phần bên dưới là biên bản đợt 16/11.
+
 Project: `bepxinh-b0be7`, database `(default)`.
 Chỉ deploy Firestore rules/index, không deploy Hosting hoặc thay dữ liệu người dùng.
 Tài khoản triển khai là tài khoản CLI được người dùng xác nhận riêng trong phiên làm việc.
